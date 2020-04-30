@@ -12,7 +12,7 @@
           <th class="border-4 px-4 py-2">Args</th>
           <th class="border-4 px-4 py-2">Kwargs</th>
           <td class="hidden sm:block">
-            <div class="flex w-full">
+            <div class="flex w-full search">
               <input
                 class="placeholder-gray-700 bg-gray-100 focus:outline-none  py-2 px-2 block w-full appearance-none leading-normal"
                 id="filter"
@@ -79,5 +79,13 @@ td,
 th {
   padding: 0rem;
   font-family: monospace;
+}
+th,
+.search,
+td {
+  background: #f7fafc;
+  position: sticky;
+  position: -webkit-sticky;
+  top: 5rem;
 }
 </style>
