@@ -1,7 +1,13 @@
 <template>
   <main>
-    <c-header />
-    <c-table :messages="messages" />
+    <c-header
+      @onUpdateMessages="updateMessages"
+      @onUpdateRefreshInterval="updateRefreshInterval"
+      :refreshInterval="refreshInterval"
+    />
+    <c-table :messages="messages" class="pt-32">
+      <div class="loader" v-if="isLoading">Loading...</div>
+    </c-table>
   </main>
 </template>
 
@@ -9,27 +15,53 @@
 import CHeader from '@/components/CHeader';
 import CTable from '@/components/CTable';
 import api from '@/api';
+require('@/assets/css/spinner.css');
 export default {
   name: 'App',
   components: { CHeader, CTable },
 
   data() {
     return {
-      messages: []
+      intervalId: null,
+      isLoading: false,
+      messages: [],
+      refreshInterval: 30
     };
   },
 
   methods: {
+    startUpdateMessages() {
+      this.intervalId = setInterval(() => {
+        this.updateMessages();
+      }, this.refreshInterval * 1000);
+    },
     updateMessages() {
-      api.getMessages().then(messages => (this.messages = messages));
+      this.isLoading = true;
+      api.getMessages().then(messages => {
+        setTimeout(() => {
+          this.isLoading = false;
+        }, 500);
+        this.messages = messages;
+      });
+    },
+    updateRefreshInterval(newRefreshInterval) {
+      this.refreshInterval = newRefreshInterval;
+      clearInterval(this.intervalId);
+      if (this.refreshInterval) {
+        this.startUpdateMessages();
+      } else {
+        this.isLoading = false;
+      }
     }
   },
 
   created() {
     this.updateMessages();
-    setInterval(() => {
-      this.updateMessages();
-    }, 10000);
+    this.startUpdateMessages();
+  },
+
+  beforeDestroy() {
+    clearInterval(this.intervalId);
   }
 };
 </script>
