@@ -1,23 +1,48 @@
 <template>
   <tr class="border-b border-gray-200 hover:bg-blue-100">
     <td class="border px-4 py-2">
-      <pre class="text-xs whitespace-normal">{{ message_id }}</pre>
+      <pre class="text-xs whitespace-normal">{{ priority }}</pre>
+    </td>
+    <td class="border px-4 py-2">
+      <pre class="text-xs whitespace-normal">{{ messageId }}</pre>
     </td>
     <td class="border px-4 py-2 font-semibold text-sm " :style="{ color: getColorState() }">
-      <pre class="text-xs whitespace-normal">{{ name }}</pre>
+      <pre class="text-xs whitespace-normal">{{ nameState }}</pre>
     </td>
+    <td class="border px-4 py-2 font-semibold text-sm ">
+      <pre class="text-xs whitespace-normal">{{ actorName }}</pre>
+    </td>
+
     <td class="border px-4 py-2">
       <pre class="text-xs whitespace-normal">{{ args }}</pre>
     </td>
     <td class="border px-4 py-2">
       <pre class="text-xs whitespace-normal">{{ kwargs }}</pre>
     </td>
+    <td class="border px-4 py-2">
+      <pre
+        class="text-xs whitespace-normal"
+        v-if="nameState !== 'Success' || nameState !== 'Failure'"
+        >{{ startedDatetime | datetime }}</pre
+      >
+    </td>
+
+    <td class="border px-4 py-2">
+      <pre class="text-xs whitespace-normal">{{ waitTime }}</pre>
+    </td>
+    <td class="border px-4 py-2">
+      <pre
+        v-if="nameState == 'Success' || nameState === 'Failure'"
+        class="text-xs  whitespace-normal"
+        >{{ executionTime }}</pre
+      >
+    </td>
     <td class="hidden sm:block">
       <div class="inline-flex items-center ">
         <button
           v-if="name === 'Pending' && canCancel"
           @click="cancelMessage"
-          class="bg-gray-200 hover:bg-gray-300 text-black font-bold pt-1 mt-2 font-mono py-2 px-4 rounded focus:outline-none text-sm"
+          class="bg-gray-200 hover:bg-gray-300 text-black font-bold pt-1 mt-1 font-mono py-1 px-2 rounded focus:outline-none text-sm"
           type="button"
         >
           {{ txtBtnCancel }}
@@ -31,14 +56,19 @@
 
 <script>
 import api from '@/api';
-
+import { format, formatDistance } from 'date-fns';
 export default {
   name: 'CRow',
   props: {
-    message_id: String,
+    priority: Number,
+    messageId: String,
     name: String,
+    actorName: String,
     args: Array,
-    kwargs: Object
+    kwargs: Object,
+    enqueuedDatetime: Date,
+    startedDatetime: Date,
+    endDatetime: Date
   },
   data() {
     return {
@@ -46,12 +76,40 @@ export default {
       onError: false,
       isCanceling: false,
       error: '',
+      nameState: this.name,
       txtBtnCancel: 'Cancel'
     };
   },
+
+  computed: {
+    waitTime() {
+      if (!this.startedDatetime || !this.enqueuedDatetime) {
+        return null;
+      }
+      return formatDistance(this.enqueuedDatetime, this.startedDatetime);
+    },
+
+    executionTime() {
+      if (!this.startedDatetime) {
+        return null;
+      }
+      const endDatetime = this.endDatetime ? this.enqueuedDatetime : new Date();
+      return formatDistance(this.startedDatetime, endDatetime);
+    }
+  },
+
+  filters: {
+    datetime(value) {
+      if (value) {
+        return format(value, 'y-MM-dd HH:mm');
+      }
+      return '';
+    }
+  },
+
   methods: {
     getColorState() {
-      let state = this.name.toLowerCase();
+      const state = this.nameState.toLowerCase();
       let color = 'black';
       if (state === 'success') {
         color = 'green';
@@ -64,11 +122,11 @@ export default {
       this.canCancel = false;
       this.isCanceling = true;
       api
-        .cancelMessage(this.message_id)
+        .cancelMessage(this.messageId)
         .then(() => {
           setTimeout(() => {
             this.isCanceling = false;
-            this.name = 'Canceled';
+            this.nameState = 'Canceled';
           }, 500);
         })
         .catch(() => {
