@@ -29,19 +29,28 @@
           </tr>
         </thead>
         <tbody>
-          <c-row
-            v-for="m in displayedMessages"
-            :key="m.messageId"
-            :messageId="m.messageId"
-            :actorName="m.actorName"
-            :priority="m.priority"
-            :name="m.name"
-            :args="m.args"
-            :kwargs="m.kwargs"
-            :enqueuedDatetime="m.enqueuedDatetime"
-            :startedDatetime="m.startedDatetime"
-            :endDatetime="m.endDatetime"
-          ></c-row>
+          <template v-for="m in displayedMessages">
+            <c-row
+              :key="m.messageId"
+              :messageId="m.messageId"
+              :actorName="m.actorName"
+              :priority="m.priority"
+              :name="m.name"
+              :progress="m.progress"
+              :args="m.args"
+              :kwargs="m.kwargs"
+              :enqueuedDatetime="m.enqueuedDatetime"
+              :startedDatetime="m.startedDatetime"
+              :endDatetime="m.endDatetime"
+              @onToggle="toggle"
+            ></c-row>
+            <tr :key="m.messageId + 0" v-if="openedRows.includes(m.messageId)">
+              <td class="border px-4 py-2" :colspan="columns.length">
+                <pre class="text-xs whitespace-normal ml-2 bg-white">Args: {{ m.args }}</pre>
+                <pre class="text-xs whitespace-normal ml-2 bg-white">Kwargs: {{ m.kwargs }}</pre>
+              </td>
+            </tr>
+          </template>
         </tbody>
       </table>
     </div>
@@ -70,15 +79,15 @@ export default {
         { label: 'Message id', name: 'messageId' },
         { label: 'State', name: 'name', sortable: true },
         { label: 'Actor', name: 'actorName', sortable: true },
-        { label: 'Args', name: 'args' },
-        { label: 'Kwargs', name: 'kwargs' },
         { label: 'Started time', name: 'startedDatetime', sortable: true },
         { label: 'Wait time' },
+        { label: 'Progress', name: 'progress', sortable: true },
         { label: 'Execution time' },
         { label: 'Actions' }
       ],
       sortedColumn: null,
-      sortDirection: 'asc'
+      sortDirection: 'asc',
+      openedRows: []
     };
   },
 
@@ -119,6 +128,14 @@ export default {
       } else {
         this.sortedColumn = columnName;
         this.sortDirection = 'asc';
+      }
+    },
+    toggle(id) {
+      const index = this.openedRows.indexOf(id);
+      if (index > -1) {
+        this.openedRows = this.openedRows.filter(item => item !== id);
+      } else {
+        this.openedRows = [...this.openedRows, id];
       }
     }
   }

@@ -1,5 +1,5 @@
 <template>
-  <tr class="border-b border-gray-200 hover:bg-blue-100">
+  <tr class="border-b border-gray-200 hover:bg-blue-100" @click="onToggle(messageId)">
     <td class="border px-4 py-2">
       <pre class="text-xs whitespace-normal">{{ priority }}</pre>
     </td>
@@ -14,12 +14,6 @@
     </td>
 
     <td class="border px-4 py-2">
-      <pre class="text-xs whitespace-normal">{{ args }}</pre>
-    </td>
-    <td class="border px-4 py-2">
-      <pre class="text-xs whitespace-normal">{{ kwargs }}</pre>
-    </td>
-    <td class="border px-4 py-2">
       <pre
         class="text-xs whitespace-normal"
         v-if="nameState !== 'Success' || nameState !== 'Failure'"
@@ -31,18 +25,21 @@
       <pre class="text-xs whitespace-normal">{{ waitTime }}</pre>
     </td>
     <td class="border px-4 py-2">
+      <pre class="text-xs whitespace-normal">{{ progress | percentage }}</pre>
+    </td>
+    <td class="border px-4 py-2">
       <pre
         v-if="nameState == 'Success' || nameState === 'Failure'"
         class="text-xs  whitespace-normal"
         >{{ executionTime }}</pre
       >
     </td>
-    <td class="hidden sm:block">
+    <td class=" border  px-4 py-2">
       <div class="inline-flex items-center ">
         <button
           v-if="name === 'Pending' && canCancel"
           @click="cancelMessage"
-          class="bg-gray-200 hover:bg-gray-300 text-black font-bold pt-1 mt-1 font-mono py-1 px-2 rounded focus:outline-none text-sm"
+          class="bg-gray-200 hover:bg-gray-300 px-2 py-1 text-black font-bold font-mono rounded focus:outline-none text-xm"
           type="button"
         >
           {{ txtBtnCancel }}
@@ -65,6 +62,7 @@ export default {
     name: String,
     actorName: String,
     args: Array,
+    progress: Number,
     kwargs: Object,
     enqueuedDatetime: Date,
     startedDatetime: Date,
@@ -94,7 +92,13 @@ export default {
         return null;
       }
       const endDatetime = this.endDatetime ? this.enqueuedDatetime : new Date();
-      return formatDistance(this.startedDatetime, endDatetime);
+      let expectedTime = null;
+      if (this.progress && this.progress > 0) {
+        const factor = (1 - this.progress) / this.progress;
+        expectedTime = formatDistance(new Date() * factor, this.startedDatetime * factor);
+      }
+      const executionTime = formatDistance(this.startedDatetime, endDatetime);
+      return executionTime + (expectedTime ? '(' + expectedTime + ' remaining)' : '');
     }
   },
 
@@ -104,6 +108,13 @@ export default {
         return format(value, 'y-MM-dd HH:mm');
       }
       return '';
+    },
+    percentage(value) {
+      if (!value) {
+        value = 0;
+      }
+      value = Math.round(value * 100);
+      return value + '%';
     }
   },
 
@@ -135,6 +146,9 @@ export default {
           this.canCancel = true;
           this.error = 'failure';
         });
+    },
+    onToggle(id) {
+      this.$emit('onToggle', id);
     }
   }
 };
