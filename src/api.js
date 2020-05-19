@@ -12,6 +12,7 @@ function parseMessage(rawMessage) {
     actorName: rawMessage.actor_name,
     args: rawMessage.args,
     kwargs: rawMessage.kwargs,
+    progress: rawMessage.progress ? rawMessage.progress : null,
     enqueuedDatetime: rawMessage.enqueued_datetime ? new Date(rawMessage.enqueued_datetime) : null,
     startedDatetime: rawMessage.started_datetime ? new Date(rawMessage.started_datetime) : null,
     endDatetime: rawMessage.end_datetime ? new Date(rawMessage.end_datetime) : null
