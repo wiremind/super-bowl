@@ -1,16 +1,16 @@
 <template>
-  <div class="px-4 pt-32">
+  <div class="px-4 pt-2">
     <!-- Filters -->
     <div class="w-full">
       <div class="flex float-right w-48 mb-3 search">
         <input
-          class="placeholder-gray-700 bg-gray-100  focus:outline-none  py-2 px-2 block w-full appearance-none leading-normal"
+          class="placeholder-gray-700 bg-gray-100 mr-2 text-sm font-medium leading-5  focus:outline-none  py-2 px-2 block w-full appearance-none leading-normal"
           id="filter"
           placeholder="Search..."
           type="text"
           v-model="filter"
         />
-        <slot></slot>
+        <div class="loader" v-if="isLoading">Loading...</div>
       </div>
     </div>
     <div>
@@ -42,7 +42,7 @@
               :enqueuedDatetime="m.enqueuedDatetime"
               :startedDatetime="m.startedDatetime"
               :endDatetime="m.endDatetime"
-              @onToggle="toggle"
+              @onToggle="toggleRow"
             ></c-row>
             <tr :key="m.messageId + 0" v-if="openedRows.includes(m.messageId)">
               <td class="border px-4 py-2" :colspan="columns.length">
@@ -60,21 +60,17 @@
 <script>
 import CRow from '@/components/CRow';
 import CTh from '@/components/CTh';
+import { mapState } from 'vuex';
+require('@/assets/css/spinner.css');
 export default {
   name: 'CTable',
   components: { CRow, CTh },
-  props: {
-    messages: {
-      type: Array,
-      default: () => []
-    }
-  },
 
   data() {
     return {
       filter: '',
       columns: [
-        // if the column is Sortable must have a name
+        // if the column is sortable must have a name
         { label: 'Priority', name: 'priority', sortable: true },
         { label: 'Message id', name: 'messageId' },
         { label: 'State', name: 'name', sortable: true },
@@ -92,12 +88,12 @@ export default {
   },
 
   computed: {
+    ...mapState(['messages', 'refreshInterval', 'isLoading']),
     filteredMessages() {
       if (!this.filter) {
         return this.messages;
       }
       const filterKeys = ['name', 'messageId', 'actorName'];
-
       return this.messages.filter(m =>
         filterKeys
           .map(key => m[key].toLowerCase())
@@ -130,7 +126,7 @@ export default {
         this.sortDirection = 'asc';
       }
     },
-    toggle(id) {
+    toggleRow(id) {
       const index = this.openedRows.indexOf(id);
       if (index > -1) {
         this.openedRows = this.openedRows.filter(item => item !== id);
@@ -138,22 +134,14 @@ export default {
         this.openedRows = [...this.openedRows, id];
       }
     }
+  },
+  created() {
+    this.$store.dispatch('getMessages');
+    this.$store.dispatch('startUpdateMessages');
+  },
+
+  beforeDestroy() {
+    this.$store.commit('clearIntervalTimeOut');
   }
 };
 </script>
-
-<style scoped>
-td,
-.search,
-th {
-  padding: 0rem;
-  font-family: monospace;
-}
-th,
-td {
-  background: #f7fafc;
-  position: sticky;
-  position: -webkit-sticky;
-  top: 4rem;
-}
-</style>

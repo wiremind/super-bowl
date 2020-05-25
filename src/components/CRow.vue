@@ -9,7 +9,7 @@
     <td class="border px-4 py-2 font-semibold text-sm " :style="{ color: getColorState() }">
       <pre class="text-xs whitespace-normal">{{ nameState }}</pre>
     </td>
-    <td class="border px-4 py-2 font-semibold text-sm ">
+    <td class="border px-4 py-2 text-sm ">
       <pre class="text-xs whitespace-normal">{{ actorName }}</pre>
     </td>
 
@@ -38,13 +38,12 @@
       <div class="inline-flex items-center ">
         <button
           v-if="name === 'Pending' && canCancel"
-          @click="cancelMessage"
+          @click.stop="cancelMessage"
           class="bg-gray-200 hover:bg-gray-300 px-2 py-1 text-black font-bold font-mono rounded focus:outline-none text-xm"
           type="button"
         >
           {{ txtBtnCancel }}
         </button>
-        <p class="text-xs" v-if="isCanceling">Canceling...</p>
         <p class="text-xs pl-1 text-red-500" v-if="onError">{{ error }}</p>
       </div>
     </td>
@@ -52,7 +51,6 @@
 </template>
 
 <script>
-import api from '@/api';
 import { format, formatDistance } from 'date-fns';
 export default {
   name: 'CRow',
@@ -72,7 +70,6 @@ export default {
     return {
       canCancel: true,
       onError: false,
-      isCanceling: false,
       error: '',
       nameState: this.name,
       txtBtnCancel: 'Cancel'
@@ -104,48 +101,28 @@ export default {
 
   filters: {
     datetime(value) {
-      if (value) {
-        return format(value, 'y-MM-dd HH:mm');
-      }
-      return '';
+      return value ? format(value, 'y-MM-dd HH:mm') : '';
     },
     percentage(value) {
-      if (!value) {
-        value = 0;
-      }
-      value = Math.round(value * 100);
-      return value + '%';
+      return value ? Math.round(value * 100) + '%' : '';
     }
   },
 
   methods: {
     getColorState() {
       const state = this.nameState.toLowerCase();
-      let color = 'black';
-      if (state === 'success') {
-        color = 'green';
-      } else if (state === 'canceled' || state === 'failure') {
-        color = 'red';
-      }
-      return color;
+      const colors = {
+        success: 'green',
+        canceled: 'red',
+        failure: 'red'
+      };
+      return colors[state] || 'black';
     },
     cancelMessage() {
       this.canCancel = false;
-      this.isCanceling = true;
-      api
-        .cancelMessage(this.messageId)
-        .then(() => {
-          setTimeout(() => {
-            this.isCanceling = false;
-            this.nameState = 'Canceled';
-          }, 500);
-        })
-        .catch(() => {
-          this.onError = true;
-          this.isCanceling = false;
-          this.canCancel = true;
-          this.error = 'failure';
-        });
+      this.$store.dispatch('cancelMessage', this.messageId).then(() => {
+        this.nameState = 'Canceled';
+      });
     },
     onToggle(id) {
       this.$emit('onToggle', id);
