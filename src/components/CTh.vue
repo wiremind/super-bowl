@@ -2,7 +2,7 @@
   <th class="border-4 px-4 py-2" :key="name">
     <div class=" w-full">
       <div
-        class="ml-2"
+        class="ml-2 text-sm  font-semibold  leading-5"
         @click="onClickSort"
         :class="{ 'cursor-pointer': isSortable }"
         :style="{ color: sortedColumn === name && isSortable ? 'blue' : 'black' }"
