@@ -4,7 +4,7 @@ const getMessages = () => {
   return axios.get('/messages/states').then(res => res.data.result.map(parseMessage));
 };
 
-function parseMessage(rawMessage) {
+const parseMessage = rawMessage => {
   return {
     priority: rawMessage.priority,
     messageId: rawMessage.message_id,
@@ -17,13 +17,32 @@ function parseMessage(rawMessage) {
     startedDatetime: rawMessage.started_datetime ? new Date(rawMessage.started_datetime) : null,
     endDatetime: rawMessage.end_datetime ? new Date(rawMessage.end_datetime) : null
   };
-}
+};
 
 const cancelMessage = message_id => {
   return axios.post('/messages/cancel/' + message_id);
 };
 
+const getJobs = () => {
+  return axios.get('scheduled/jobs').then(res => res.data.result.map(parseJob));
+};
+
+const parseJob = rawJob => {
+  return {
+    actorName: rawJob.actor_name,
+    args: rawJob.args,
+    dailyTime: rawJob.daily_time,
+    enabled: rawJob.enabled,
+    interval: rawJob.interval,
+    isoWeekday: rawJob.iso_weekday,
+    kwargs: rawJob.kwargs,
+    lastQueued: rawJob.last_queued ? new Date(rawJob.last_queued) : null,
+    tz: rawJob.tz
+  };
+};
+
 export default {
   getMessages,
-  cancelMessage
+  cancelMessage,
+  getJobs
 };

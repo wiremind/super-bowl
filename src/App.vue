@@ -1,5 +1,5 @@
 <template>
-  <main>
+  <main class="w-screen">
     <c-nav />
     <router-view />
   </main>

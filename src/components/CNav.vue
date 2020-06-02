@@ -3,19 +3,19 @@
     <div class="max-w-7xl mx-auto px-2 sm:px-6">
       <div class="relative flex items-center justify-between h-16 fixed">
         <div class="flex-1 flex items-baseline justify-center sm:items-stretch sm:justify-start">
-          <div class="flex-shrink-0 py-1 text-lg text-white font-bold">
+          <div class="flex-shrink-0 py-1 mr-2 text-lg text-white font-bold">
             SuperBowl
           </div>
-          <div class="hidden sm:block sm:ml-6">
-            <div class="flex">
+          <div class="flex">
+            <template v-for="(route, index) in routes">
               <router-link
-                to="/"
-                exact-active-class="bg-gray-900"
+                :key="index"
+                :to="route.path"
                 class="px-3 py-2 rounded-md text-sm font-medium leading-5 text-white focus:outline-none focus:text-white focus:bg-gray-900 transition duration-150 ease-in-out"
               >
-                Dashboard
+                {{ route.name }}
               </router-link>
-            </div>
+            </template>
           </div>
         </div>
         <div
@@ -47,8 +47,25 @@
 </template>
 
 <script>
+import routes from '@/routes';
 export default {
   name: 'CNav',
+  data() {
+    return {
+      routes,
+      updateTimes: [
+        { text: 'off', value: null },
+        { text: '5s', value: 5 },
+        { text: '10s', value: 10 },
+        { text: '30s', value: 30 },
+        { text: '1m', value: 60 },
+        { text: '5m', value: 60 * 5 },
+        { text: '1h', value: 60 * 60 },
+        { text: '12h', value: 60 * 60 * 12 },
+        { text: '1d', value: 60 * 60 * 24 }
+      ]
+    };
+  },
   methods: {
     onGetMessages() {
       this.$store.dispatch('getMessages');
@@ -63,21 +80,6 @@ export default {
         this.$store.dispatch('updateRefreshInterval', interval);
       }
     }
-  },
-  data() {
-    return {
-      updateTimes: [
-        { text: 'off', value: null },
-        { text: '5s', value: 5 },
-        { text: '10s', value: 10 },
-        { text: '30s', value: 30 },
-        { text: '1m', value: 60 },
-        { text: '5m', value: 60 * 5 },
-        { text: '1h', value: 60 * 60 },
-        { text: '12h', value: 60 * 60 * 12 },
-        { text: '1d', value: 60 * 60 * 24 }
-      ]
-    };
   }
 };
 </script>

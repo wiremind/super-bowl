@@ -39,11 +39,12 @@
         <button
           v-if="name === 'Pending' && canCancel"
           @click.stop="cancelMessage"
-          class="bg-gray-200 hover:bg-gray-300 px-2 py-1 text-black font-bold font-mono rounded focus:outline-none text-xm"
           type="button"
+          class="text-sm bg-red-500 hover:bg-red-700 text-white py-1 px-2 rounded focus:outline-none focus:shadow-outline"
         >
           {{ txtBtnCancel }}
         </button>
+
         <p class="text-xs pl-1 text-red-500" v-if="onError">{{ error }}</p>
       </div>
     </td>
@@ -53,7 +54,7 @@
 <script>
 import { format, formatDistance } from 'date-fns';
 export default {
-  name: 'CRow',
+  name: 'CMessageRow',
   props: {
     priority: Number,
     messageId: String,

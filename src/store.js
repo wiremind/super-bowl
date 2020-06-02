@@ -7,6 +7,7 @@ const store = new Vuex.Store({
   strict: process.env.NODE_ENV !== 'production',
   state: {
     messages: [],
+    jobs: [],
     refreshInterval: 30,
     isLoading: false,
     intervalId: null
@@ -26,17 +27,28 @@ const store = new Vuex.Store({
     },
     clearIntervalTimeOut(state) {
       clearInterval(state.intervalId);
+    },
+    setJobs(state, jobs) {
+      state.jobs = jobs;
     }
   },
   actions: {
     getMessages(context) {
       context.commit('setLoading', true);
-
       api.getMessages().then(messages => {
         setTimeout(() => {
           context.commit('setLoading', false);
         }, 500);
         context.commit('setMessages', messages);
+      });
+    },
+    getJobs(context) {
+      context.commit('setLoading', true);
+      api.getJobs().then(jobs => {
+        setTimeout(() => {
+          context.commit('setLoading', false);
+        }, 500);
+        context.commit('setJobs', jobs);
       });
     },
     cancelMessage(context, messageId) {
