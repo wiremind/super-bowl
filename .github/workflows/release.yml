@@ -20,7 +20,7 @@ jobs:
       - name: Build project
         run: npm run build
       - name: Zip build folder
-        run: zip -j -r dist.zip dist
+        run: zip -r dist.zip dist
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
