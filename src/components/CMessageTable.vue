@@ -65,8 +65,8 @@
           ></c-message-row>
           <tr :key="m.messageId + 0" v-if="openedRows.includes(m.messageId)">
             <td class="border px-4 py-2" :colspan="columns.length">
-              <pre class="text-xs whitespace-normal ml-2 bg-white">Args: {{ m.args }}</pre>
-              <pre class="text-xs whitespace-normal ml-2 bg-white">Kwargs: {{ m.kwargs }}</pre>
+              <pre class="text-xs ml-2 bg-white">Args: {{ m.args | json }}</pre>
+              <pre class="text-xs ml-2 bg-white">Kwargs: {{ m.kwargs | json }}</pre>
             </td>
           </tr>
         </template>
@@ -137,6 +137,11 @@ export default {
       } else {
         this.openedRows = [...this.openedRows, id];
       }
+    }
+  },
+  filters: {
+    json(obj) {
+      return obj ? JSON.stringify({ ...obj }, undefined, 2) : '';
     }
   },
   created() {
