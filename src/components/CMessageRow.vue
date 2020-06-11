@@ -1,7 +1,14 @@
 <template>
-  <tr class="border-b text-xs border-gray-200 hover:bg-blue-100" @click="onToggle(messageId)">
+  <tr
+    class="border-b border-gray-200 hover:bg-blue-100 cursor-pointer "
+    @click="onToggle(messageId)"
+  >
     <td class="border px-4 py-2">
-      {{ priority }}
+      <div class="flex">
+        <img v-if="isOpened" src="@/assets/img/expand_more.svg" width="20rem" />
+        <img v-else src="@/assets/img/expand_less.svg" width="20rem" />
+        <pre class="text-xs ml-2 whitespace-normal">{{ priority }}</pre>
+      </div>
     </td>
     <td class="border px-4 py-2">
       {{ messageId }}
@@ -65,6 +72,7 @@ export default {
   data() {
     return {
       canCancel: true,
+      isOpened: false,
       onError: false,
       error: '',
       nameState: this.name,
@@ -121,6 +129,7 @@ export default {
       });
     },
     onToggle(id) {
+      this.isOpened = !this.isOpened;
       this.$emit('onToggle', id);
     }
   }
