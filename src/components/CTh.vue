@@ -36,7 +36,6 @@ export default {
   }
 };
 </script>
-
 <style scoped>
 .arrow.asc {
   border-left: 4px solid transparent;
