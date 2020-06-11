@@ -8,6 +8,7 @@ const store = new Vuex.Store({
   state: {
     messages: [],
     jobs: [],
+    actors: {},
     refreshInterval: 30,
     isLoading: false,
     intervalId: null
@@ -25,11 +26,19 @@ const store = new Vuex.Store({
     setMessages(state, messages) {
       state.messages = messages;
     },
+    setActors(state, actors) {
+      state.actors = actors;
+    },
     clearIntervalTimeOut(state) {
       clearInterval(state.intervalId);
     },
     setJobs(state, jobs) {
       state.jobs = jobs;
+    }
+  },
+  getters: {
+    getActorByName: state => name => {
+      return state.actors[name];
     }
   },
   actions: {
@@ -42,6 +51,9 @@ const store = new Vuex.Store({
         context.commit('setMessages', messages);
       });
     },
+    getActors(context) {
+      api.getActors().then(actors => context.commit('setActors', actors));
+    },
     getJobs(context) {
       context.commit('setLoading', true);
       api.getJobs().then(jobs => {
@@ -53,6 +65,9 @@ const store = new Vuex.Store({
     },
     cancelMessage(context, messageId) {
       return api.cancelMessage(messageId);
+    },
+    enqueueMessage(context, message) {
+      return api.enqueueMessage(message);
     },
     startUpdateMessages(context) {
       const intervalId = setInterval(() => {

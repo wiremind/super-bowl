@@ -1,31 +1,31 @@
 <template>
-  <tr class="border-b border-gray-200 hover:bg-blue-100">
+  <tr class="border-b text-xs border-gray-200 hover:bg-blue-100">
     <td class="border px-4 py-2">
-      <pre class="text-xs whitespace-normal ml-2 "> {{ actorName }}</pre>
+      {{ actorName }}
     </td>
     <td class="border px-4 py-2">
-      <pre class="text-xs whitespace-normal ml-2 "> {{ dailyTime }}</pre>
+      {{ dailyTime }}
     </td>
     <td class="border px-4 py-2">
-      <pre v-if="enabled" class="text-xs whitespace-normal ml-2 "> {{ enabled }}</pre>
+      {{ enabled }}
     </td>
     <td class="border px-4 py-2">
-      <pre class="text-xs whitespace-normal ml-2 ">        {{ interval | formatSeconds }}</pre>
+      {{ interval | formatSeconds }}
     </td>
     <td class="border px-4 py-2">
-      <pre class="text-xs whitespace-normal ml-2 ">        {{ isoWeekday | formatWeekDay }}</pre>
+      {{ isoWeekday | formatWeekDay }}
     </td>
     <td class="border px-4 py-2">
-      <pre class="text-xs whitespace-normal ml-2 "> {{ args }}</pre>
+      {{ args }}
     </td>
     <td class="border px-4 py-2">
-      <pre class="text-xs whitespace-normal ml-2 "> {{ kwargs }}</pre>
+      {{ kwargs }}
     </td>
     <td class="border px-4 py-2">
-      <pre class="text-xs whitespace-normal ml-2 ">        {{ lastQueued | formatDistance }}</pre>
+      {{ lastQueued | formatDistance }}
     </td>
     <td class="border px-4 py-2">
-      <pre class="text-xs whitespace-normal ml-2 "> {{ tz }}</pre>
+      {{ tz }}
     </td>
   </tr>
 </template>

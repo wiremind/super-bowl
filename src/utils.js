@@ -26,4 +26,29 @@ const sortTable = (data, sortDirection, sortedColumn) => {
   });
 };
 
-export default { getSortColumnAndDirection, filterTable, sortTable };
+const isJson = str => {
+  if (typeof str === 'string') {
+    str = str.trim();
+    if (!str.length) {
+      return true;
+    }
+  }
+  try {
+    const obj = JSON.parse(str);
+    // Handle non-exception-throwing cases:
+    // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
+    // but... JSON.parse(null) returns null, and typeof null === "object",
+    if (obj && typeof obj === 'object') {
+      return true;
+    }
+  } catch (e) {
+    return false;
+  }
+  return false;
+};
+
+const toJson = str => {
+  str = str.trim();
+  return JSON.parse(str);
+};
+export default { getSortColumnAndDirection, filterTable, sortTable, isJson, toJson };
