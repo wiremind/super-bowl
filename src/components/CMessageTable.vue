@@ -141,7 +141,7 @@ export default {
   },
   filters: {
     json(obj) {
-      return obj ? JSON.stringify({ ...obj }, undefined, 2) : '';
+      return obj ? JSON.stringify(obj, undefined, 2) : '';
     }
   },
   created() {
