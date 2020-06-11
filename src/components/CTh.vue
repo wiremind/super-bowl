@@ -2,7 +2,7 @@
   <th class="border-2 px-2" :key="name">
     <div class=" w-full">
       <div
-        class="ml-2 text-sm  font-semibold  leading-5"
+        class="ml-2 font-semibold leading-5"
         @click="onClickSort"
         :class="{ 'cursor-pointer': isSortable }"
       >

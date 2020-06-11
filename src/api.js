@@ -41,8 +41,38 @@ const parseJob = rawJob => {
   };
 };
 
+const enqueueMessage = message => {
+  return axios.post('/messages', formatMessage(message));
+};
+
+const formatMessage = message => {
+  return {
+    actor_name: message.actorName ? message.actorName : null,
+    delay: message.delay ? message.delay : null,
+    args: message.args ? message.args : null,
+    kwargs: message.kwargs ? message.kwargs : null,
+    options: message.options ? message.options : null
+  };
+};
+
+const getActors = () => {
+  return axios.get('/actors').then(res => Object.fromEntries(res.data.result.map(parseActor)));
+};
+
+const parseActor = rawActor => {
+  return [
+    rawActor.name,
+    {
+      priority: rawActor.priority,
+      queueName: rawActor.queue_name
+    }
+  ];
+};
+
 export default {
   getMessages,
   cancelMessage,
-  getJobs
+  getJobs,
+  enqueueMessage,
+  getActors
 };

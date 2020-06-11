@@ -1,38 +1,34 @@
 <template>
-  <tr class="border-b border-gray-200 hover:bg-blue-100" @click="onToggle(messageId)">
+  <tr class="border-b text-xs border-gray-200 hover:bg-blue-100" @click="onToggle(messageId)">
     <td class="border px-4 py-2">
-      <pre class="text-xs whitespace-normal">{{ priority }}</pre>
+      {{ priority }}
     </td>
     <td class="border px-4 py-2">
-      <pre class="text-xs whitespace-normal">{{ messageId }}</pre>
+      {{ messageId }}
     </td>
-    <td class="border px-4 py-2 font-semibold text-sm " :style="{ color: getColorState() }">
-      <pre class="text-xs whitespace-normal">{{ nameState }}</pre>
+    <td class="border px-4 py-2 font-semibold" :style="{ color: getColorState() }">
+      {{ nameState }}
     </td>
-    <td class="border px-4 py-2 text-sm ">
-      <pre class="text-xs whitespace-normal">{{ actorName }}</pre>
+    <td class="border px-4 py-2">
+      {{ actorName }}
     </td>
 
     <td class="border px-4 py-2">
-      <pre
-        class="text-xs whitespace-normal"
-        v-if="nameState !== 'Success' || nameState !== 'Failure'"
-        >{{ startedDatetime | datetime }}</pre
-      >
+      <div class="whitespace-normal" v-if="nameState !== 'Success' || nameState !== 'Failure'">
+        {{ startedDatetime | datetime }}
+      </div>
     </td>
 
     <td class="border px-4 py-2">
-      <pre class="text-xs whitespace-normal">{{ waitTime }}</pre>
+      {{ waitTime }}
     </td>
     <td class="border px-4 py-2">
-      <pre class="text-xs whitespace-normal">{{ progress | percentage }}</pre>
+      {{ progress | percentage }}
     </td>
     <td class="border px-4 py-2">
-      <pre
-        v-if="nameState == 'Success' || nameState === 'Failure'"
-        class="text-xs  whitespace-normal"
-        >{{ executionTime }}</pre
-      >
+      <div v-if="nameState == 'Success' || nameState === 'Failure'" class="whitespace-normal">
+        {{ executionTime }}
+      </div>
     </td>
     <td class=" border  px-4 py-2">
       <div class="inline-flex items-center ">
@@ -40,12 +36,11 @@
           v-if="name === 'Pending' && canCancel"
           @click.stop="cancelMessage"
           type="button"
-          class="text-sm bg-red-500 hover:bg-red-700 text-white py-1 px-2 rounded focus:outline-none focus:shadow-outline"
+          class="bg-red-500 hover:bg-red-700 text-white py-1 px-2 rounded focus:outline-none focus:shadow-outline"
         >
           {{ txtBtnCancel }}
         </button>
-
-        <p class="text-xs pl-1 text-red-500" v-if="onError">{{ error }}</p>
+        <p class="pl-1 text-red-500" v-if="onError">{{ error }}</p>
       </div>
     </td>
   </tr>
