@@ -47,11 +47,20 @@
           ></c-message-row>
           <tr :key="m.messageId + 0" v-if="openedRows.includes(m.messageId)">
             <td class="border text-xs px-4 py-2" :colspan="columns.length">
-              <p class="text-xs whitespace-normal ml-2 bg-white">
-                Queue Name: {{ queueName(m.actorName) }}
-              </p>
-              <pre class="text-xs ml-2 bg-white">Args: {{ m.args | json }}</pre>
-              <pre class="text-xs ml-2 bg-white">Kwargs: {{ m.kwargs | json }}</pre>
+              <div class="text-xs">
+                <div class="font-bold inline-block">Message Id</div>
+                :{{ m.messageId }}
+              </div>
+              <div class="text-xs">
+                <div class="font-bold inline-block">Queue Name</div>
+                :{{ queueName(m.actorName) }}
+              </div>
+              <pre
+                class="text-xs bg-white"
+              ><div class="font-bold inline-block">Args</div>:{{m.args | json}}</pre>
+              <pre
+                class="text-xs bg-white"
+              ><div class="font-bold inline-block">Kwargs</div>:{{m.kwargs | json}}</pre>
             </td>
           </tr>
         </template>
@@ -75,14 +84,13 @@ export default {
       filter: '',
       columns: [
         // if the column is sortable must have a name
-        { label: 'Priority', name: 'priority', sortable: true },
-        { label: 'Message id', name: 'messageId' },
-        { label: 'State', name: 'name', sortable: true },
         { label: 'Actor', name: 'actorName', sortable: true },
+        { label: 'Priority', name: 'priority', sortable: true },
+        { label: 'State', name: 'name', sortable: true },
         { label: 'Started time', name: 'startedDatetime', sortable: true },
         { label: 'Wait time' },
-        { label: 'Progress', name: 'progress', sortable: true },
         { label: 'Execution time' },
+        { label: 'Progress', name: 'progress', sortable: true },
         { label: 'Actions' }
       ],
       sortedColumn: null,
