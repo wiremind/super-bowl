@@ -56,17 +56,15 @@ const formatMessage = message => {
 };
 
 const getActors = () => {
-  return axios.get('/actors').then(res => Object.fromEntries(res.data.result.map(parseActor)));
+  return axios.get('/actors').then(res => res.data.result.map(parseActor));
 };
 
 const parseActor = rawActor => {
-  return [
-    rawActor.name,
-    {
-      priority: rawActor.priority,
-      queueName: rawActor.queue_name
-    }
-  ];
+  return {
+    name: rawActor.name,
+    priority: rawActor.priority,
+    queueName: rawActor.queue_name
+  };
 };
 
 export default {
