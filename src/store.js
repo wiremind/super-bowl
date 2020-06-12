@@ -8,7 +8,7 @@ const store = new Vuex.Store({
   state: {
     messages: [],
     jobs: [],
-    actors: {},
+    actors: [],
     refreshInterval: 30,
     isLoading: false,
     intervalId: null
@@ -37,9 +37,7 @@ const store = new Vuex.Store({
     }
   },
   getters: {
-    getActorByName: state => name => {
-      return state.actors[name];
-    }
+    actorsByName: state => Object.entries(state.actors.map(a => [a.actorName, a]))
   },
   actions: {
     getMessages(context) {

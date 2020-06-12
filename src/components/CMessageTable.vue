@@ -124,7 +124,8 @@ export default {
       }
     },
     queueName(actorName) {
-      const actor = this.$store.getters.getActorByName(actorName);
+      const actors = this.$store.getters.actorsByName;
+      const actor = actors[actorName];
       return actor ? actor.queueName : '';
     }
   },

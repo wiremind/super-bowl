@@ -30,8 +30,8 @@
               @change="selectActor()"
               :class="{ 'border-red-500': emptyName }"
             >
-              <option v-for="(value, name) in actors" :key="name" :value="name">
-                {{ name }}
+              <option v-for="(actor, index) in actors" :key="index" :value="actor.name">
+                {{ actor.name }}
               </option>
             </select>
             <small v-if="emptyName" class="text-xs text-red-500">Actor Name required</small>
