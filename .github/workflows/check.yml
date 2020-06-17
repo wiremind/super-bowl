@@ -1,4 +1,4 @@
-name: Actions Super Bowl
+name: Linter Actions
 
 on:
   [push, pull_request]
