@@ -1,6 +1,6 @@
 <template>
   <tr
-    class="border-b border-gray-200 hover:bg-blue-100 cursor-pointer "
+    class="border-b text-xs border-gray-200 hover:bg-blue-100 cursor-pointer "
     @click="onToggle(messageId)"
   >
     <td class="border px-4 py-2">
@@ -21,14 +21,17 @@
         {{ startedDatetime | datetime }}
       </div>
     </td>
-
     <td class="border px-4 py-2">
       {{ waitTime }}
     </td>
-
     <td class="border px-4 py-2">
       <div v-if="nameState == 'Success' || nameState === 'Failure'" class="whitespace-normal">
         {{ executionTime }}
+      </div>
+    </td>
+    <td class="border px-4 py-2">
+      <div v-if="nameState == 'Started'">
+        {{ remainingTime }}
       </div>
     </td>
     <td class="border px-4 py-2">
@@ -51,7 +54,9 @@
 </template>
 
 <script>
-import { format, formatDistance } from 'date-fns';
+import { format } from 'date-fns';
+import utils from '@/utils';
+
 export default {
   name: 'CMessageRow',
   props: {
@@ -82,21 +87,26 @@ export default {
       if (!this.startedDatetime || !this.enqueuedDatetime) {
         return null;
       }
-      return formatDistance(this.enqueuedDatetime, this.startedDatetime);
+      const diff = utils.getDistance(this.startedDatetime, this.enqueuedDatetime);
+      return `${diff.hours}:${diff.minutes}:${diff.seconds}`;
     },
-
+    remainingTime() {
+      if (this.endDatetime || !this.startedDatetime || this.nameState != 'Started') {
+        return null;
+      }
+      const factor = (1 - this.progress) / this.progress;
+      const diff = utils.getDistance(new Date(), this.startedDatetime, factor);
+      return `${diff.hours}:${diff.minutes}:${diff.seconds}`;
+    },
     executionTime() {
       if (!this.startedDatetime) {
         return null;
       }
-      const endDatetime = this.endDatetime ? this.enqueuedDatetime : new Date();
-      let expectedTime = null;
-      if (this.progress && this.progress > 0) {
-        const factor = (1 - this.progress) / this.progress;
-        expectedTime = formatDistance(new Date() * factor, this.startedDatetime * factor);
-      }
-      const executionTime = formatDistance(this.startedDatetime, endDatetime);
-      return executionTime + (expectedTime ? '(' + expectedTime + ' remaining)' : '');
+      const diff = utils.getDistance(
+        this.startedDatetime,
+        this.endDatetime ? this.endDatetime : new Date()
+      );
+      return `${diff.hours}:${diff.minutes}:${diff.seconds}`;
     }
   },
 
