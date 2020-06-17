@@ -90,6 +90,7 @@ export default {
         { label: 'Started time', name: 'startedDatetime', sortable: true },
         { label: 'Wait time' },
         { label: 'Execution time' },
+        { label: 'Remaining time' },
         { label: 'Progress', name: 'progress', sortable: true },
         { label: 'Actions' }
       ],

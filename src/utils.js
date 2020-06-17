@@ -51,4 +51,38 @@ const toJson = str => {
   str = str.trim();
   return JSON.parse(str);
 };
-export default { getSortColumnAndDirection, filterTable, sortTable, isJson, toJson };
+
+/**
+ * return the dd:hh:mm:ss between two dates
+ * @param  {Date} startDate
+ * @param  {Date} endDate
+ * @param  {Number} factor: scale the difference by a factor
+ */
+const getDistance = (startDate, endDate, factor = 1) => {
+  let delta = (Math.abs(endDate - startDate) * factor) / 1000;
+  const diff = [
+    ['days', 60 * 60 * 24],
+    ['hours', 60 * 60],
+    ['minutes', 60],
+    ['seconds', 1]
+  ].reduce((acc, [key, value]) => {
+    acc[key] = Math.floor(delta / value);
+    delta -= acc[key] * value;
+    return acc;
+  });
+  Object.keys(diff).map(key => {
+    if (diff[key] < 10) {
+      diff[key] = '0' + diff[key];
+    }
+  });
+  return diff;
+};
+
+export default {
+  getSortColumnAndDirection,
+  filterTable,
+  sortTable,
+  isJson,
+  toJson,
+  getDistance
+};
