@@ -10,7 +10,7 @@
         placeholder="Search..."
         type="search"
         style="text-indent:20px"
-        v-model="filter"
+        v-model.lazy="filter"
       />
       <div class="loader absolute right-0" v-if="isLoading">Loading...</div>
     </div>
