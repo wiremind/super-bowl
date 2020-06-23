@@ -3,6 +3,7 @@
     <div class="max-w-7xl mx-auto px-2 sm:px-6">
       <div class="relative flex items-center justify-between h-16 fixed">
         <div class="flex-1 flex items-baseline justify-center sm:items-stretch sm:justify-start">
+          <img src="@/assets/img/logo_white.png" class="mr-2" width="40rem" />
           <div class="flex-shrink-0 py-1 mr-2 text-lg text-white font-bold">
             SuperBowl
           </div>
@@ -11,7 +12,7 @@
               <router-link
                 :key="index"
                 :to="route.path"
-                class="px-3 py-2 rounded-md text-sm font-medium leading-5 text-white focus:outline-none focus:text-white focus:bg-gray-900 transition duration-150 ease-in-out"
+                class="px-3 py-2 rounded-md text-sm font-medium leading-5 text-white focus:outline-none focus:text-white transition duration-150 ease-in-out"
               >
                 {{ route.name }}
               </router-link>
@@ -20,6 +21,7 @@
         </div>
         <div
           class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0"
+          v-if="this.$route.path === '/'"
         >
           <select
             v-model="refreshInterval"

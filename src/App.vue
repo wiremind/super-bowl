@@ -1,7 +1,9 @@
 <template>
   <main class="w-screen">
     <c-nav />
-    <router-view />
+    <transition name="fade">
+      <router-view />
+    </transition>
   </main>
 </template>
 
@@ -12,3 +14,14 @@ export default {
   components: { CNav }
 };
 </script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.1s;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

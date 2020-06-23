@@ -9,7 +9,7 @@ import store from './store';
 Vue.use(VueRouter);
 Vue.config.productionTip = false;
 
-const router = new VueRouter({ routes, mode: 'history' });
+const router = new VueRouter({ routes, mode: 'history', linkExactActiveClass: 'bg-gray-900' });
 
 new Vue({
   render: h => h(App),
