@@ -66,18 +66,9 @@
             id="field_args"
             placeholder='[1, ["a", 7], "str"]'
             @blur="checkForm"
-            v-model="message.args"
+            v-model.trim="message.args"
             :class="{ 'border-red-500': invalidArgs }"
           ></textarea>
-          <div class="errors-box">
-            <div v-if="errorsRequest.length">
-              <b>Please correct the following error(s):</b>
-              <ul>
-                <li v-for="(error, index) in errorsRequest" :key="index">{{ error }}</li>
-              </ul>
-            </div>
-            <small v-if="response" class="text-xs text-green-500">{{ response }}</small>
-          </div>
           <small v-if="invalidArgs" class="text-xs text-red-500">Invalid Args</small>
         </div>
 
@@ -92,7 +83,7 @@
             :class="{ 'border-red-500': invalidKwargs }"
             class="appearance-none  h-40 block w-full bg-gray-200 focus:bg-white text-gray-700 border rounded py-3 px-4 leading-tight focus:outline-none focus:border-gray-500"
             id="field_kwargs"
-            v-model="message.kwargs"
+            v-model.trim="message.kwargs"
             @blur="checkForm"
             placeholder='{"nums":[1,2,5]}'
           ></textarea>
@@ -110,7 +101,7 @@
             :class="{ 'border-red-500': invalidOptions }"
             class="appearance-none  h-40 block w-full bg-gray-200 focus:bg-white text-gray-700 border  rounded py-3 px-4 leading-tight focus:outline-none focus:border-gray-500"
             id="field_options"
-            v-model="message.options"
+            v-model.trim="message.options"
             @blur="checkForm"
             placeholder='{"isOn":true}'
           ></textarea>
@@ -182,11 +173,9 @@ export default {
     },
     checkForm() {
       this.emptyName = this.message.actorName.length === 0;
-      this.invalidArgs = this.message.args.trim() ? !utils.isJson(this.message.args) : false;
-      this.invalidKwargs = this.message.kwargs.trim() ? !utils.isJson(this.message.kwargs) : false;
-      this.invalidOptions = this.message.options.trim()
-        ? !utils.isJson(this.message.options)
-        : false;
+      this.invalidArgs = this.message.args ? !utils.isJson(this.message.args) : false;
+      this.invalidKwargs = this.message.kwargs ? !utils.isJson(this.message.kwargs) : false;
+      this.invalidOptions = this.message.options ? !utils.isJson(this.message.options) : false;
       this.isFormValid =
         !this.invalidArgs && !this.invalidKwargs && !this.invalidOptions && !this.emptyName;
       return this.isFormValid;
@@ -197,13 +186,13 @@ export default {
       }
       const payload = { ...this.message };
       this.errorsRequest = [];
-      if (payload.args.trim()) {
+      if (payload.args) {
         payload.args = utils.toJson(payload.args);
       }
-      if (payload.kwargs.trim()) {
+      if (payload.kwargs) {
         payload.kwargs = utils.toJson(payload.kwargs);
       }
-      if (payload.options.trim()) {
+      if (payload.options) {
         payload.options = utils.toJson(payload.options);
       }
       this.$store

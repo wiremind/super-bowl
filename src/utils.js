@@ -26,13 +26,11 @@ const sortTable = (data, sortDirection, sortedColumn) => {
   });
 };
 
+/**
+ * check if a given string is a valid string
+ * @param {String} str
+ */
 const isJson = str => {
-  if (typeof str === 'string') {
-    str = str.trim();
-    if (!str.length) {
-      return true;
-    }
-  }
   try {
     const obj = JSON.parse(str);
     // Handle non-exception-throwing cases:
@@ -48,7 +46,6 @@ const isJson = str => {
 };
 
 const toJson = str => {
-  str = str.trim();
   return JSON.parse(str);
 };
 
