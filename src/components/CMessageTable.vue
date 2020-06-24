@@ -30,7 +30,7 @@
         </tr>
       </thead>
       <tbody>
-        <template v-for="m in displayedMessages">
+        <template v-for="m in messages">
           <c-message-row
             :key="m.messageId"
             :messageId="m.messageId"
@@ -64,6 +64,45 @@
             </td>
           </tr>
         </template>
+        <tr class="border text-xs h-10 text-gray-800" v-if="countMessages > 10">
+          <td colspan="1" class="text-left">
+            <div>
+              <label>
+                <span class="font-bold mt-2 mr-2 ml-5">Items per page</span>
+                <select v-model.number="sizePage" class="browser-default">
+                  <option v-for="page in listSizePages" :key="page.text" :value="page.value">
+                    {{ page.text }}
+                  </option>
+                </select>
+              </label>
+            </div>
+          </td>
+          <td colspan="7"></td>
+          <td colspan="1">
+            <div class="m-auto block">
+              <div>
+                <div class="flex justify-end">
+                  <div class="mt-2">{{ firstRegister + 1 }}-{{ lastRegister }}</div>
+                  <div class="ml-1 mt-2" v-if="totalPages > 1">of {{ countMessages }}</div>
+                  <img
+                    v-if="totalPages > 1"
+                    src="@/assets/img/left_page.svg"
+                    width="25rem"
+                    class="cursor-pointer mt-1"
+                    @click="previousPage"
+                  />
+                  <img
+                    v-if="totalPages > 1"
+                    src="@/assets/img/right_page.svg"
+                    class="cursor-pointer mt-1"
+                    width="25rem"
+                    @click="nextPage"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
@@ -81,7 +120,6 @@ export default {
 
   data() {
     return {
-      filter: '',
       columns: [
         // if the column is sortable must have a name
         { label: 'Actor', name: 'actorName', sortable: true },
@@ -94,26 +132,67 @@ export default {
         { label: 'Progress', name: 'progress', sortable: true },
         { label: 'Actions' }
       ],
-      sortedColumn: null,
-      sortDirection: 'asc',
+      listSizePages: [
+        { text: '10', value: 10 },
+        { text: '50', value: 50 },
+        { text: '100', value: 100 },
+        { text: '200', value: 200 },
+        { text: '1000', value: 1000 }
+      ],
       openedRows: []
     };
   },
 
   computed: {
-    ...mapState(['messages', 'refreshInterval', 'actors', 'isLoading']),
-    filteredMessages() {
-      if (!this.filter) {
-        return this.messages;
-      }
-      const filterKeys = ['name', 'messageId', 'actorName'];
-      return utils.filterTable(this.messages, this.filter, filterKeys);
+    ...mapState(['messages', 'refreshInterval', 'actors', 'isLoading', 'countMessages']),
+    totalPages() {
+      return Math.ceil(this.countMessages / this.sizePage);
     },
-    displayedMessages() {
-      if (!this.sortedColumn) {
-        return this.filteredMessages;
+    firstRegister() {
+      return this.currentPage * this.sizePage;
+    },
+    lastRegister() {
+      return Math.min(this.firstRegister + this.sizePage, this.countMessages);
+    },
+    sortedColumn: {
+      get() {
+        return this.$store.state.sortedColumn;
+      },
+      set(column) {
+        this.$store.dispatch('updateSortedColumn', column);
       }
-      return utils.sortTable(this.filteredMessages, this.sortDirection, this.sortedColumn);
+    },
+    sortDirection: {
+      get() {
+        return this.$store.state.sortDirection;
+      },
+      set(direction) {
+        this.$store.dispatch('updateSortDirection', direction);
+      }
+    },
+    sizePage: {
+      get() {
+        return this.$store.state.sizePage;
+      },
+      set(size) {
+        this.$store.dispatch('updateSizePage', size);
+      }
+    },
+    filter: {
+      get() {
+        return this.$store.state.filter;
+      },
+      set(filter) {
+        this.$store.dispatch('updateFilter', filter);
+      }
+    },
+    currentPage: {
+      get() {
+        return this.$store.state.currentPage;
+      },
+      set(currentPage) {
+        this.$store.dispatch('updateCurrentPage', currentPage);
+      }
     }
   },
   methods: {
@@ -136,6 +215,12 @@ export default {
       const actors = this.$store.getters.actorsByName;
       const actor = actors[actorName];
       return actor ? actor.queueName : '';
+    },
+    nextPage() {
+      this.currentPage = (this.currentPage + 1) % this.totalPages;
+    },
+    previousPage() {
+      this.currentPage = (this.currentPage - 1 + this.totalPages) % this.totalPages;
     }
   },
   filters: {
@@ -148,7 +233,6 @@ export default {
     this.$store.dispatch('getMessages');
     this.$store.dispatch('startUpdateMessages');
   },
-
   beforeDestroy() {
     this.$store.commit('clearIntervalTimeOut');
   }

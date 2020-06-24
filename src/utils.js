@@ -75,11 +75,19 @@ const getDistance = (startDate, endDate, factor = 1) => {
   return diff;
 };
 
+const camelCaseToUnderScore = str => {
+  return str
+    .split(/(?=[A-Z])/)
+    .join('_')
+    .toLowerCase();
+};
+
 export default {
   getSortColumnAndDirection,
   filterTable,
   sortTable,
   isJson,
   toJson,
-  getDistance
+  getDistance,
+  camelCaseToUnderScore
 };
