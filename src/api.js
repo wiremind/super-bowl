@@ -1,7 +1,12 @@
 const axios = require('axios');
 
-const getMessages = () => {
-  return axios.get('/messages/states').then(res => res.data.result.map(parseMessage));
+const getMessages = args => {
+  const url = '/messages/states';
+  return axios
+    .get(url, {
+      params: args
+    })
+    .then(res => ({ count: res.data.count, data: res.data.data.map(parseMessage) }));
 };
 
 const parseMessage = rawMessage => {
