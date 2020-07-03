@@ -12,6 +12,7 @@
               <router-link
                 :key="index"
                 :to="route.path"
+                v-if="route.path != '*'"
                 class="px-3 py-2 rounded-md text-sm font-medium leading-5 text-white focus:outline-none focus:text-white transition duration-150 ease-in-out"
               >
                 {{ route.name }}
