@@ -22,7 +22,7 @@
         </div>
         <div
           class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0"
-          v-if="this.$route.path === '/'"
+          v-if="this.$route.meta.requiresRefreshButton"
         >
           <select
             v-model="refreshInterval"
@@ -37,7 +37,7 @@
             </option>
           </select>
           <a
-            @click="onGetMessages"
+            @click="refresh"
             href="#"
             class="inline-block bg-gray-300 rounded text-sm pt-1 px-1 py-1 leading-none   text-white  hover:border-transparent hover:text-teal-500 hover:bg-white"
           >
@@ -70,8 +70,8 @@ export default {
     };
   },
   methods: {
-    onGetMessages() {
-      this.$store.dispatch('getMessages');
+    refresh() {
+      this.$store.dispatch('refresh');
     }
   },
   computed: {

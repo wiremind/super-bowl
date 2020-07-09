@@ -158,7 +158,7 @@ const initialState = () => {
 };
 
 export default {
-  name: 'CEnqueue',
+  name: 'CEnqueueForm',
   data: initialState,
   computed: {
     ...mapState(['actors', 'isLoading'])

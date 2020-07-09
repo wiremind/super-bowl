@@ -1,12 +1,13 @@
 <template>
   <tr
-    class="border-b text-xs border-gray-200 hover:bg-blue-100 cursor-pointer "
+    class="border-b text-xs border-gray-200"
+    :class="{ 'hover:bg-blue-100': isExpandable, 'cursor-pointer': isExpandable }"
     @click="onToggle(messageId)"
   >
     <td class="border px-4 py-2">
       <div class="flex">
-        <img v-if="isOpened" src="@/assets/img/expand_more.svg" width="20rem" />
-        <img v-else src="@/assets/img/expand_less.svg" width="20rem" />
+        <img v-if="isExpandable && isOpened" src="@/assets/img/expand_more.svg" width="20rem" />
+        <img v-if="isExpandable && !isOpened" src="@/assets/img/expand_less.svg" width="20rem" />
         <pre class="text-xs ml-2 whitespace-normal">{{ actorName }}</pre>
       </div>
     </td>
@@ -54,7 +55,6 @@
 </template>
 
 <script>
-import { format } from 'date-fns';
 import utils from '@/utils';
 
 export default {
@@ -69,7 +69,11 @@ export default {
     kwargs: Object,
     enqueuedDatetime: Date,
     startedDatetime: Date,
-    endDatetime: Date
+    endDatetime: Date,
+    isExpandable: {
+      type: Boolean,
+      default: true
+    }
   },
   data() {
     return {
@@ -87,7 +91,7 @@ export default {
       if (!this.startedDatetime || !this.enqueuedDatetime) {
         return null;
       }
-      const diff = utils.getDistance(this.startedDatetime, this.enqueuedDatetime);
+      const diff = utils.formatMillis(this.startedDatetime - this.enqueuedDatetime);
       return `${diff.hours}:${diff.minutes}:${diff.seconds}`;
     },
     remainingTime() {
@@ -95,27 +99,17 @@ export default {
         return null;
       }
       const factor = (1 - this.progress) / this.progress;
-      const diff = utils.getDistance(new Date(), this.startedDatetime, factor);
+      const diff = utils.formatMillis((new Date() - this.startedDatetime) * factor);
       return `${diff.hours}:${diff.minutes}:${diff.seconds}`;
     },
     executionTime() {
       if (!this.startedDatetime) {
         return null;
       }
-      const diff = utils.getDistance(
-        this.startedDatetime,
-        this.endDatetime ? this.endDatetime : new Date()
+      const diff = utils.formatMillis(
+        this.startedDatetime - this.endDatetime ? this.endDatetime : new Date()
       );
       return `${diff.hours}:${diff.minutes}:${diff.seconds}`;
-    }
-  },
-
-  filters: {
-    datetime(value) {
-      return value ? format(value, 'y-MM-dd HH:mm') : '';
-    },
-    percentage(value) {
-      return value ? Math.round(value * 100) + '%' : '';
     }
   },
 

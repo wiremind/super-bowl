@@ -50,13 +50,11 @@ const toJson = str => {
 };
 
 /**
- * return the dd:hh:mm:ss between two dates
- * @param  {Date} startDate
- * @param  {Date} endDate
- * @param  {Number} factor: scale the difference by a factor
+ * return the dd:hh:mm:ss of a given milliseconds
+ * @param  {millis} milliseconds(int)
  */
-const getDistance = (startDate, endDate, factor = 1) => {
-  let delta = (Math.abs(endDate - startDate) * factor) / 1000;
+const formatMillis = millis => {
+  let delta = Math.abs(millis) / 1000;
   const diff = [
     ['days', 60 * 60 * 24],
     ['hours', 60 * 60],
@@ -66,11 +64,9 @@ const getDistance = (startDate, endDate, factor = 1) => {
     acc[key] = Math.floor(delta / value);
     delta -= acc[key] * value;
     return acc;
-  });
+  }, {});
   Object.keys(diff).map(key => {
-    if (diff[key] < 10) {
-      diff[key] = '0' + diff[key];
-    }
+    diff[key] = diff[key] < 10 ? '0' + diff[key] : '' + diff[key];
   });
   return diff;
 };
@@ -82,12 +78,23 @@ const camelCaseToUnderScore = str => {
     .toLowerCase();
 };
 
+/**
+ * If item exist in list remove it
+ * otherwise add it.
+ * @param {item}
+ * @param {list}
+ */
+const toggleItemFromList = (item, list) => {
+  return list.indexOf(item) >= 0 ? list.filter(it => it !== item) : [...list, item];
+};
+
 export default {
   getSortColumnAndDirection,
   filterTable,
   sortTable,
   isJson,
   toJson,
-  getDistance,
-  camelCaseToUnderScore
+  formatMillis,
+  camelCaseToUnderScore,
+  toggleItemFromList
 };

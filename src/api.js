@@ -72,10 +72,27 @@ const parseActor = rawActor => {
   };
 };
 
+const getGroups = args => {
+  const url = '/groups';
+  return axios
+    .get(url, {
+      params: args
+    })
+    .then(res => ({ count: res.data.count, data: res.data.data.map(parseGroup) }));
+};
+
+const parseGroup = rawGroup => {
+  return {
+    groupId: rawGroup.group_id,
+    messages: rawGroup.messages.map(parseMessage)
+  };
+};
+
 export default {
   getMessages,
   cancelMessage,
   getJobs,
   enqueueMessage,
-  getActors
+  getActors,
+  getGroups
 };

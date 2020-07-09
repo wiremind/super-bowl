@@ -10,15 +10,18 @@ const store = new Vuex.Store({
     messages: [],
     jobs: [],
     actors: [],
+    groups: [],
     refreshInterval: 30,
     sizePage: 50,
     countMessages: null,
+    countGroups: null,
     isLoading: false,
     intervalId: null,
     sortedColumn: null,
     sortDirection: null,
     filter: null,
-    currentPage: 0
+    currentPage: 0,
+    currentPath: null
   },
   mutations: {
     setRefreshInterval(state, interval) {
@@ -36,6 +39,9 @@ const store = new Vuex.Store({
     setCountMessages(state, count) {
       state.countMessages = count;
     },
+    setCountGroups(state, count) {
+      state.countGroups = count;
+    },
     setActors(state, actors) {
       state.actors = actors;
     },
@@ -48,6 +54,9 @@ const store = new Vuex.Store({
     setJobs(state, jobs) {
       state.jobs = jobs;
     },
+    setGroups(state, groups) {
+      state.groups = groups;
+    },
     setFilter(state, filter) {
       state.filter = filter;
     },
@@ -59,24 +68,33 @@ const store = new Vuex.Store({
     },
     setSortedColumn(state, column) {
       state.sortedColumn = column;
+    },
+    setCurrentPath(state, path) {
+      state.currentPath = path;
+    },
+    resetAttributesPage(state) {
+      state.filter = null;
+      state.sortedColumn = null;
+      state.sortDirection = null;
+      state.currentPage = 0;
     }
   },
   getters: {
-    actorsByName: state => Object.entries(state.actors.map(a => [a.actorName, a]))
+    actorsByName: state => Object.fromEntries(state.actors.map(a => [a.name, a])),
+    args: state => {
+      return {
+        size: state.sizePage,
+        search_value: state.filter,
+        sort_column: state.sortedColumn ? utils.camelCaseToUnderScore(state.sortedColumn) : null,
+        sort_direction: state.sortDirection,
+        offset: state.currentPage * state.sizePage
+      };
+    }
   },
   actions: {
     getMessages(context) {
       context.commit('setLoading', true);
-      const args = {
-        size: context.state.sizePage,
-        search_value: context.state.filter,
-        sort_column: context.state.sortedColumn
-          ? utils.camelCaseToUnderScore(context.state.sortedColumn)
-          : null,
-        sort_direction: context.state.sortDirection,
-        offset: context.state.currentPage * context.state.sizePage
-      };
-      api.getMessages(args).then(messages => {
+      api.getMessages(context.getters.args).then(messages => {
         setTimeout(() => {
           context.commit('setLoading', false);
         }, 500);
@@ -96,15 +114,34 @@ const store = new Vuex.Store({
         context.commit('setJobs', jobs);
       });
     },
+    getGroups(context) {
+      context.commit('setLoading', true);
+      api.getGroups(context.getters.args).then(groups => {
+        setTimeout(() => {
+          context.commit('setLoading', false);
+        }, 500);
+        context.commit('setCountGroups', groups.count);
+        context.commit('setGroups', groups.data);
+      });
+    },
     cancelMessage(context, messageId) {
       return api.cancelMessage(messageId);
     },
     enqueueMessage(context, message) {
       return api.enqueueMessage(message);
     },
-    startUpdateMessages(context) {
-      const intervalId = setInterval(() => {
+    refresh(context) {
+      if (context.state.currentPath == '/') {
+        context.dispatch('getActors');
         context.dispatch('getMessages');
+      } else if (context.state.currentPath == '/groups') {
+        context.dispatch('getGroups');
+      }
+    },
+    startRefresh(context) {
+      context.dispatch('refresh');
+      const intervalId = setInterval(() => {
+        context.dispatch('refresh');
       }, context.state.refreshInterval * 1000);
       context.commit('setIntervalId', intervalId);
     },
@@ -112,22 +149,22 @@ const store = new Vuex.Store({
       context.commit('clearIntervalTimeOut');
       context.commit('setRefreshInterval', intervalId);
       if (context.state.intervalId) {
-        context.dispatch('startUpdateMessages');
+        context.dispatch('startRefresh');
       }
     },
     updateSizePage(context, sizePage) {
       context.commit('setPageSize', sizePage);
       context.commit('setCurrentPage', 0);
-      context.dispatch('getMessages');
+      context.dispatch('refresh');
     },
     updateFilter(context, filter) {
       context.commit('setFilter', filter);
       context.commit('setCurrentPage', 0);
-      context.dispatch('getMessages');
+      context.dispatch('refresh');
     },
     updateCurrentPage(context, currentPage) {
       context.commit('setCurrentPage', currentPage);
-      context.dispatch('getMessages');
+      context.dispatch('refresh');
     },
     updateSortDirection(context, direction) {
       context.commit('setSortDirection', direction);
