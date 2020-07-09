@@ -1,19 +1,6 @@
 <template>
   <div class="px-4 pt-2">
-    <div class="flex float-right w-48 mb-3 search relative mr-6 my-2">
-      <div class="absolute pin-r pin-t mt-3 ml-2 mr-4 text-purple-lighter">
-        <img src="@/assets/img/lupe.svg" width="17rem" height="20rem" />
-      </div>
-      <input
-        class="placeholder-gray-700 bg-gray-100 mr-2 text-sm font-medium leading-5  focus:outline-none  py-2 px-2 block w-full appearance-none leading-normal"
-        id="filter"
-        placeholder="Search..."
-        type="search"
-        style="text-indent:20px"
-        v-model.lazy="filter"
-      />
-      <div class="loader absolute right-0" v-if="isLoading">Loading...</div>
-    </div>
+    <c-search-input />
     <table class="w-full bg-white rounded mb-4">
       <thead>
         <tr class="bg-gray-100 h-8">
@@ -21,11 +8,8 @@
             v-for="(column, index) in columns"
             :label="column.label"
             :name="column.name"
-            :sortDirection="sortDirection"
             :key="index"
             :isSortable="column.sortable"
-            :sortedColumn="sortedColumn"
-            @onClickSort="setSortColumnAndDirection"
           ></c-th>
         </tr>
       </thead>
@@ -65,42 +49,8 @@
           </tr>
         </template>
         <tr class="border text-xs h-10 text-gray-800" v-if="countMessages > 10">
-          <td colspan="1" class="text-left">
-            <div>
-              <label>
-                <span class="font-bold mt-2 mr-2 ml-5">Items per page</span>
-                <select v-model.number="sizePage" class="browser-default">
-                  <option v-for="page in listSizePages" :key="page.text" :value="page.value">
-                    {{ page.text }}
-                  </option>
-                </select>
-              </label>
-            </div>
-          </td>
-          <td colspan="7"></td>
-          <td colspan="1">
-            <div class="m-auto block">
-              <div>
-                <div class="flex justify-end">
-                  <div class="mt-2">{{ firstRegister + 1 }}-{{ lastRegister }}</div>
-                  <div class="ml-1 mt-2" v-if="totalPages > 1">of {{ countMessages }}</div>
-                  <img
-                    v-if="totalPages > 1"
-                    src="@/assets/img/left_page.svg"
-                    width="25rem"
-                    class="cursor-pointer mt-1"
-                    @click="previousPage"
-                  />
-                  <img
-                    v-if="totalPages > 1"
-                    src="@/assets/img/right_page.svg"
-                    class="cursor-pointer mt-1"
-                    width="25rem"
-                    @click="nextPage"
-                  />
-                </div>
-              </div>
-            </div>
+          <td :colspan="columns.length">
+            <c-page-footer :total="countMessages"></c-page-footer>
           </td>
         </tr>
       </tbody>
@@ -110,13 +60,15 @@
 
 <script>
 import CMessageRow from '@/components/CMessageRow';
+import CSearchInput from '@/components/CSearchInput';
 import CTh from '@/components/CTh';
+import CPageFooter from '@/components/CPageFooter';
 import { mapState } from 'vuex';
 import utils from '@/utils';
 require('@/assets/css/spinner.css');
 export default {
   name: 'CMessageTable',
-  components: { CMessageRow, CTh },
+  components: { CMessageRow, CTh, CPageFooter, CSearchInput },
 
   data() {
     return {
@@ -132,95 +84,21 @@ export default {
         { label: 'Progress', name: 'progress', sortable: true },
         { label: 'Actions' }
       ],
-      listSizePages: [
-        { text: '10', value: 10 },
-        { text: '50', value: 50 },
-        { text: '100', value: 100 },
-        { text: '200', value: 200 },
-        { text: '1000', value: 1000 }
-      ],
       openedRows: []
     };
   },
 
   computed: {
-    ...mapState(['messages', 'refreshInterval', 'actors', 'isLoading', 'countMessages']),
-    totalPages() {
-      return Math.ceil(this.countMessages / this.sizePage);
-    },
-    firstRegister() {
-      return this.currentPage * this.sizePage;
-    },
-    lastRegister() {
-      return Math.min(this.firstRegister + this.sizePage, this.countMessages);
-    },
-    sortedColumn: {
-      get() {
-        return this.$store.state.sortedColumn;
-      },
-      set(column) {
-        this.$store.dispatch('updateSortedColumn', column);
-      }
-    },
-    sortDirection: {
-      get() {
-        return this.$store.state.sortDirection;
-      },
-      set(direction) {
-        this.$store.dispatch('updateSortDirection', direction);
-      }
-    },
-    sizePage: {
-      get() {
-        return this.$store.state.sizePage;
-      },
-      set(size) {
-        this.$store.dispatch('updateSizePage', size);
-      }
-    },
-    filter: {
-      get() {
-        return this.$store.state.filter;
-      },
-      set(filter) {
-        this.$store.dispatch('updateFilter', filter);
-      }
-    },
-    currentPage: {
-      get() {
-        return this.$store.state.currentPage;
-      },
-      set(currentPage) {
-        this.$store.dispatch('updateCurrentPage', currentPage);
-      }
-    }
+    ...mapState(['messages', 'refreshInterval', 'actors', 'countMessages'])
   },
   methods: {
-    setSortColumnAndDirection(columnName) {
-      [this.sortedColumn, this.sortDirection] = utils.getSortColumnAndDirection(
-        columnName,
-        this.sortedColumn,
-        this.sortDirection
-      );
-    },
     toggleRow(id) {
-      const index = this.openedRows.indexOf(id);
-      if (index >= 0) {
-        this.openedRows = this.openedRows.filter(item => item !== id);
-      } else {
-        this.openedRows = [...this.openedRows, id];
-      }
+      this.openedRows = utils.toggleItemFromList(id, this.openedRows);
     },
     queueName(actorName) {
       const actors = this.$store.getters.actorsByName;
       const actor = actors[actorName];
       return actor ? actor.queueName : '';
-    },
-    nextPage() {
-      this.currentPage = (this.currentPage + 1) % this.totalPages;
-    },
-    previousPage() {
-      this.currentPage = (this.currentPage - 1 + this.totalPages) % this.totalPages;
     }
   },
   filters: {
@@ -229,12 +107,12 @@ export default {
     }
   },
   created() {
-    this.$store.dispatch('getActors');
-    this.$store.dispatch('getMessages');
-    this.$store.dispatch('startUpdateMessages');
+    this.$store.commit('setCurrentPath', this.$route.path);
+    this.$store.dispatch('startRefresh');
   },
   beforeDestroy() {
     this.$store.commit('clearIntervalTimeOut');
+    this.$store.commit('resetAttributesPage');
   }
 };
 </script>
