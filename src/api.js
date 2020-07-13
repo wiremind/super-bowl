@@ -88,11 +88,28 @@ const parseGroup = rawGroup => {
   };
 };
 
+const getPipelines = args => {
+  const url = '/pipelines';
+  return axios
+    .get(url, {
+      params: args
+    })
+    .then(res => ({ count: res.data.count, data: res.data.data.map(parsePipeline) }));
+};
+
+const parsePipeline = rawPipe => {
+  return {
+    pipelineId: rawPipe.pipeline_id,
+    messages: rawPipe.messages.map(parseMessage)
+  };
+};
+
 export default {
   getMessages,
   cancelMessage,
   getJobs,
   enqueueMessage,
   getActors,
-  getGroups
+  getGroups,
+  getPipelines
 };
