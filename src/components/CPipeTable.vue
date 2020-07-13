@@ -13,23 +13,23 @@
         </tr>
       </thead>
       <tbody>
-        <template v-for="g in groups">
+        <template v-for="p in pipelines">
           <c-pipe-header
-            :key="g.groupId + 'header'"
-            :groupId="g.groupId"
-            :messages="g.messages"
+            :key="p.pipelineId + 'header'"
+            :pipelineId="p.pipelineId"
+            :messages="p.messages"
             @onToggle="toggleRow"
           ></c-pipe-header>
           <c-pipe-content
-            v-if="openedRows.includes(g.groupId)"
-            :key="g.groupId + 'content'"
-            :messages="g.messages"
-            :groupId="g.groupId"
+            v-if="openedRows.includes(p.pipelineId)"
+            :key="p.pipelineId + 'content'"
+            :messages="p.messages"
+            :pipelineId="p.pipelineId"
           ></c-pipe-content>
         </template>
-        <tr class="border text-xs h-10 text-gray-800" v-if="countPipes > 10">
+        <tr class="border text-xs h-10 text-gray-800" v-if="countPipelines > 10">
           <td :colspan="columns.length">
-            <c-page-footer :total="countPipes"></c-page-footer>
+            <c-page-footer :total="countPipelines"></c-page-footer>
           </td>
         </tr>
       </tbody>
@@ -51,7 +51,7 @@ export default {
   data() {
     return {
       columns: [
-        { label: 'Group Id', name: 'groupId' },
+        { label: 'Pipeline Id', name: 'pipelineId' },
         { label: 'Actors' },
         { label: 'Message Count' },
         { label: 'Enqueued Datetime' },
@@ -67,7 +67,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['groups', 'refreshInterval', 'countGroups'])
+    ...mapState(['pipelines', 'refreshInterval', 'countPipelines'])
   },
   created() {
     this.$store.commit('setCurrentPath', this.$route.path);

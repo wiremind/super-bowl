@@ -11,10 +11,12 @@ const store = new Vuex.Store({
     jobs: [],
     actors: [],
     groups: [],
+    pipelines: [],
     refreshInterval: 30,
     sizePage: 50,
     countMessages: null,
     countGroups: null,
+    countPipelines: null,
     isLoading: false,
     intervalId: null,
     sortedColumn: null,
@@ -42,6 +44,9 @@ const store = new Vuex.Store({
     setCountGroups(state, count) {
       state.countGroups = count;
     },
+    setCountPipelines(state, count) {
+      state.countPipelines = count;
+    },
     setActors(state, actors) {
       state.actors = actors;
     },
@@ -56,6 +61,9 @@ const store = new Vuex.Store({
     },
     setGroups(state, groups) {
       state.groups = groups;
+    },
+    setPipelines(state, pipelines) {
+      state.pipelines = pipelines;
     },
     setFilter(state, filter) {
       state.filter = filter;
@@ -124,6 +132,16 @@ const store = new Vuex.Store({
         context.commit('setGroups', groups.data);
       });
     },
+    getPipelines(context) {
+      context.commit('setLoading', true);
+      api.getPipelines(context.getters.args).then(pipelines => {
+        setTimeout(() => {
+          context.commit('setLoading', false);
+        }, 500);
+        context.commit('setCountPipelines', pipelines.count);
+        context.commit('setPipelines', pipelines.data);
+      });
+    },
     cancelMessage(context, messageId) {
       return api.cancelMessage(messageId);
     },
@@ -136,6 +154,8 @@ const store = new Vuex.Store({
         context.dispatch('getMessages');
       } else if (context.state.currentPath == '/groups') {
         context.dispatch('getGroups');
+      } else if (context.state.currentPath == '/pipelines') {
+        context.dispatch('getPipelines');
       }
     },
     startRefresh(context) {
