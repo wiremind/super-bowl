@@ -1,9 +1,81 @@
 <template>
-  <h1>I will show the pipelines</h1>
+  <div class="px-4 pt-2">
+    <c-search-input />
+    <table class="w-full bg-white rounded mb-4">
+      <thead>
+        <tr class="bg-gray-100 h-8">
+          <c-th
+            v-for="(column, index) in columns"
+            :label="column.label"
+            :name="column.name"
+            :key="index"
+          ></c-th>
+        </tr>
+      </thead>
+      <tbody>
+        <template v-for="g in groups">
+          <c-pipe-header
+            :key="g.groupId + 'header'"
+            :groupId="g.groupId"
+            :messages="g.messages"
+            @onToggle="toggleRow"
+          ></c-pipe-header>
+          <c-pipe-content
+            v-if="openedRows.includes(g.groupId)"
+            :key="g.groupId + 'content'"
+            :messages="g.messages"
+            :groupId="g.groupId"
+          ></c-pipe-content>
+        </template>
+        <tr class="border text-xs h-10 text-gray-800" v-if="countPipes > 10">
+          <td :colspan="columns.length">
+            <c-page-footer :total="countPipes"></c-page-footer>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
-
 <script>
+import CPipeContent from '@/components/CPipeContent';
+import CPipeHeader from '@/components/CPipeHeader';
+import CSearchInput from '@/components/CSearchInput';
+import CPageFooter from '@/components/CPageFooter';
+import CTh from '@/components/CTh';
+import utils from '@/utils';
+import { mapState } from 'vuex';
+
 export default {
-  name: 'CPipeTable'
+  name: 'CPipeTable',
+  components: { CTh, CPipeHeader, CPipeContent, CPageFooter, CSearchInput },
+  data() {
+    return {
+      columns: [
+        { label: 'Group Id', name: 'groupId' },
+        { label: 'Actors' },
+        { label: 'Message Count' },
+        { label: 'Enqueued Datetime' },
+        { label: 'Progress', name: 'progress' },
+        { label: 'Remaining Time', name: 'remainingTime' }
+      ],
+      openedRows: []
+    };
+  },
+  methods: {
+    toggleRow(id) {
+      this.openedRows = utils.toggleItemFromList(id, this.openedRows);
+    }
+  },
+  computed: {
+    ...mapState(['groups', 'refreshInterval', 'countGroups'])
+  },
+  created() {
+    this.$store.commit('setCurrentPath', this.$route.path);
+    this.$store.dispatch('startRefresh');
+  },
+  beforeDestroy() {
+    this.$store.commit('clearIntervalTimeOut');
+    this.$store.commit('resetAttributesPage');
+  }
 };
 </script>
