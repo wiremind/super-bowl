@@ -20,7 +20,8 @@ const parseMessage = rawMessage => {
     progress: rawMessage.progress ? rawMessage.progress : null,
     enqueuedDatetime: rawMessage.enqueued_datetime ? new Date(rawMessage.enqueued_datetime) : null,
     startedDatetime: rawMessage.started_datetime ? new Date(rawMessage.started_datetime) : null,
-    endDatetime: rawMessage.end_datetime ? new Date(rawMessage.end_datetime) : null
+    endDatetime: rawMessage.end_datetime ? new Date(rawMessage.end_datetime) : null,
+    groupId: rawMessage.group_id
   };
 };
 

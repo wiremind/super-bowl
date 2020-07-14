@@ -14,6 +14,9 @@
     <td class="border px-4 py-2">
       {{ priority }}
     </td>
+    <td v-if="hasGroup" class="border px-4 py-2">
+      {{ groupId }}
+    </td>
     <td class="border px-4 py-2 font-semibold" :style="{ color: getColorState() }">
       {{ nameState }}
     </td>
@@ -70,6 +73,8 @@ export default {
     enqueuedDatetime: Date,
     startedDatetime: Date,
     endDatetime: Date,
+    groupId: String,
+    hasGroup: Boolean,
     isExpandable: {
       type: Boolean,
       default: true

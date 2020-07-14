@@ -24,6 +24,8 @@
                 :messageId="m.messageId"
                 :actorName="m.actorName"
                 :priority="m.priority"
+                :hasGroup="true"
+                :groupId="m.groupId"
                 :name="m.name"
                 :progress="m.progress"
                 :args="m.args"
@@ -48,13 +50,14 @@ export default {
   components: { CMessageRow, CTh },
   props: {
     messages: Array,
-    groupId: String
+    pipelineId: String
   },
   data() {
     return {
       columns: [
         { label: 'Actor', name: 'actorName', sortable: true },
         { label: 'Priority', name: 'priority', sortable: true },
+        { label: 'Group Id', name: 'groupId' },
         { label: 'State', name: 'name', sortable: true },
         { label: 'Started time', name: 'startedDatetime', sortable: true },
         { label: 'Wait time' },
