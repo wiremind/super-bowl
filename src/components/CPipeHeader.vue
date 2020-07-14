@@ -4,7 +4,7 @@
       <div class="flex">
         <img v-if="isOpened" src="@/assets/img/expand_more.svg" width="20rem" />
         <img v-else src="@/assets/img/expand_less.svg" width="20rem" />
-        <pre class="text-xs ml-2 whitespace-normal">{{ groupId }}</pre>
+        <pre class="text-xs ml-2 whitespace-normal">{{ pipelineId }}</pre>
       </div>
     </td>
     <td class="border px-4 py-2">
@@ -31,7 +31,7 @@ export default {
   name: 'CPipeHeader',
   props: {
     messages: Array,
-    groupId: String
+    pipelineId: String
   },
   data() {
     return {
@@ -64,7 +64,7 @@ export default {
   methods: {
     onToggle() {
       this.isOpened = !this.isOpened;
-      this.$emit('onToggle', this.groupId);
+      this.$emit('onToggle', this.pipelineId);
     }
   }
 };
