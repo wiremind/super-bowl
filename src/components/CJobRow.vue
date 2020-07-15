@@ -32,7 +32,7 @@
 
 <script>
 import { formatDistance, formatDistanceStrict, addSeconds } from 'date-fns';
-
+import utils from '@/utils';
 export default {
   name: 'CJobRow',
   props: {
@@ -48,7 +48,7 @@ export default {
   },
   filters: {
     formatDistance(time) {
-      return time ? formatDistance(new Date(), time) + ' ago' : '';
+      return time ? formatDistance(utils.dateToUTC(new Date()), time) + ' ago' : '';
     },
     formatWeekDay(isoWeekday) {
       const weekdays = [
