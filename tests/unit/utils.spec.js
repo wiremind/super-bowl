@@ -53,3 +53,17 @@ describe('Test toggle element from list', () => {
     }
   );
 });
+
+describe('Test convert date to UTC', () => {
+  const date = new Date('Wed, 15 Jun 2020 07:00:00 GMT');
+  const cases = [[new Date(date.toLocaleString('en-US', { timeZone: 'Europe/Paris' })), '02']];
+
+  // TODO: check
+  test.each(cases)(
+    'given a date %p its hours of difference in UTC should be %p',
+    (timeZonedDate, diffInHours) => {
+      const diff = utils.formatMillis(utils.dateToUTC(timeZonedDate) - date);
+      expect(diff.hours).toBe(diffInHours);
+    }
+  );
+});
