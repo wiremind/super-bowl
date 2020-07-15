@@ -80,9 +80,6 @@ export default {
     last() {
       return Math.min(this.first + this.sizePage, this.total);
     }
-  },
-  created() {
-    this.currentPage = 0;
   }
 };
 </script>

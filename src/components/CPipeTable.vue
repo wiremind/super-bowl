@@ -73,7 +73,7 @@ export default {
     this.$store.commit('setCurrentPath', this.$route.path);
     this.$store.dispatch('startRefresh');
   },
-  beforeDestroy() {
+  beforeCreate() {
     this.$store.commit('clearIntervalTimeOut');
     this.$store.commit('resetAttributesPage');
   }
