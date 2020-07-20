@@ -55,7 +55,7 @@ describe('Test toggle element from list', () => {
 });
 
 describe('Test convert date to UTC', () => {
-  const date = new Date('Wed, 15 Jun 2020 07:00:00 GMT');
+  const date = new Date('Wed, 15 Jun 2020 07:00:00 UTC');
   const cases = [[new Date(date.toLocaleString('en-US', { timeZone: 'Europe/Paris' })), '02']];
 
   // TODO: check
