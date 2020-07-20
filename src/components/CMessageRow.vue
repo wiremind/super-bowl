@@ -15,10 +15,10 @@
       {{ priority }}
     </td>
     <td class="border px-4 py-2 font-semibold" :style="{ color: getColorState() }">
-      {{ nameState }}
+      {{ stateName }}
     </td>
     <td class="border px-4 py-2">
-      <div class="whitespace-normal" v-if="nameState !== 'Success' || nameState !== 'Failure'">
+      <div class="whitespace-normal" v-if="stateName !== 'Success' || stateName !== 'Failure'">
         {{ startedDatetime | datetime }}
       </div>
     </td>
@@ -26,12 +26,12 @@
       {{ waitTime }}
     </td>
     <td class="border px-4 py-2">
-      <div v-if="nameState == 'Success' || nameState === 'Failure'" class="whitespace-normal">
+      <div v-if="stateName == 'Success' || stateName === 'Failure'" class="whitespace-normal">
         {{ executionTime }}
       </div>
     </td>
     <td class="border px-4 py-2">
-      <div v-if="nameState == 'Started'">
+      <div v-if="stateName == 'Started'">
         {{ remainingTime }}
       </div>
     </td>
@@ -62,7 +62,7 @@ export default {
   props: {
     priority: Number,
     messageId: String,
-    name: String,
+    stateName: String,
     actorName: String,
     args: Array,
     progress: Number,
@@ -81,7 +81,6 @@ export default {
       isOpened: false,
       onError: false,
       error: '',
-      nameState: this.name,
       txtBtnCancel: 'Cancel'
     };
   },
@@ -95,7 +94,7 @@ export default {
       return `${diff.hours}:${diff.minutes}:${diff.seconds}`;
     },
     remainingTime() {
-      if (this.endDatetime || !this.startedDatetime || this.nameState != 'Started') {
+      if (this.endDatetime || !this.startedDatetime || this.stateName != 'Started') {
         return null;
       }
       const factor = (1 - this.progress) / this.progress;
@@ -115,19 +114,16 @@ export default {
 
   methods: {
     getColorState() {
-      const state = this.nameState.toLowerCase();
       const colors = {
-        success: 'green',
-        canceled: 'red',
-        failure: 'red'
+        Success: 'green',
+        Canceled: 'red',
+        Failure: 'red'
       };
-      return colors[state] || 'black';
+      return colors[this.stateName] || 'black';
     },
     cancelMessage() {
       this.canCancel = false;
-      this.$store.dispatch('cancelMessage', this.messageId).then(() => {
-        this.nameState = 'Canceled';
-      });
+      this.$store.dispatch('cancelMessage', this.messageId);
     },
     onToggle(id) {
       this.isOpened = !this.isOpened;
