@@ -163,7 +163,6 @@ export default {
   computed: {
     ...mapState(['actors', 'isLoading'])
   },
-
   methods: {
     resetForm() {
       Object.assign(this.$data, initialState());
