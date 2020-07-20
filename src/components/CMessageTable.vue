@@ -20,7 +20,7 @@
             :messageId="m.messageId"
             :actorName="m.actorName"
             :priority="m.priority"
-            :name="m.name"
+            :stateName="m.name"
             :progress="m.progress"
             :args="m.args"
             :kwargs="m.kwargs"

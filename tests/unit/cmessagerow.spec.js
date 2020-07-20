@@ -8,7 +8,7 @@ describe('Computed properties in Message Row', () => {
       propsData: {
         startedDatetime: new Date('December 10, 2020 05:32:10'),
         enqueuedDatetime: new Date('December 10, 2020 03:24:00'),
-        name: 'Pending'
+        stateName: 'Pending'
       }
     });
     expect(wrapper.vm.waitTime).toBe('02:08:10');
@@ -34,7 +34,7 @@ describe('Computed properties in Message Row', () => {
         propsData: {
           startedDatetime,
           progress,
-          name: 'Started'
+          stateName: 'Started'
         }
       });
       expect(wrapper.vm.remainingTime).toBe(expectedResult);
