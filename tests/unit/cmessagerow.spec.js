@@ -6,8 +6,8 @@ describe('Computed properties in Message Row', () => {
   it('returns the right wait time', () => {
     const wrapper = mount(CMessageRow, {
       propsData: {
-        startedDatetime: new Date('December 10, 2020 05:32:10'),
-        enqueuedDatetime: new Date('December 10, 2020 03:24:00'),
+        startedDatetime: new Date('December 10, 2020 05:32:10 UTC'),
+        enqueuedDatetime: new Date('December 10, 2020 03:24:00 UTC'),
         stateName: 'Pending'
       }
     });
@@ -26,7 +26,7 @@ describe('Computed properties in Message Row', () => {
   test.each(cases)(
     'given %p and %p as arguments, returns %p',
     (startedDatetime, progress, expectedResult) => {
-      const currentDate = new Date('December 10, 2020 01:10:00');
+      const currentDate = new Date('December 10, 2020 01:10:00 UTC');
       // mock time
       advanceTo(currentDate);
 
