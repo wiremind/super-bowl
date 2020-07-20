@@ -5,6 +5,9 @@ It is shown how to update the progress, as well as add middlewares to cancel and
 
 <CImage src="example_message.png" caption="Result Example tab /messages" zoom="true"></CImage>
 
+## Script
+
+File name: ``messages.py``
 
 ``` python
 import remoulade
@@ -47,4 +50,9 @@ if __name__ == "__main__":
     app.run(host="localhost", port=5005)
 ```
 
+## Commands
 
+``` sh
+  $ python3 messages.py
+  $ remoulade messages
+```
