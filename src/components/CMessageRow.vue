@@ -41,7 +41,7 @@
     <td class=" border  px-4 py-2">
       <div class="inline-flex items-center ">
         <button
-          v-if="name === 'Pending' && canCancel"
+          v-if="stateName === 'Pending' && canCancel"
           @click.stop="cancelMessage"
           type="button"
           class="bg-red-500 hover:bg-red-700 text-white py-1 px-2 rounded focus:outline-none focus:shadow-outline"
