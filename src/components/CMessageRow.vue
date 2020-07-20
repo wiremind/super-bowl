@@ -108,7 +108,7 @@ export default {
         return null;
       }
       const diff = utils.formatMillis(
-        this.startedDatetime - this.endDatetime ? this.endDatetime : utils.dateToUTC(new Date())
+        this.startedDatetime - (this.endDatetime ? this.endDatetime : utils.dateToUTC(new Date()))
       );
       return `${diff.hours}:${diff.minutes}:${diff.seconds}`;
     }
