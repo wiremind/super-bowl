@@ -16,37 +16,24 @@
       <tbody>
         <template v-for="m in messages">
           <c-message-row
-            :key="m.messageId"
+            :key="m.messageId + 'message-row'"
             :messageId="m.messageId"
             :actorName="m.actorName"
             :priority="m.priority"
             :stateName="m.name"
             :progress="m.progress"
-            :args="m.args"
-            :kwargs="m.kwargs"
             :enqueuedDatetime="m.enqueuedDatetime"
             :startedDatetime="m.startedDatetime"
             :endDatetime="m.endDatetime"
             @onToggle="toggleRow"
           ></c-message-row>
-          <tr :key="m.messageId + 0" v-if="openedRows.includes(m.messageId)">
-            <td class="border text-xs px-4 py-2" :colspan="columns.length">
-              <div class="text-xs">
-                <div class="font-bold inline-block">Message Id</div>
-                :{{ m.messageId }}
-              </div>
-              <div class="text-xs">
-                <div class="font-bold inline-block">Queue Name</div>
-                :{{ queueName(m.actorName) }}
-              </div>
-              <pre
-                class="text-xs bg-white"
-              ><div class="font-bold inline-block">Args</div>:{{m.args | json}}</pre>
-              <pre
-                class="text-xs bg-white"
-              ><div class="font-bold inline-block">Kwargs</div>:{{m.kwargs | json}}</pre>
-            </td>
-          </tr>
+          <c-message-content
+            v-if="openedRows.includes(m.messageId)"
+            :key="m.messageId + 'message-content'"
+            :messageId="m.messageId"
+            :colspan="columns.length"
+            :actorName="m.actorName"
+          ></c-message-content>
         </template>
         <tr class="border text-xs h-10 text-gray-800" v-if="countMessages > 10">
           <td :colspan="columns.length">
@@ -60,6 +47,7 @@
 
 <script>
 import CMessageRow from '@/components/CMessageRow';
+import CMessageContent from '@/components/CMessageContent';
 import CSearchInput from '@/components/CSearchInput';
 import CTh from '@/components/CTh';
 import CPageFooter from '@/components/CPageFooter';
@@ -68,7 +56,7 @@ import utils from '@/utils';
 require('@/assets/css/spinner.css');
 export default {
   name: 'CMessageTable',
-  components: { CMessageRow, CTh, CPageFooter, CSearchInput },
+  components: { CMessageRow, CMessageContent, CTh, CPageFooter, CSearchInput },
 
   data() {
     return {
@@ -94,16 +82,6 @@ export default {
   methods: {
     toggleRow(id) {
       this.openedRows = utils.toggleItemFromList(id, this.openedRows);
-    },
-    queueName(actorName) {
-      const actors = this.$store.getters.actorsByName;
-      const actor = actors[actorName];
-      return actor ? actor.queueName : '';
-    }
-  },
-  filters: {
-    json(obj) {
-      return obj ? JSON.stringify(obj, undefined, 2) : '';
     }
   },
   created() {

@@ -2,7 +2,7 @@
   <tr
     class="border-b text-xs border-gray-200"
     :class="{ 'hover:bg-blue-100': isExpandable, 'cursor-pointer': isExpandable }"
-    @click="onToggle(messageId)"
+    @click="onToggle"
   >
     <td class="border px-4 py-2">
       <div class="flex">
@@ -64,9 +64,7 @@ export default {
     messageId: String,
     stateName: String,
     actorName: String,
-    args: Array,
     progress: Number,
-    kwargs: Object,
     enqueuedDatetime: Date,
     startedDatetime: Date,
     endDatetime: Date,
@@ -128,9 +126,9 @@ export default {
       this.canCancel = false;
       this.$store.dispatch('cancelMessage', this.messageId);
     },
-    onToggle(id) {
+    onToggle() {
       this.isOpened = !this.isOpened;
-      this.$emit('onToggle', id);
+      this.$emit('onToggle', this.messageId);
     }
   }
 };

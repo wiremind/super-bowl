@@ -1,5 +1,17 @@
 const axios = require('axios');
 
+const getArgsKwargs = id => {
+  const url = '/messages/state/' + id;
+  return axios.get(url).then(res => parseArgs(res.data));
+};
+
+const parseArgs = rawMessage => {
+  return {
+    args: rawMessage.args,
+    kwargs: rawMessage.kwargs
+  };
+};
+
 const getMessages = args => {
   const url = '/messages/states';
   return axios
@@ -15,8 +27,6 @@ const parseMessage = rawMessage => {
     messageId: rawMessage.message_id,
     name: rawMessage.name,
     actorName: rawMessage.actor_name,
-    args: JSON.parse(rawMessage.args),
-    kwargs: JSON.parse(rawMessage.kwargs),
     progress: rawMessage.progress ? rawMessage.progress : null,
     enqueuedDatetime: rawMessage.enqueued_datetime ? new Date(rawMessage.enqueued_datetime) : null,
     startedDatetime: rawMessage.started_datetime ? new Date(rawMessage.started_datetime) : null,
@@ -89,6 +99,7 @@ const parseGroup = rawGroup => {
 };
 
 export default {
+  getArgsKwargs,
   getMessages,
   cancelMessage,
   getJobs,
