@@ -5,7 +5,6 @@ This component is rendered for components which support ``paging``.
 
 <CImage src="cpage_footer_design.png" caption="Design: Page Footer"></CImage>
 
-
 ## Props
 
 ``` js
@@ -28,15 +27,13 @@ This component is rendered for components which support ``paging``.
 ```
 
 ::: warning
-If the number of registers is less than ``10`` and the paging supported this component is not rendered.
+If the number of registers is less than ``10`` this component is not rendered.
 :::
-
 
 ## Methods
 | Name          | Function        |
 | ------------- |:-------------:|
 | next | go to the next page|
 | previous | go to the previous page|
-
 
 It uses ``sizePage`` and ``currentPage`` from ``store.js``

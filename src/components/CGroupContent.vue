@@ -24,15 +24,22 @@
                 :messageId="m.messageId"
                 :actorName="m.actorName"
                 :priority="m.priority"
-                :name="m.name"
+                :stateName="m.name"
                 :progress="m.progress"
                 :args="m.args"
                 :kwargs="m.kwargs"
                 :enqueuedDatetime="m.enqueuedDatetime"
                 :startedDatetime="m.startedDatetime"
                 :endDatetime="m.endDatetime"
-                :isExpandable="false"
+                @onToggle="toggleRow"
               ></c-message-row>
+              <c-message-content
+                v-if="openedRows.includes(m.messageId)"
+                :key="m.messageId + 'message-content'"
+                :messageId="m.messageId"
+                :colspan="columns.length"
+                :actorName="m.actorName"
+              ></c-message-content>
             </template>
           </tbody>
         </table>
@@ -42,10 +49,12 @@
 </template>
 <script>
 import CMessageRow from '@/components/CMessageRow';
+import CMessageContent from '@/components/CMessageContent';
 import CTh from '@/components/CTh';
+import utils from '@/utils';
 export default {
   name: 'CGroupContent',
-  components: { CMessageRow, CTh },
+  components: { CMessageRow, CMessageContent, CTh },
   props: {
     messages: Array,
     groupId: String
@@ -62,8 +71,14 @@ export default {
         { label: 'Remaining time' },
         { label: 'Progress', name: 'progress', sortable: true },
         { label: 'Actions', name: 'actions' }
-      ]
+      ],
+      openedRows: []
     };
+  },
+  methods: {
+    toggleRow(id) {
+      this.openedRows = utils.toggleItemFromList(id, this.openedRows);
+    }
   }
 };
 </script>

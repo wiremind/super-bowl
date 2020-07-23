@@ -1,7 +1,7 @@
 # CJobTable <Badge text="Job Table"/>
 
 This components display all scheduled jobs registered on remoulade. It uses [CJobRow](/super-bowl/components/CJobRow).
-At the top of the table there is a [CSearchInput](/super-bowl/components/CSearchInput)
+At the top of the table there is a [CSearchInput](/super-bowl/components/CSearchInput).
 
 ## Data
 - ``columns``
@@ -21,7 +21,7 @@ At the top of the table there is a [CSearchInput](/super-bowl/components/CSearch
 
 ::: warning
    - when this component is created call ``getJobs`` from ``store.js``
+   - this component do not use pagination, then this component is in charge of filtering using ``filterKeys``
 :::
-
 
 This component uses ``'jobs', 'isLoading', 'sortedColumn', 'sortDirection', 'filter'`` from ``store.js``

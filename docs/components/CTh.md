@@ -18,5 +18,4 @@ This component represent the header of a column in a table, is used by the follo
 If ``isSortable`` is ``true`` the ``name`` must be defined
 :::
 
-
 To sort the column uses two attributes defined in ``store.js``: ``sortedColumn``, ``sortDirection``.

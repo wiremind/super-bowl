@@ -1,7 +1,7 @@
 # Messages <Badge text="example"/>
 
-This example create a function to approximates PI in ``steps`` iterations.
-It is shown how to update the progress, as well as add middlewares to cancel and save the state.
+This example creates a function to approximates PI in ``steps`` iterations using [leibniz formula](https://en.wikipedia.org/wiki/Leibniz_formula_for_%CF%80).
+It is shown how to update the progress, as well as add middlewares to cancel and save the current state of the task.
 
 <CImage src="example_message.png" caption="Result Example tab /messages" zoom="true"></CImage>
 
@@ -55,4 +55,5 @@ if __name__ == "__main__":
 ``` sh
   $ python3 messages.py
   $ remoulade messages
+  # open the web browser at localhost:5005 to see the results
 ```

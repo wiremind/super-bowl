@@ -1,13 +1,9 @@
 <template>
-  <tr
-    class="border-b text-xs border-gray-200"
-    :class="{ 'hover:bg-blue-100': isExpandable, 'cursor-pointer': isExpandable }"
-    @click="onToggle"
-  >
+  <tr class="border-b text-xs border-gray-200 hover:bg-blue-100 cursor-pointer" @click="onToggle">
     <td class="border px-4 py-2">
       <div class="flex">
-        <img v-if="isExpandable && isOpened" src="@/assets/img/expand_more.svg" width="20rem" />
-        <img v-if="isExpandable && !isOpened" src="@/assets/img/expand_less.svg" width="20rem" />
+        <img v-if="isOpened" src="@/assets/img/expand_more.svg" width="20rem" />
+        <img v-else src="@/assets/img/expand_less.svg" width="20rem" />
         <pre class="text-xs ml-2 whitespace-normal">{{ actorName }}</pre>
       </div>
     </td>
@@ -67,11 +63,7 @@ export default {
     progress: Number,
     enqueuedDatetime: Date,
     startedDatetime: Date,
-    endDatetime: Date,
-    isExpandable: {
-      type: Boolean,
-      default: true
-    }
+    endDatetime: Date
   },
   data() {
     return {
@@ -92,7 +84,12 @@ export default {
       return `${diff.hours}:${diff.minutes}:${diff.seconds}`;
     },
     remainingTime() {
-      if (this.endDatetime || !this.startedDatetime || this.stateName != 'Started') {
+      if (
+        this.endDatetime ||
+        !this.progress ||
+        !this.startedDatetime ||
+        this.stateName != 'Started'
+      ) {
         return null;
       }
       const factor = (1 - this.progress) / this.progress;

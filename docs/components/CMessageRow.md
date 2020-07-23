@@ -2,7 +2,6 @@
 
 This component is used by [CMessageTable](/super-bowl/components/CMessageTable), and represents a task on [Remoulade](https://github.com/wiremind/remoulade)
 
-
 ## Props
 ``` js
   props: {
@@ -16,10 +15,6 @@ This component is used by [CMessageTable](/super-bowl/components/CMessageTable),
     enqueuedDatetime: Date,
     startedDatetime: Date,
     endDatetime: Date,
-    isExpandable: { // Attributes that enables the hidden row
-      type: Boolean,
-      default: true
-    }
   }
 ```
 
@@ -31,7 +26,11 @@ This component is used by [CMessageTable](/super-bowl/components/CMessageTable),
   - ``nameState:String``: the name of the state, it is copy of ``name`` received by the props
   - ``txtBtnCancel:String``: the text in the button cancel
 
-
+## Methods
+| Name          | Function        |
+| ------------- |:-------------:|
+| ``getColorState(name)``| Return the color of the asociated state|
+| ``cancelMessage`` | call an action from the ``store.js`` to cancel the current Message|
 
 ::: tip
 A Message is a task on  [Remoulade](https://github.com/wiremind/remoulade).

@@ -56,7 +56,8 @@ export default {
         { label: 'Message Count' },
         { label: 'Enqueued Datetime' },
         { label: 'Progress', name: 'progress' },
-        { label: 'Remaining Time', name: 'remainingTime' }
+        { label: 'Remaining Time', name: 'remainingTime' },
+        { label: 'Actions' }
       ],
       openedRows: []
     };
@@ -73,7 +74,7 @@ export default {
     this.$store.commit('setCurrentPath', this.$route.path);
     this.$store.dispatch('startRefresh');
   },
-  beforeDestroy() {
+  beforeCreate() {
     this.$store.commit('clearIntervalTimeOut');
     this.$store.commit('resetAttributesPage');
   }

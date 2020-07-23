@@ -22,6 +22,18 @@
     <td class="border px-4 py-2">
       {{ remainingTime }}
     </td>
+    <td class=" border  px-4 py-2">
+      <div class="inline-flex items-center ">
+        <button
+          v-if="canCancel"
+          @click.stop="cancelMessage"
+          type="button"
+          class="bg-red-500 hover:bg-red-700 text-white py-1 px-2 rounded focus:outline-none focus:shadow-outline"
+        >
+          Cancel
+        </button>
+      </div>
+    </td>
   </tr>
 </template>
 <script>
@@ -35,7 +47,8 @@ export default {
   },
   data() {
     return {
-      isOpened: false
+      isOpened: false,
+      isCanceling: false
     };
   },
   computed: {
@@ -59,12 +72,19 @@ export default {
     progress() {
       const length = this.messages.length || 1;
       return this.messages.reduce((prev, next) => prev + next.progress || 0, 0) / length;
+    },
+    canCancel() {
+      return !this.isCanceling && this.messages.map(x => x.name).includes('Pending');
     }
   },
   methods: {
     onToggle() {
       this.isOpened = !this.isOpened;
       this.$emit('onToggle', this.groupId);
+    },
+    cancelMessage() {
+      this.isCanceling = true;
+      this.$store.dispatch('cancelMessage', this.groupId).catch(() => (this.isCanceling = false));
     }
   }
 };
