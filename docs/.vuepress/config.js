@@ -26,6 +26,7 @@ module.exports = {
           ['/components/CPageFooter', 'CPageFooter'],
           ['/components/CMessageTable', 'CMessageTable'],
           ['/components/CMessageRow', 'CMessageRow'],
+          ['/components/CMessageContent', 'CMessageContent'],
           ['/components/CGroupTable', 'CGroupTable'],
           ['/components/CGroupHeader', 'CGroupHeader'],
           ['/components/CGroupContent', 'CGroupContent'],
@@ -35,10 +36,11 @@ module.exports = {
         ]
       },
       {
-        title: 'Examples',
+        title: 'Getting Started',
         collapsable: false,
         children: [
-          ['/examples/messages', 'Messages']
+          ['/examples/messages', 'Messages'],
+          ['/examples/groups', 'Groups']
         ]
       }
     ],
@@ -58,5 +60,6 @@ module.exports = {
       },
     ],
     ['@vuepress/back-to-top', true],
+    ['@vuepress/last-updated'],
   ],
 };

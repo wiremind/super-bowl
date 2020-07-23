@@ -14,15 +14,12 @@ At the bottom of the table there is a [CPageFooter](/super-bowl/components/CPage
   { label: 'Progress', name: 'progress' },
   { label: 'Remaining Time', name: 'remainingTime' }
 ```
-- ``openedRows:Array``: each row has associated a hidden row, that contains the messages in that group.
-
-
+- ``openedRows:Array``: each row has associated a hidden row ([CGroupContent](/super-bowl/components/CGroupContent)) which contains the messages in that group.
 
 ## Methods
 | Name          | Function        |
 | ------------- |:-------------:|
 | toogleRow(``id``) | Hide or Display the row with id equals ``id``|
-
 
 This component uses ``['groups', 'refreshInterval', 'countGroups']`` from ``store.js``
 
@@ -31,10 +28,7 @@ This component uses ``['groups', 'refreshInterval', 'countGroups']`` from ``stor
       - calls ``setCurrentPath``, used by ``refresh``
       - calls ``startRefresh`` call ``refresh`` each ``refreshInterval``
          - ``setCurrentPath`` must be called before ``startRefresh``
-   - when this component is destroyed:
-      - calls ``clearIntervalTimeOut`` that stop the calls done by ``startRefresh``
-      - calls ``resetAttributesPage`` that reset the attributes shared between components
+   - before this component is created:
+      - calls ``clearIntervalTimeOut`` which stop the periodic calls from other components
+      - calls ``resetAttributesPage``, reset shared attributes between components
 :::
-
-
-

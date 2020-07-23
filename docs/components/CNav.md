@@ -1,14 +1,12 @@
 #  CNav <Badge text="Navbar"/>
 
 This component represents the navigation navbar, it uses the array defined in ``routes.js`` to load the menu.
-It has a ``Button`` that call refresh and an input type ``Select Option`` that change the interval of refresh. The refresh method is called each ``refreshInterval``.
+It has a ``Button`` that call refresh and an input type ``select`` that allow to change the interval of refresh. The refresh method is called each ``refreshInterval``.
 
 <CImage src="cnav_design.png" caption="Design: Navbar"></CImage>
 
-
 ## Data
-
-   - ``updateTimes``: array that  is loaded the input select option, the value is given in  ``seconds``
+   - ``updateTimes:Array``: The value is given in  ``seconds``
 
 ``` js
       updateTimes: [
@@ -27,7 +25,6 @@ It has a ``Button`` that call refresh and an input type ``Select Option`` that c
 ## Methods
 | Name          | Function        |
 | ------------- |:-------------:|
-| refresh     | refresh the data of current page, just apply for components [CMessageTable](/super-bowl/components/CMessageTable), [CGroupTable](/super-bowl/components/CGroupTable), [CPipeTable](/super-bowl/components/CPipeTable)     |
-
+| refresh     | refresh the data of the current page, just apply for components [CMessageTable](/super-bowl/components/CMessageTable), [CGroupTable](/super-bowl/components/CGroupTable) |
 
 To update the refresh interval it uses the attribute  ``refreshInterval`` storage in ``store.js``

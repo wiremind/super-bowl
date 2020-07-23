@@ -37,7 +37,7 @@
             </option>
           </select>
           <a
-            @click="refresh"
+            @click="onClickRefresh"
             href="#"
             class="inline-block bg-gray-300 rounded text-sm pt-1 px-1 py-1 leading-none   text-white  hover:border-transparent hover:text-teal-500 hover:bg-white"
           >
@@ -70,7 +70,7 @@ export default {
     };
   },
   methods: {
-    refresh() {
+    onClickRefresh() {
       this.$store.dispatch('refresh');
     }
   },

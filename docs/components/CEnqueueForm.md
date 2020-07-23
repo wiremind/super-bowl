@@ -7,13 +7,13 @@ This components represents the form to Enqueue a Task on [Remoulade](https://git
 ## Data
 
 - ``response:String``: response after sending the form
-- ``errorsRequest:Array``:  Errors after the request
+- ``errorsRequest:Array``:  Errors after send the request
 - ``emptyName:Boolean``: False if the actor name has not been selected
-- ``invalidArgs``: False if the args are not in a valid format
-- ``invalidKwargs``: False if the kwargs are not in a valid format
-- ``invalidOptions``: False if the options are not in a valid format
-- ``isFormValid``: False if any ``invalidArgs, invalidKwargs, invalidOptions, emptyName`` is False
-- ``message:Object``: The neccesary data to create a task on [Remoulade](https://github.com/wiremind/remoulade).
+- ``invalidArgs:Boolean``: False if the args are not in a valid ``Array``
+- ``invalidKwargs:Boolean``: False if the kwargs are not a valid ``Dict``
+- ``invalidOptions:Boolean``: False if the options are not a valid ``Dict``
+- ``isFormValid:Boolean``: False if any ``invalidArgs, invalidKwargs, invalidOptions, emptyName`` is False
+- ``message:Object``: The data to create a task on [Remoulade](https://github.com/wiremind/remoulade).
   ``` js
     {
       actorName: '',
@@ -28,13 +28,10 @@ This components represents the form to Enqueue a Task on [Remoulade](https://git
 
 | Name          | Function        |
 | ------------- |:-------------:|
-| reset Form | initialize the inputs in the form|
-| checkForm | check if all content in inputs is valid|
-| submit | calls ``enqueueMessage(message)`` from ``store.js``, if is successful  shows <Badge text="Message Sent!" />|
+| resetForm | initialize the inputs in the form|
+| checkForm | check if all inputs are valid (set the value of ``isFormValid``|
+| submit    | calls ``enqueueMessage(message)`` from ``store.js``, if is successful  shows <Badge text="Message Sent!" />|
 
 ::: warning
    - when this component is created ``getActors`` from ``store.js``  is called.
 :::
-
-
-

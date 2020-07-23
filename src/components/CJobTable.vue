@@ -42,7 +42,6 @@ import utils from '@/utils';
 export default {
   name: 'CJobTable',
   components: { CTh, CJobRow, CSearchInput },
-
   data() {
     return {
       columns: [
