@@ -21,17 +21,21 @@ This component is used by [CMessageTable](/super-bowl/components/CMessageTable),
 ## Data
   - ``canCancel:Boolean``: answers, can be canceled the current task?
   - ``isOpened:Boolean``: answers, Is the current hidden row opened?
-  - ``onError:Boolean``: answers: there was an error executing an action with the current task?
-  - ``error:String``: storage the error, after the action
+  - ``response:String``: response after calling ``cancel`` or ``requeue`` action (displayed for 3 seconds)
   - ``nameState:String``: the name of the state, it is copy of ``name`` received by the props
-  - ``txtBtnCancel:String``: the text in the button cancel
 
 ## Methods
 | Name          | Function        |
 | ------------- |:-------------:|
 | ``getColorState(name)``| Return the color of the asociated state|
 | ``cancelMessage`` | call an action from the ``store.js`` to cancel the current Message|
+| ``requeueMessage`` | call an action from the ``store.js`` to requeue the current Message|
+
 
 ::: tip
 A Message is a task on  [Remoulade](https://github.com/wiremind/remoulade).
+:::
+
+::: warning
+When a Message is requeued is created a new Message
 :::

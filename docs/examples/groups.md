@@ -50,6 +50,7 @@ if __name__ == "__main__":
     ]
     # creating a group
     group([count_words.message(url) for url in urls]).run()
+    # the port 5005 is the default port read by super-bowl
     app.run(host="localhost", port=5005)
 ```
 
@@ -58,4 +59,5 @@ if __name__ == "__main__":
 ``` sh
   $ python3 groups.py
   $ remoulade groups
+  # in another terminal run super-bowl to see the dashboard
 ```

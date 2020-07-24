@@ -7,7 +7,7 @@
       {{ dailyTime }}
     </td>
     <td class="border px-4 py-2">
-      {{ enabled }}
+      {{ enabled ? 'True' : 'False' }}
     </td>
     <td class="border px-4 py-2">
       {{ interval | formatSeconds }}
@@ -16,10 +16,10 @@
       {{ isoWeekday | formatWeekDay }}
     </td>
     <td class="border px-4 py-2">
-      {{ args }}
+      <pre>{{ args | json }}</pre>
     </td>
     <td class="border px-4 py-2">
-      {{ kwargs }}
+      <pre>{{ kwargs | json }}</pre>
     </td>
     <td class="border px-4 py-2">
       {{ lastQueued | formatDistance }}
@@ -68,6 +68,9 @@ export default {
       }
       const currentDate = new Date();
       return formatDistanceStrict(addSeconds(currentDate, seconds), currentDate);
+    },
+    json(obj) {
+      return obj ? JSON.stringify(obj, undefined) : '';
     }
   }
 };
