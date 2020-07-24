@@ -23,6 +23,7 @@ If you’re new to SuperBowl you can get started by [following the examples](/su
     - Enqueue a Task (Message)
     - Cancel a (Task, Group)
     - Control Refresh time of dashboard
+    - Requeue a Task
 
 
 ## Installation

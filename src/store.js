@@ -127,6 +127,9 @@ const store = new Vuex.Store({
     cancelMessage(context, messageId) {
       return api.cancelMessage(messageId);
     },
+    requeueMessage(context, messageId) {
+      return api.requeue(messageId);
+    },
     enqueueMessage(context, message) {
       return api.enqueueMessage(message);
     },

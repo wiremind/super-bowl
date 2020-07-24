@@ -42,6 +42,13 @@ module.exports = {
           ['/examples/messages', 'Messages'],
           ['/examples/groups', 'Groups']
         ]
+      },
+      {
+        title: 'Screenshots',
+        collapsable: false,
+        children: [
+          ['/screenshots/screenshots', 'Dashboard'],
+        ]
       }
     ],
     sidebarDepth: 0,

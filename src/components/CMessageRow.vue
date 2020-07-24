@@ -42,9 +42,17 @@
           type="button"
           class="bg-red-500 hover:bg-red-700 text-white py-1 px-2 rounded focus:outline-none focus:shadow-outline"
         >
-          {{ txtBtnCancel }}
+          Cancel
         </button>
-        <p class="pl-1 text-red-500" v-if="onError">{{ error }}</p>
+        <button
+          v-if="canRequeue"
+          @click.stop="requeueMessage"
+          type="button"
+          class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-2 rounded focus:outline-none focus:shadow-outline"
+        >
+          Requeue
+        </button>
+        <p class="pl-1 absolute bg-white mb-8" v-if="true">{{ response }}</p>
       </div>
     </td>
   </tr>
@@ -69,9 +77,7 @@ export default {
     return {
       canCancel: true,
       isOpened: false,
-      onError: false,
-      error: '',
-      txtBtnCancel: 'Cancel'
+      response: null
     };
   },
 
@@ -107,6 +113,9 @@ export default {
           utils.dateToUTC(this.endDatetime ? this.endDatetime : new Date())
       );
       return `${diff.hours}:${diff.minutes}:${diff.seconds}`;
+    },
+    canRequeue() {
+      return ['Success', 'Failure', 'Canceled', 'Skipped'].includes(this.stateName);
     }
   },
 
@@ -119,9 +128,30 @@ export default {
       };
       return colors[this.stateName] || 'black';
     },
+    showResponse(response) {
+      this.response = response;
+      setTimeout(() => {
+        this.response = null;
+      }, 3000);
+    },
     cancelMessage() {
-      this.canCancel = false;
-      this.$store.dispatch('cancelMessage', this.messageId);
+      this.$store
+        .dispatch('cancelMessage', this.messageId)
+        .then(() => {
+          this.canCancel = false;
+          this.showResponse('Message Canceled!');
+        })
+        .catch(error => {
+          this.showResponse('Error: ' + error.response.data.error);
+        });
+    },
+    requeueMessage() {
+      this.$store
+        .dispatch('requeueMessage', this.messageId)
+        .then(() => this.showResponse('Message Enqueued!'))
+        .catch(error => {
+          this.showResponse('Error: ' + error.response.data.error);
+        });
     },
     onToggle() {
       this.isOpened = !this.isOpened;

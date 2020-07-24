@@ -43,10 +43,13 @@ def leibniz(steps):
 broker.declare_actor(leibniz)
 
 if __name__ == "__main__":
-    # create five task to aproximates pi in:
-    #  [1000, 2000, ..., 5000] iterations
+    """
+     This will enqueue 5 separate messages and, assuming 
+     there are enough resources available, execute them in parallel.
+    """
     for i in range(1, 6):
         leibniz.send(steps=1000 * i)
+    # the port 5005 is the default port read by super-bowl    
     app.run(host="localhost", port=5005)
 ```
 
@@ -55,5 +58,5 @@ if __name__ == "__main__":
 ``` sh
   $ python3 messages.py
   $ remoulade messages
-  # open the web browser at localhost:5005 to see the results
+  # in another terminal run super-bowl to see the dashboard
 ```

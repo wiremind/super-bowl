@@ -98,7 +98,13 @@ const parseGroup = rawGroup => {
   };
 };
 
+const requeue = messageId => {
+  const url = '/messages/requeue/' + messageId;
+  return axios.get(url);
+};
+
 export default {
+  requeue,
   getArgsKwargs,
   getMessages,
   cancelMessage,
