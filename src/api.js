@@ -103,7 +103,13 @@ const requeue = messageId => {
   return axios.get(url);
 };
 
+const getResult = messageId => {
+  const url = '/messages/result/' + messageId;
+  return axios.get(url).then(res => res.data.result);
+};
+
 export default {
+  getResult,
   requeue,
   getArgsKwargs,
   getMessages,

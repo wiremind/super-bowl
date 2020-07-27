@@ -1,6 +1,6 @@
 <template>
   <tr>
-    <td class="border text-xs px-4 py-2" :colspan="colspan">
+    <td class="border text-xs px-4 py-2" :colspan="colspan - 3">
       <div class="text-xs">
         <div class="font-bold inline-block">Message Id</div>
         :{{ messageId }}
@@ -16,6 +16,10 @@
         class="text-xs bg-white"
       ><div class="font-bold inline-block">Kwargs</div>:{{kwargs | json}}</pre>
     </td>
+    <td class="border text-xs px-4 py-2" :colspan="3">
+      <pre class="text-xs bg-white" v-if="result">
+        <div class="font-bold inline-block">Result</div>:{{result}}</pre>
+    </td>
   </tr>
 </template>
 
@@ -27,12 +31,14 @@ export default {
   props: {
     messageId: String,
     actorName: String,
-    colspan: Number
+    colspan: Number,
+    stateName: String
   },
   data() {
     return {
       args: String,
-      kwargs: String
+      kwargs: String,
+      result: null
     };
   },
   computed: {
@@ -46,11 +52,25 @@ export default {
       return str && utils.isJson(str) ? JSON.stringify(utils.toJson(str), undefined, 2) : '';
     }
   },
+  watch: {
+    stateName() {
+      if (this.stateName == 'Success') {
+        api.getResult(this.messageId).then(x => {
+          this.result = x;
+        });
+      }
+    }
+  },
   created() {
     api.getArgsKwargs(this.messageId).then(res => {
       this.args = res.args;
       this.kwargs = res.kwargs;
     });
+    if (this.stateName == 'Success') {
+      api.getResult(this.messageId).then(x => {
+        this.result = x;
+      });
+    }
   }
 };
 </script>
