@@ -52,13 +52,18 @@ export default {
       return str && utils.isJson(str) ? JSON.stringify(utils.toJson(str), undefined, 2) : '';
     }
   },
-  watch: {
-    stateName() {
+  methods: {
+    updateResult() {
       if (this.stateName == 'Success') {
-        api.getResult(this.messageId).then(x => {
-          this.result = x;
+        api.getResult(this.messageId).then(res => {
+          this.result = res;
         });
       }
+    }
+  },
+  watch: {
+    stateName() {
+      this.updateResult();
     }
   },
   created() {
@@ -66,11 +71,7 @@ export default {
       this.args = res.args;
       this.kwargs = res.kwargs;
     });
-    if (this.stateName == 'Success') {
-      api.getResult(this.messageId).then(x => {
-        this.result = x;
-      });
-    }
+    this.updateResult();
   }
 };
 </script>

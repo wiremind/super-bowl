@@ -1,8 +1,6 @@
-# Messages <Badge text="example"/>
+# Groups <Badge text="example"/>
 
 This example create a function ``count_words`` that counts the words in the contents of a given page.
-
-<CImage src="example_groups.png" caption="Result Example tab /groups" zoom="true"></CImage>
 
 ## Script
 
@@ -33,10 +31,9 @@ remoulade.set_broker(broker)
 def count_words(url):
     msg = CurrentMessage.get_current_message()
     msg.set_progress(0)
-    response = requests.get(url)
-    count = len(response.text.split(" "))
+    count = len(requests.get(url).text.split(" "))
     msg.set_progress(1)
-    return count
+    print("number of words {}".format(count))
 
 
 broker.declare_actor(count_words)
@@ -61,3 +58,7 @@ if __name__ == "__main__":
   $ remoulade groups
   # in another terminal run super-bowl to see the dashboard
 ```
+
+## Result
+
+<CImage src="example_groups.png" caption="Results example tab /groups" zoom="true"></CImage>

@@ -14,10 +14,11 @@ If you’re new to SuperBowl you can get started by [following the examples](/su
 ## Features
 
 - Real-time monitoring
-    - View current Tasks (progress, state, enqueued time, started time, args, kwarg, and more)
+    - View current Tasks (progress, state, enqueued time, started time, args, kwargs, and more)
     - View current Groups (progress, messages in group, and more)
-    - Estimates ending time ( Task, Group)
+    - Estimates ending time (Task, Group)
     - View Scheduled Jobs (time, args, kwargs and more)
+    - View results (Task)
 
 - Actions
     - Enqueue a Task (Message)
@@ -33,7 +34,7 @@ If you’re new to SuperBowl you can get started by [following the examples](/su
 npm install
 ```
 
-#### Compiles and hot-reloads for development
+#### Run SuperBowl
 ```
 npm run serve
 ```
@@ -46,4 +47,10 @@ npm run build
 #### Lints and fixes files
 ```
 npm run lint
+```
+
+
+#### Run Docs
+```
+npm run docs:dev
 ```
