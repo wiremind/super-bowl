@@ -3,10 +3,12 @@
     <div class="max-w-7xl mx-auto px-2 sm:px-6">
       <div class="relative flex items-center justify-between h-16 fixed">
         <div class="flex-1 flex items-baseline justify-center sm:items-stretch sm:justify-start">
-          <img src="@/assets/img/logo_white.png" class="mr-2 logo" width="55rem" />
-          <div class="flex-shrink-0 py-1 mr-2 text-lg text-white font-bold">
-            SuperBowl
-          </div>
+          <a href="/"><img src="@/assets/img/logo.png" class="mr-2 logo" /></a>
+          <a href="/">
+            <div class="flex-shrink-0 py-1 mr-2 text-lg text-white font-bold">
+              SuperBowl
+            </div>
+          </a>
           <div class="flex">
             <template v-for="(route, index) in routes">
               <router-link
@@ -44,6 +46,9 @@
             <img src="@/assets/img/refresh.svg" width="20rem" />
           </a>
         </div>
+        <a href="https://wiremind.github.io/super-bowl/" target="_blank">
+          <img src="@/assets/img/help.svg" width="20rem" class="ml-1" />
+        </a>
       </div>
     </div>
   </nav>
@@ -92,6 +97,9 @@ select {
   height: 1.7rem;
 }
 .logo {
-  height: 2rem;
+  height: 2.2rem;
+  min-width: 2.2rem;
+  margin-right: 0.8rem;
+  vertical-align: top;
 }
 </style>
