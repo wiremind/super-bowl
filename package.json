@@ -11,7 +11,7 @@
     "docs:build": "vuepress build docs"
   },
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "core-js": "^3.6.4",
     "date-fns": "^2.13.0",
     "tailwindcss": "^1.3.4",
