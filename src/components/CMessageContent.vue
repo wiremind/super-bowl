@@ -11,14 +11,19 @@
       </div>
       <pre
         class="text-xs bg-white"
-      ><div class="font-bold inline-block">Args</div>:{{args | json}}</pre>
+      ><span class="font-bold inline-block">Args</span>:{{args | json}}</pre>
       <pre
         class="text-xs bg-white"
-      ><div class="font-bold inline-block">Kwargs</div>:{{kwargs | json}}</pre>
+      ><span class="font-bold inline-block">Kwargs</span>:{{kwargs | json}}</pre>
+      <pre
+        class="text-xs bg-white"
+      ><span class="font-bold inline-block">Options</span>:{{options | json}}</pre>
     </td>
     <td class="border text-xs px-4 py-2" :colspan="3">
-      <pre class="text-xs bg-white" v-if="result">
-        <div class="font-bold inline-block">Result</div>:{{result}}</pre>
+      <p class="text-xs bg-white" v-if="result">
+        <span class="font-bold inline-block">Result</span>
+        :{{ result }}
+      </p>
     </td>
   </tr>
 </template>
@@ -38,6 +43,7 @@ export default {
     return {
       args: String,
       kwargs: String,
+      options: String,
       result: null
     };
   },
@@ -54,7 +60,7 @@ export default {
   },
   methods: {
     updateResult() {
-      if (this.stateName == 'Success') {
+      if (this.stateName === 'Success') {
         api.getResult(this.messageId).then(res => {
           this.result = res;
         });
@@ -70,6 +76,7 @@ export default {
     api.getArgsKwargs(this.messageId).then(res => {
       this.args = res.args;
       this.kwargs = res.kwargs;
+      this.options = res.options;
     });
     this.updateResult();
   }

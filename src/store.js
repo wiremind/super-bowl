@@ -10,6 +10,7 @@ const store = new Vuex.Store({
     messages: [],
     jobs: [],
     actors: [],
+    options: [],
     groups: [],
     refreshInterval: 30,
     sizePage: 50,
@@ -44,6 +45,9 @@ const store = new Vuex.Store({
     },
     setActors(state, actors) {
       state.actors = actors;
+    },
+    setOptions(state, options) {
+      state.options = options;
     },
     setPageSize(state, sizePage) {
       state.sizePage = sizePage;
@@ -114,6 +118,9 @@ const store = new Vuex.Store({
         context.commit('setJobs', jobs);
       });
     },
+    getOptions(context) {
+      api.getOptions().then(options => context.commit('setOptions', options));
+    },
     getGroups(context) {
       context.commit('setLoading', true);
       api.getGroups(context.getters.args).then(groups => {
@@ -134,10 +141,10 @@ const store = new Vuex.Store({
       return api.enqueueMessage(message);
     },
     refresh(context) {
-      if (context.state.currentPath == '/') {
+      if (context.state.currentPath === '/') {
         context.dispatch('getActors');
         context.dispatch('getMessages');
-      } else if (context.state.currentPath == '/groups') {
+      } else if (context.state.currentPath === '/groups') {
         context.dispatch('getGroups');
       }
     },

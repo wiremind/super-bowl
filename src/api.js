@@ -8,7 +8,8 @@ const getArgsKwargs = id => {
 const parseArgs = rawMessage => {
   return {
     args: rawMessage.args,
-    kwargs: rawMessage.kwargs
+    kwargs: rawMessage.kwargs,
+    options: rawMessage.options
   };
 };
 
@@ -75,11 +76,21 @@ const getActors = () => {
 };
 
 const parseActor = rawActor => {
+  for (const arg of rawActor.args) {
+    if (arg.type === undefined) {
+      arg.type = 'empty';
+    }
+  }
   return {
     name: rawActor.name,
     priority: rawActor.priority,
-    queueName: rawActor.queue_name
+    queueName: rawActor.queue_name,
+    args: rawActor.args
   };
+};
+
+const getOptions = () => {
+  return axios.get('/options').then(res => res.data.options);
 };
 
 const getGroups = args => {
@@ -117,5 +128,6 @@ export default {
   getJobs,
   enqueueMessage,
   getActors,
+  getOptions,
   getGroups
 };

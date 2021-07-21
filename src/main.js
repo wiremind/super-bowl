@@ -3,12 +3,17 @@ import VueRouter from 'vue-router';
 import App from './App.vue';
 import '@/assets/css/tailwind.css';
 
+import VueCtkDateTimePicker from 'vue-ctk-date-time-picker';
+import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css';
+
 import routes from '@/routes';
 import store from './store';
 import { format } from 'date-fns';
 
 Vue.use(VueRouter);
 Vue.config.productionTip = false;
+
+Vue.component('VueCtkDateTimePicker', VueCtkDateTimePicker);
 
 const router = new VueRouter({ routes, mode: 'history', linkExactActiveClass: 'bg-gray-900' });
 
