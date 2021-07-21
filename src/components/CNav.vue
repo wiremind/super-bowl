@@ -1,6 +1,6 @@
 <template>
   <nav class="bg-gray-800 ">
-    <div class="max-w-7xl mx-auto px-2 sm:px-6">
+    <div class="px-2 sm:px-6">
       <div class="relative flex items-center justify-between h-16 fixed">
         <div class="flex-1 flex items-baseline justify-center sm:items-stretch sm:justify-start">
           <a href="/"><img src="@/assets/img/logo.png" class="mr-2 logo" /></a>
@@ -28,7 +28,7 @@
         >
           <select
             v-model="refreshInterval"
-            class="inline-block bg-gray-300  mr-1  text-black leading-none border-white hover:border-transparent hover:text-teal-500 hover:bg-whit"
+            class="inline-block bg-gray-300  mr-1  text-black leading-none border-white hover:border-transparent hover:text-teal-500 hover:bg-white p-0"
           >
             <option
               v-for="updateTime in updateTimes"

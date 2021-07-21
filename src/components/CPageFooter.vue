@@ -2,7 +2,7 @@
   <div>
     <div class="inline float-left">
       <span class="font-bold mt-2 mr-2 ml-5">Items per page</span>
-      <select v-model.number="sizePage" class="browser-default">
+      <select v-model.number="sizePage" class="browser-default bg-white">
         <option v-for="size in sizes" :key="size.text" :value="size.value">
           {{ size.text }}
         </option>

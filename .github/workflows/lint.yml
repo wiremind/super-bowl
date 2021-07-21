@@ -1,7 +1,6 @@
 name: lint
 
-on:
-  [push, pull_request]
+on: [push, pull_request]
 
 jobs:
   run-linters:
@@ -9,11 +8,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Git Repository
-        uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+        uses: actions/checkout@v2
+      - name: Install Node
+        uses: actions/setup-node@v2
         with:
           node-version: 12
-      - uses: stefanoeb/eslint-action@1.0.2
+      - name: Install Modules
+        run: npm ci
+      - name: Run ESLint
+        run: npm run lint
 
   validate-commits:
     runs-on: ubuntu-latest

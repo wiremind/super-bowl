@@ -22,12 +22,12 @@
       {{ waitTime }}
     </td>
     <td class="border px-4 py-2">
-      <div v-if="stateName == 'Success' || stateName === 'Failure'" class="whitespace-normal">
+      <div v-if="stateName === 'Success' || stateName === 'Failure'" class="whitespace-normal">
         {{ executionTime }}
       </div>
     </td>
     <td class="border px-4 py-2">
-      <div v-if="stateName == 'Started'">
+      <div v-if="stateName === 'Started'">
         {{ remainingTime }}
       </div>
     </td>
@@ -94,7 +94,7 @@ export default {
         this.endDatetime ||
         !this.progress ||
         !this.startedDatetime ||
-        this.stateName != 'Started'
+        this.stateName !== 'Started'
       ) {
         return null;
       }
