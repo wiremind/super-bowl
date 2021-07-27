@@ -9,7 +9,8 @@
       placeholder="Search..."
       type="search"
       style="text-indent:20px"
-      v-model.lazy="filter"
+      v-model="typedFilter"
+      @change="filter = typedFilter"
     />
     <div class="loader absolute right-0" v-if="isLoading">Loading...</div>
   </div>
@@ -19,6 +20,11 @@ import { mapState } from 'vuex';
 
 export default {
   name: 'CSearchInput',
+  data: function() {
+    return {
+      typedFilter: ''
+    };
+  },
   computed: {
     ...mapState(['isLoading']),
     filter: {
