@@ -90,7 +90,7 @@ export default {
     CListInput,
     CDictInput
   },
-  data: function() {
+  data: function () {
     let parsingType = 'String';
     if (this.parseAs !== undefined) {
       parsingType = this.parseAs;
@@ -101,7 +101,7 @@ export default {
     };
   },
   methods: {
-    parseUpdate: function(newValue) {
+    parseUpdate: function (newValue) {
       if (this.isChild) {
         this.$emit('parseUpdate', newValue);
       } else {
@@ -110,7 +110,7 @@ export default {
     }
   },
   computed: {
-    invalidInput: function() {
+    invalidInput: function () {
       return (
         (!this.validity &&
           (Boolean(this.name.match(/_value$/)) || Boolean(this.name.match(/_key$/)))) ||
@@ -127,10 +127,10 @@ export default {
     }
   },
   watch: {
-    validity: function(newValue) {
+    validity: function (newValue) {
       this.$emit('validityUpdate', newValue);
     },
-    parseAs: function(newValue) {
+    parseAs: function (newValue) {
       this.parsingType = newValue;
     }
   }

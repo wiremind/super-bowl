@@ -16,9 +16,7 @@
     >
       <div class="flex flex-wrap -mx-3 mb-6">
         <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-          <label for="field_actor_name">
-            Actor Name
-          </label>
+          <label for="field_actor_name">Actor Name</label>
           <div class="relative">
             <select
               class="arg-input mb-0 h-12"
@@ -35,9 +33,7 @@
           </div>
         </div>
         <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-          <label for="grid-last-name">
-            delay(ms)
-          </label>
+          <label for="grid-last-name">delay(ms)</label>
           <div class="relative">
             <input
               class="arg-input mb-0 h-12"
@@ -64,9 +60,7 @@
         <hr class="my-5" />
         <c-options-input v-model="message.options" :options="options" />
         <div class="w-full flex justify-end pt-10 space-x-3">
-          <button class="btn btn-clear" type="button" @click="resetForm">
-            Clear
-          </button>
+          <button class="btn btn-success" type="button" @click="resetForm">Clear</button>
           <button
             :class="{
               'hover:bg-blue-700': isFormValid,
@@ -118,7 +112,7 @@ export default {
   data: initialState,
   computed: {
     ...mapState(['actors', 'isLoading', 'options']),
-    isFormValid: function() {
+    isFormValid: function () {
       return (
         !this.emptyName &&
         Object.entries(this.validity).reduce((acc, curVal) => acc && curVal[1], true)

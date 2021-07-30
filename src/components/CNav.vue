@@ -1,13 +1,11 @@
 <template>
-  <nav class="bg-gray-800 ">
+  <nav class="bg-gray-800">
     <div class="px-2 sm:px-6">
       <div class="relative flex items-center justify-between h-16 fixed">
         <div class="flex-1 flex items-baseline justify-center sm:items-stretch sm:justify-start">
           <a href="/"><img src="@/assets/img/logo.png" class="mr-2 logo" /></a>
           <a href="/">
-            <div class="flex-shrink-0 py-1 mr-2 text-lg text-white font-bold">
-              SuperBowl
-            </div>
+            <div class="flex-shrink-0 py-1 mr-2 text-lg text-white font-bold">SuperBowl</div>
           </a>
           <div class="flex">
             <template v-for="(route, index) in routes">
@@ -15,7 +13,19 @@
                 :key="index"
                 :to="route.path"
                 v-if="route.path != '*'"
-                class="px-3 py-2 rounded-md text-sm font-medium leading-5 text-white focus:outline-none focus:text-white transition duration-150 ease-in-out"
+                class="
+                  px-3
+                  py-2
+                  rounded-md
+                  text-sm
+                  font-medium
+                  leading-5
+                  text-white
+                  focus:outline-none focus:text-white
+                  transition
+                  duration-150
+                  ease-in-out
+                "
               >
                 {{ route.name }}
               </router-link>
@@ -23,12 +33,29 @@
           </div>
         </div>
         <div
-          class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0"
+          class="
+            absolute
+            inset-y-0
+            right-0
+            flex
+            items-center
+            pr-2
+            sm:static sm:inset-auto sm:ml-6 sm:pr-0
+          "
           v-if="this.$route.meta.requiresRefreshButton"
         >
           <select
             v-model="refreshInterval"
-            class="inline-block bg-gray-300  mr-1  text-black leading-none border-white hover:border-transparent hover:text-teal-500 hover:bg-white p-0"
+            class="
+              inline-block
+              bg-gray-300
+              mr-1
+              text-black
+              leading-none
+              border-white
+              hover:border-transparent hover:text-teal-500 hover:bg-white
+              p-0
+            "
           >
             <option
               v-for="updateTime in updateTimes"
@@ -41,7 +68,18 @@
           <a
             @click="onClickRefresh"
             href="#"
-            class="inline-block bg-gray-300 rounded text-sm pt-1 px-1 py-1 leading-none   text-white  hover:border-transparent hover:text-teal-500 hover:bg-white"
+            class="
+              inline-block
+              bg-gray-300
+              rounded
+              text-sm
+              pt-1
+              px-1
+              py-1
+              leading-none
+              text-white
+              hover:border-transparent hover:text-teal-500 hover:bg-white
+            "
           >
             <img src="@/assets/img/refresh.svg" width="20rem" />
           </a>

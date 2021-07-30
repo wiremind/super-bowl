@@ -26,7 +26,7 @@ describe('Computed properties in Message Row', () => {
   test.each(cases)(
     'given %p and %p as arguments, returns %p',
     (startedDatetime, progress, expectedResult) => {
-      const currentDate = new Date('December 10, 2020 01:10:00 UTC');
+      const currentDate = new Date('December 10, 2020 01:10:00');
       // mock time
       advanceTo(currentDate);
 

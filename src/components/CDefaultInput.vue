@@ -26,13 +26,13 @@ export default {
     value: undefined,
     invalidInput: Boolean
   },
-  data: function() {
+  data: function () {
     return {
       displayValue: this.rawValue
     };
   },
   computed: {
-    validity: function() {
+    validity: function () {
       if (this.parseAs === 'Json') {
         return utils.isJson(this.rawValue);
       } else {
@@ -76,10 +76,10 @@ export default {
     }
   },
   watch: {
-    validity: function(newValue) {
+    validity: function (newValue) {
       this.$emit('validityUpdate', newValue);
     },
-    parseAs: function(newValue) {
+    parseAs: function (newValue) {
       if (newValue === 'Json') {
         if (utils.isJson(this.rawValue)) {
           this.$emit('input', JSON.parse(this.rawValue));
@@ -91,7 +91,7 @@ export default {
       }
     }
   },
-  created: function() {
+  created: function () {
     if (this.rawValue === undefined) {
       this.$emit('input', '');
     }
