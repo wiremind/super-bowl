@@ -34,22 +34,17 @@
     <td class="border px-4 py-2">
       <pre class="text-xs whitespace-normal">{{ progress | percentage }}</pre>
     </td>
-    <td class=" border  px-4 py-2">
-      <div class="inline-flex items-center ">
+    <td class="border px-4 py-2">
+      <div class="inline-flex items-center">
         <button
           v-if="stateName === 'Pending' && canCancel"
           @click.stop="cancelMessage"
           type="button"
-          class="bg-red-500 hover:bg-red-700 text-white py-1 px-2 rounded focus:outline-none focus:shadow-outline"
+          class="btn btn-xs btn-danger"
         >
           Cancel
         </button>
-        <button
-          v-if="canRequeue"
-          @click.stop="requeueMessage"
-          type="button"
-          class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-2 rounded focus:outline-none focus:shadow-outline"
-        >
+        <button v-if="canRequeue" @click.stop="requeueMessage" type="button" class="btn btn-xs">
           Requeue
         </button>
         <p class="pl-1 absolute bg-white mb-8" v-if="true">{{ response }}</p>

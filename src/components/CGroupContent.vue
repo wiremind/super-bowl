@@ -2,7 +2,7 @@
   <tr>
     <td
       class="border text-xs px-4 py-2"
-      style="background-color:whitesmoke"
+      style="background-color: whitesmoke"
       :colspan="columns.length"
     >
       <div class="px-4 pt-2">

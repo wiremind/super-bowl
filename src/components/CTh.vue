@@ -1,6 +1,6 @@
 <template>
   <th class="border-2 px-2" :key="name">
-    <div class=" w-full">
+    <div class="w-full">
       <div
         class="ml-2 font-semibold text-sm"
         @click="setSortColumnAndDirection"

@@ -38,7 +38,7 @@ export default {
     invalidInput: Boolean
   },
   computed: {
-    validity: function() {
+    validity: function () {
       if (
         this.argType === 'datetime' ||
         this.argType === 'date' ||
@@ -66,11 +66,11 @@ export default {
     }
   },
   watch: {
-    validity: function(newValue) {
+    validity: function (newValue) {
       this.$emit('validityUpdate', newValue);
     }
   },
-  created: function() {
+  created: function () {
     if (this.inputValue === undefined) {
       switch (this.argType) {
         case 'int':

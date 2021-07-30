@@ -4,11 +4,10 @@
       <img src="@/assets/img/lupe.svg" width="17rem" height="20rem" />
     </div>
     <input
-      class="placeholder-gray-700 bg-gray-100 mr-2 text-sm font-medium leading-5  focus:outline-none  py-2 px-2 block w-full appearance-none leading-normal"
       id="filter"
       placeholder="Search..."
       type="search"
-      style="text-indent:20px"
+      style="text-indent: 20px"
       v-model="typedFilter"
       @change="filter = typedFilter"
     />
@@ -20,7 +19,7 @@ import { mapState } from 'vuex';
 
 export default {
   name: 'CSearchInput',
-  data: function() {
+  data: function () {
     return {
       typedFilter: ''
     };

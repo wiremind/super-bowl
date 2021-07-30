@@ -40,9 +40,7 @@
         :isInvalid="!valueMap[index].valueValidity"
         :parseAs="parseValueAs"
       />
-      <button type="button" @click="deleteKey(index)" class="btn btn-remove">
-        Remove
-      </button>
+      <button type="button" @click="deleteKey(index)" class="btn btn-danger">Remove</button>
     </div>
   </div>
 </template>
@@ -55,7 +53,7 @@ export default {
     name: String,
     argType: String
   },
-  data: function() {
+  data: function () {
     this.$emit('input', {});
     const keyType = this.argType.substring(
       this.argType.indexOf('[') + 1,
@@ -135,11 +133,11 @@ export default {
     }
   },
   computed: {
-    isInvalid: function() {
+    isInvalid: function () {
       const isKeyEmpty = this.typedKey === '';
       return isKeyEmpty || !this.typedValueValidity || !this.typedKeyValidity;
     },
-    value: function() {
+    value: function () {
       const val = {};
       for (let i = 0; i < this.valueMap.length; i++) {
         if (
@@ -152,17 +150,17 @@ export default {
       }
       return val;
     },
-    validity: function() {
+    validity: function () {
       return this.valueMap.every(
         el => el.keyValueValidity && el.keyElementValidity && el.valueValidity
       );
     }
   },
   watch: {
-    value: function(newValue) {
+    value: function (newValue) {
       this.$emit('input', newValue);
     },
-    validity: function(newValue) {
+    validity: function (newValue) {
       this.$emit('validityUpdate', newValue);
     }
   }

@@ -1,8 +1,6 @@
 <template>
   <div class="w-full md:w-full mb-6 md:mb-0">
-    <label class="enqueue-label text-base my-5">
-      Options
-    </label>
+    <label class="enqueue-label text-base my-5">Options</label>
     <form class="w-full md:w-full h-10 flex justify-between mb-3" @submit.prevent="addOption">
       <select class="arg-input w-1/2 mr-2" v-model="selectedOption" @change="selectOption" required>
         <option v-for="(optionType, option) in filteredOptions" :key="option" :value="option">
@@ -44,7 +42,7 @@
           :argType="optionsTypes[option].type"
           @validityUpdate="optionsValidity[option] = $event"
         />
-        <button type="button" @click="$delete(inputOptions, option)" class="btn btn-remove">
+        <button type="button" @click="$delete(inputOptions, option)" class="btn btn-danger">
           Remove
         </button>
       </div>
@@ -59,7 +57,7 @@ export default {
   name: 'COptionsInput',
   components: { CActorArgument },
   props: ['value', 'option'],
-  data: function() {
+  data: function () {
     return {
       selectedOption: '',
       typedValue: '',
@@ -83,7 +81,7 @@ export default {
     };
   },
   methods: {
-    selectOption: function() {
+    selectOption: function () {
       this.inputValidity = true;
       switch (this.filteredOptions[this.selectedOption]) {
         case 'int':
@@ -110,7 +108,7 @@ export default {
         this.$emit('input', val);
       }
     },
-    filteredOptions: function() {
+    filteredOptions: function () {
       const filteredDict = {};
       for (const option of this.options) {
         if (this.optionsTypes[option] != null && this.inputOptions[option] === undefined) {
@@ -119,7 +117,7 @@ export default {
       }
       return filteredDict;
     },
-    validity: function() {
+    validity: function () {
       return Object.values(this.optionsValidity).every(el => el);
     }
   }
