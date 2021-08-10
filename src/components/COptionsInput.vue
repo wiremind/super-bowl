@@ -56,8 +56,8 @@ import CActorArgument from '@/components/CActorArgument';
 export default {
   name: 'COptionsInput',
   components: { CActorArgument },
-  props: ['value', 'option'],
-  data: function () {
+  props: ['value', 'options'],
+  data: function() {
     return {
       selectedOption: '',
       typedValue: '',
