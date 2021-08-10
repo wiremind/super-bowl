@@ -20,7 +20,11 @@ const store = new Vuex.Store({
     intervalId: null,
     sortedColumn: null,
     sortDirection: null,
-    filter: null,
+    selectedActors: null,
+    selectedStatuses: ['Started', 'Pending', 'Skipped', 'Cancelled', 'Failure', 'Success'],
+    selectedId: null,
+    startDateTime: null,
+    endDateTime: null,
     currentPage: 0,
     currentPath: null
   },
@@ -61,8 +65,20 @@ const store = new Vuex.Store({
     setGroups(state, groups) {
       state.groups = groups;
     },
-    setFilter(state, filter) {
-      state.filter = filter;
+    setSelectedActors(state, selectedActors) {
+      state.selectedActors = selectedActors;
+    },
+    setSelectedStatuses(state, selectedStatuses) {
+      state.selectedStatuses = selectedStatuses;
+    },
+    setSelectedId(state, selectedId) {
+      state.selectedId = selectedId;
+    },
+    setStartDateTime(state, startDateTime) {
+      state.startDateTime = startDateTime;
+    },
+    setEndDateTime(state, endDateTime) {
+      state.endDateTime = endDateTime;
     },
     setSortDirection(state, direction) {
       state.sortDirection = direction;
@@ -77,7 +93,11 @@ const store = new Vuex.Store({
       state.currentPath = path;
     },
     resetAttributesPage(state) {
-      state.filter = null;
+      state.selectedActors = null;
+      state.selectedStatuses = ['Started', 'Pending', 'Skipped', 'Cancelled', 'Failure', 'Success'];
+      state.selectedId = null;
+      state.startDateTime = null;
+      state.endDateTime = null;
       state.sortedColumn = null;
       state.sortDirection = null;
       state.currentPage = 0;
@@ -88,9 +108,14 @@ const store = new Vuex.Store({
     args: state => {
       return {
         size: state.sizePage,
-        search_value: state.filter,
         sort_column: state.sortedColumn ? utils.camelCaseToUnderScore(state.sortedColumn) : null,
         sort_direction: state.sortDirection,
+        selected_actors: state.selectedActors,
+        selected_statuses: state.selectedStatuses,
+        selected_ids:
+          state.selectedId !== '' && state.selectedId != null ? [state.selectedId] : null,
+        start_datetime: state.startDateTime,
+        end_datetime: state.endDateTime,
         offset: state.currentPage * state.sizePage
       };
     }
@@ -169,8 +194,28 @@ const store = new Vuex.Store({
       context.commit('setCurrentPage', 0);
       context.dispatch('refresh');
     },
-    updateFilter(context, filter) {
-      context.commit('setFilter', filter);
+    updateSelectedActors(context, selectedActors) {
+      context.commit('setSelectedActors', selectedActors);
+      context.commit('setCurrentPage', 0);
+      context.dispatch('refresh');
+    },
+    updateSelectedStatuses(context, selectedStatuses) {
+      context.commit('setSelectedStatuses', selectedStatuses);
+      context.commit('setCurrentPage', 0);
+      context.dispatch('refresh');
+    },
+    updateSelectedId(context, selectedId) {
+      context.commit('setSelectedId', selectedId);
+      context.commit('setCurrentPage', 0);
+      context.dispatch('refresh');
+    },
+    updateStartDateTime(context, startDateTime) {
+      context.commit('setStartDateTime', startDateTime);
+      context.commit('setCurrentPage', 0);
+      context.dispatch('refresh');
+    },
+    updateEndDateTime(context, endDateTime) {
+      context.commit('setEndDateTime', endDateTime);
       context.commit('setCurrentPage', 0);
       context.dispatch('refresh');
     },
@@ -184,6 +229,13 @@ const store = new Vuex.Store({
     },
     updateSortedColumn(context, column) {
       context.commit('setSortedColumn', column);
+    },
+    cleanStates(context, minDateTime) {
+      const interval = Math.round(
+        new Date(Date.now()).getTime() - new Date(minDateTime).getTime() / 1000
+      );
+      const args = { max_age: interval };
+      api.cleanStates(args).then(() => this.updateCurrentPage());
     }
   }
 });

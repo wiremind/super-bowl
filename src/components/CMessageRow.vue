@@ -1,6 +1,9 @@
 <template>
-  <tr class="border-b text-xs border-gray-200 hover:bg-blue-100 cursor-pointer" @click="onToggle">
-    <td class="border px-4 py-2">
+  <tr
+    class="border-b text-xs border-gray-200 hover:bg-blue-100 cursor-pointer"
+    @click.exact="onToggle"
+  >
+    <td class="border px-4 py-2" @click.alt="searchActor">
       <div class="flex">
         <img v-if="isOpened" src="@/assets/img/expand_more.svg" width="20rem" />
         <img v-else src="@/assets/img/expand_less.svg" width="20rem" />
@@ -10,7 +13,11 @@
     <td class="border px-4 py-2">
       {{ priority }}
     </td>
-    <td class="border px-4 py-2 font-semibold" :style="{ color: getColorState() }">
+    <td
+      class="border px-4 py-2 font-semibold"
+      :style="{ color: getColorState() }"
+      @click.alt="searchState"
+    >
       {{ stateName }}
     </td>
     <td class="border px-4 py-2">
@@ -32,7 +39,9 @@
       </div>
     </td>
     <td class="border px-4 py-2">
-      <pre class="text-xs whitespace-normal">{{ progress | percentage }}</pre>
+      <pre class="text-xs whitespace-normal" v-if="stateName !== 'Success'">{{
+        progress | percentage
+      }}</pre>
     </td>
     <td class="border px-4 py-2">
       <div class="inline-flex items-center">
@@ -151,6 +160,12 @@ export default {
     onToggle() {
       this.isOpened = !this.isOpened;
       this.$emit('onToggle', this.messageId);
+    },
+    searchActor() {
+      this.$store.dispatch('updateSelectedActors', [this.actorName]);
+    },
+    searchState() {
+      this.$store.dispatch('updateSelectedStatuses', [this.stateName]);
     }
   }
 };
