@@ -20,7 +20,7 @@
             :messageId="m.messageId"
             :actorName="m.actorName"
             :priority="m.priority"
-            :stateName="m.name"
+            :stateName="m.status"
             :progress="m.progress"
             :enqueuedDatetime="m.enqueuedDatetime"
             :startedDatetime="m.startedDatetime"
@@ -31,7 +31,7 @@
             v-if="openedRows.includes(m.messageId)"
             :key="m.messageId + 'message-content'"
             :messageId="m.messageId"
-            :stateName="m.name"
+            :stateName="m.status"
             :colspan="columns.length"
             :actorName="m.actorName"
           ></c-message-content>
@@ -65,7 +65,7 @@ export default {
         // if the column is sortable must have a name
         { label: 'Actor', name: 'actorName', sortable: true },
         { label: 'Priority', name: 'priority', sortable: true },
-        { label: 'State', name: 'name', sortable: true },
+        { label: 'State', name: 'status', sortable: true },
         { label: 'Started time', name: 'startedDatetime', sortable: true },
         { label: 'Wait time' },
         { label: 'Execution time' },

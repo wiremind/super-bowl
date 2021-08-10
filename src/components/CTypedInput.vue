@@ -22,7 +22,9 @@
           ? 'YYYY-MM-DD HH:mm'
           : 'YYYY-MM-DD'
       "
-      :formatted="argType === 'date' || argType === 'datetime.date' ? 'll' : 'llll'"
+      :formatted="
+        argType === 'date' || argType === 'datetime.date' ? 'll' : 'ddd DD MMM YYYY HH:mm'
+      "
       :only-date="argType === 'date' || argType === 'datetime.date'"
       :class="{ 'invalid-input border': invalidInput }"
     />

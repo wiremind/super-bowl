@@ -16,9 +16,7 @@ const parseArgs = rawMessage => {
 const getMessages = args => {
   const url = '/messages/states';
   return axios
-    .get(url, {
-      params: args
-    })
+    .post(url, args)
     .then(res => ({ count: res.data.count, data: res.data.data.map(parseMessage) }));
 };
 
@@ -26,7 +24,7 @@ const parseMessage = rawMessage => {
   return {
     priority: rawMessage.priority,
     messageId: rawMessage.message_id,
-    name: rawMessage.name,
+    status: rawMessage.status,
     actorName: rawMessage.actor_name,
     progress: rawMessage.progress ? rawMessage.progress : null,
     enqueuedDatetime: rawMessage.enqueued_datetime ? new Date(rawMessage.enqueued_datetime) : null,
@@ -93,12 +91,10 @@ const getOptions = () => {
   return axios.get('/options').then(res => res.data.options);
 };
 
-const getGroups = args => {
+const getGroups = () => {
   const url = '/groups';
   return axios
-    .get(url, {
-      params: args
-    })
+    .post(url)
     .then(res => ({ count: res.data.count, data: res.data.data.map(parseGroup) }));
 };
 
@@ -119,7 +115,13 @@ const getResult = messageId => {
   return axios.get(url).then(res => res.data.result);
 };
 
+const cleanStates = args => {
+  const url = '/messages/states/';
+  return axios.delete(url, args);
+};
+
 export default {
+  cleanStates,
   getResult,
   requeue,
   getArgsKwargs,
