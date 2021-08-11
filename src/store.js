@@ -158,7 +158,7 @@ const store = new Vuex.Store({
     updateRefreshInterval(context, intervalId) {
       context.commit('clearIntervalTimeOut');
       context.commit('setRefreshInterval', intervalId);
-      if (context.state.intervalId) {
+      if (context.state.intervalId && intervalId != null) {
         context.dispatch('startRefresh');
       }
     },
