@@ -151,7 +151,9 @@ const store = new Vuex.Store({
     startRefresh(context) {
       context.dispatch('refresh');
       const intervalId = setInterval(() => {
-        context.dispatch('refresh');
+        if (!context.state.isLoading) {
+          context.dispatch('refresh');
+        }
       }, context.state.refreshInterval * 1000);
       context.commit('setIntervalId', intervalId);
     },
