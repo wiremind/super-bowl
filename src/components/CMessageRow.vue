@@ -7,46 +7,51 @@
       <div class="flex">
         <img v-if="isOpened" src="@/assets/img/expand_more.svg" width="20rem" />
         <img v-else src="@/assets/img/expand_less.svg" width="20rem" />
-        <pre class="text-xs ml-2 whitespace-normal">{{ actorName }}</pre>
+        <pre class="text-xs ml-2 whitespace-normal">{{ message.actorName }}</pre>
       </div>
     </td>
     <td class="border px-4 py-2">
-      {{ priority }}
+      {{ message.priority }}
     </td>
     <td
       class="border px-4 py-2 font-semibold"
       :style="{ color: getColorState() }"
       @click.alt="searchState"
     >
-      {{ stateName }}
+      {{ message.status }}
     </td>
     <td class="border px-4 py-2">
-      <div class="whitespace-normal" v-if="stateName !== 'Success' || stateName !== 'Failure'">
-        {{ startedDatetime | datetime }}
+      <div class="whitespace-normal">
+        {{ message.startedDatetime | datetime }}
       </div>
     </td>
     <td class="border px-4 py-2">
-      {{ waitTime }}
+      <div
+        v-if="message.waitTime && (message.status === 'Pending' || message.startedDatetime)"
+        class="whitespace-normal"
+      >
+        {{ waitTime }}
+      </div>
     </td>
     <td class="border px-4 py-2">
-      <div v-if="stateName === 'Success' || stateName === 'Failure'" class="whitespace-normal">
+      <div v-if="message.executionTime" class="whitespace-normal">
         {{ executionTime }}
       </div>
     </td>
     <td class="border px-4 py-2">
-      <div v-if="stateName === 'Started'">
+      <div v-if="message.remainingTime">
         {{ remainingTime }}
       </div>
     </td>
     <td class="border px-4 py-2">
-      <pre class="text-xs whitespace-normal" v-if="stateName !== 'Success'">{{
-        progress | percentage
+      <pre v-if="!message.endDateTime" class="text-xs whitespace-normal">{{
+        message.progress | percentage
       }}</pre>
     </td>
     <td class="border px-4 py-2">
-      <div class="inline-flex items-center">
+      <div class="inline-flex items-center" v-if="!message.type">
         <button
-          v-if="stateName === 'Pending' && canCancel"
+          v-if="message.status === 'Pending' && canCancel"
           @click.stop="cancelMessage"
           type="button"
           class="btn btn-xs btn-danger"
@@ -68,14 +73,7 @@ import utils from '@/utils';
 export default {
   name: 'CMessageRow',
   props: {
-    priority: Number,
-    messageId: String,
-    stateName: String,
-    actorName: String,
-    progress: Number,
-    enqueuedDatetime: Date,
-    startedDatetime: Date,
-    endDatetime: Date
+    message: Object
   },
   data() {
     return {
@@ -87,36 +85,19 @@ export default {
 
   computed: {
     waitTime() {
-      if (!this.startedDatetime || !this.enqueuedDatetime) {
-        return null;
-      }
-      const diff = utils.formatMillis(this.startedDatetime - this.enqueuedDatetime);
+      const diff = utils.formatMillis(this.message.waitTime);
       return `${diff.hours}:${diff.minutes}:${diff.seconds}`;
     },
     remainingTime() {
-      if (
-        this.endDatetime ||
-        !this.progress ||
-        !this.startedDatetime ||
-        this.stateName !== 'Started'
-      ) {
-        return null;
-      }
-      const factor = (1 - this.progress) / this.progress;
-      const diff = utils.formatMillis((new Date() - this.startedDatetime) * factor);
+      const diff = utils.formatMillis(this.message.remainingTime);
       return `${diff.hours}:${diff.minutes}:${diff.seconds}`;
     },
     executionTime() {
-      if (!this.startedDatetime) {
-        return null;
-      }
-      const diff = utils.formatMillis(
-        this.startedDatetime - this.endDatetime ? this.endDatetime : new Date()
-      );
+      const diff = utils.formatMillis(this.message.executionTime);
       return `${diff.hours}:${diff.minutes}:${diff.seconds}`;
     },
     canRequeue() {
-      return ['Success', 'Failure', 'Canceled', 'Skipped'].includes(this.stateName);
+      return ['Success', 'Failure', 'Canceled', 'Skipped'].includes(this.message.status);
     }
   },
 
@@ -127,7 +108,7 @@ export default {
         Canceled: 'red',
         Failure: 'red'
       };
-      return colors[this.stateName] || 'black';
+      return colors[this.message.status] || 'black';
     },
     showResponse(response) {
       this.response = response;
@@ -137,7 +118,7 @@ export default {
     },
     cancelMessage() {
       this.$store
-        .dispatch('cancelMessage', this.messageId)
+        .dispatch('cancelMessage', this.message.messageId)
         .then(() => {
           this.canCancel = false;
           this.showResponse('Message Canceled!');
@@ -148,7 +129,7 @@ export default {
     },
     requeueMessage() {
       this.$store
-        .dispatch('requeueMessage', this.messageId)
+        .dispatch('requeueMessage', this.message.messageId)
         .then(() => this.showResponse('Message Enqueued!'))
         .catch(error => {
           this.showResponse('Error: ' + error.response.data.error);
@@ -156,13 +137,15 @@ export default {
     },
     onToggle() {
       this.isOpened = !this.isOpened;
-      this.$emit('onToggle', this.messageId);
+      this.$emit('toggle', this.message.messageId);
     },
     searchActor() {
-      this.$store.dispatch('updateSelectedActors', [this.actorName]);
+      if (!this.message.type) {
+        this.$store.dispatch('updateSelectedActors', [this.message.actorName]);
+      }
     },
     searchState() {
-      this.$store.dispatch('updateSelectedStatuses', [this.stateName]);
+      this.$store.dispatch('updateSelectedStatuses', [this.message.status]);
     }
   }
 };

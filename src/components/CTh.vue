@@ -3,7 +3,7 @@
     <div class="w-full">
       <div
         class="ml-2 font-semibold text-sm"
-        @click="setSortColumnAndDirection"
+        @click="sort"
         :class="{ 'cursor-pointer': isSortable }"
       >
         {{ label }}
@@ -18,40 +18,19 @@
 </template>
 
 <script>
-import utils from '@/utils';
 export default {
   name: 'CTh',
   props: {
     label: String,
     name: String,
-    isSortable: Boolean
+    isSortable: Boolean,
+    sortedColumn: String,
+    sortDirection: String
   },
   methods: {
-    setSortColumnAndDirection() {
+    sort() {
       if (this.isSortable) {
-        [this.sortedColumn, this.sortDirection] = utils.getSortColumnAndDirection(
-          this.name,
-          this.sortedColumn,
-          this.sortDirection
-        );
-      }
-    }
-  },
-  computed: {
-    sortedColumn: {
-      get() {
-        return this.$store.state.sortedColumn;
-      },
-      set(column) {
-        this.$store.dispatch('updateSortedColumn', column);
-      }
-    },
-    sortDirection: {
-      get() {
-        return this.$store.state.sortDirection;
-      },
-      set(direction) {
-        this.$store.dispatch('updateSortDirection', direction);
+        this.$emit('sort');
       }
     }
   }

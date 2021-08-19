@@ -10,7 +10,7 @@
       />
       <vue-ctk-date-time-picker
         v-model="endDateTime"
-        format="YYYY-MM-DD HH:mm"
+        format="YYYY-MM-DD HH:mmZ"
         formatted="ddd DD MMM YYYY HH:mm"
         label="End date"
         timeZone="fr"
@@ -75,11 +75,6 @@ export default {
       ],
       minDateTime: null
     };
-  },
-  methods: {
-    clean: function () {
-      this.$store.dispatch('cleanStates', this.minDateTime);
-    }
   },
   computed: {
     ...mapState(['isLoading', 'messages', 'actors']),

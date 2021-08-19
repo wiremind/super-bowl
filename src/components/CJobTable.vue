@@ -1,6 +1,5 @@
 <template>
   <div class="px-4 pt-2">
-    <c-search-input />
     <table class="w-full bg-white rounded mb-4">
       <thead>
         <tr class="bg-gray-100 h-8">
@@ -14,18 +13,13 @@
         </tr>
       </thead>
       <tbody>
-        <template v-for="(job, index) in displayedJobs">
+        <template v-for="(job, index) in editableJobs">
           <c-job-row
             :key="index"
-            :actorName="job.actorName"
-            :dailyTime="job.dailyTime"
-            :enabled="job.enabled"
-            :interval="job.interval"
-            :isoWeekday="job.isoWeekday"
-            :args="job.args"
-            :kwargs="job.kwargs"
-            :lastQueued="job.lastQueued"
-            :tz="job.tz"
+            v-bind.sync="job"
+            :is-edited="JSON.stringify(job) !== JSON.stringify(jobs[index])"
+            @save="$store.dispatch('saveJob', job)"
+            @discard="$set(editableJobs, index, Object.assign({}, jobs[index]))"
           ></c-job-row>
         </template>
       </tbody>
@@ -33,48 +27,40 @@
   </div>
 </template>
 <script>
-import CSearchInput from '@/components/CSearchInput';
 import { mapState } from 'vuex';
 import CTh from '@/components/CTh';
 import CJobRow from '@/components/CJobRow';
-import utils from '@/utils';
 
 export default {
   name: 'CJobTable',
-  components: { CTh, CJobRow, CSearchInput },
+  components: { CTh, CJobRow },
   data() {
     return {
       columns: [
-        { label: 'Actor Name', name: 'actorName', sortable: true },
+        { label: 'Actor Name', name: 'actorName' },
+        { label: 'Enabled', name: 'enabled' },
+        { label: 'Interval', name: 'interval' },
         { label: 'Daily Time', name: 'dailyTime' },
-        { label: 'Enabled', name: 'enabled', sortable: true },
-        { label: 'Interval', name: 'interval', sortable: true },
-        { label: 'Weekday', name: 'isoWeekday', sortable: true },
+        { label: 'Weekday', name: 'isoWeekday' },
         { label: 'Args', name: 'args' },
         { label: 'Kwargs', name: 'kwargs' },
-        { label: 'Last Queued', name: 'lastQueued', sortable: true },
-        { label: 'Time Zone', name: 'tz' }
-      ]
+        { label: 'Last Queued', name: 'lastQueued' },
+        { label: 'Time Zone', name: 'tz' },
+        { label: 'Actions', name: 'actions' }
+      ],
+      editableJobs: []
     };
   },
   computed: {
-    ...mapState(['jobs', 'isLoading', 'sortedColumn', 'sortDirection', 'filter']),
-    filteredJobs() {
-      if (!this.filter) {
-        return this.jobs;
-      }
-      const filterKeys = ['actorName'];
-      return utils.filterTable(this.jobs, this.filter, filterKeys);
-    },
-    displayedJobs() {
-      if (!this.sortedColumn) {
-        return this.filteredJobs;
-      }
-      return utils.sortTable(this.filteredJobs, this.sortDirection, this.sortedColumn);
-    }
+    ...mapState(['jobs'])
   },
   created() {
     this.$store.dispatch('getJobs');
+  },
+  watch: {
+    jobs: function (newValue) {
+      this.editableJobs = newValue.map(obj => Object.assign({}, obj));
+    }
   }
 };
 </script>

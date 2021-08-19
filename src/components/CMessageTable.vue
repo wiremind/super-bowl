@@ -1,89 +1,46 @@
 <template>
   <div class="px-4 pt-2">
     <c-search-input />
-    <table class="w-full bg-white rounded mb-4">
-      <thead>
-        <tr class="bg-gray-100 h-8">
-          <c-th
-            v-for="(column, index) in columns"
-            :label="column.label"
-            :name="column.name"
-            :key="index"
-            :isSortable="column.sortable"
-          ></c-th>
-        </tr>
-      </thead>
-      <tbody>
-        <template v-for="m in messages">
-          <c-message-row
-            :key="m.messageId + 'message-row'"
-            :messageId="m.messageId"
-            :actorName="m.actorName"
-            :priority="m.priority"
-            :stateName="m.status"
-            :progress="m.progress"
-            :enqueuedDatetime="m.enqueuedDatetime"
-            :startedDatetime="m.startedDatetime"
-            :endDatetime="m.endDatetime"
-            @onToggle="toggleRow"
-          ></c-message-row>
-          <c-message-content
-            v-if="openedRows.includes(m.messageId)"
-            :key="m.messageId + 'message-content'"
-            :messageId="m.messageId"
-            :queueName="m.queueName"
-            :stateName="m.status"
-            :colspan="columns.length"
-            :actorName="m.actorName"
-          ></c-message-content>
-        </template>
-        <tr class="border text-xs h-10 text-gray-800" v-if="countMessages > 10">
-          <td :colspan="columns.length">
-            <c-page-footer :total="countMessages"></c-page-footer>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <c-table
+      :messages="messages"
+      :countMessages="countMessages"
+      :sorted-column="sortedColumn"
+      :sort-direction="sortDirection"
+      name="main_table"
+      @sort="sort"
+    />
   </div>
 </template>
 
 <script>
-import CMessageRow from '@/components/CMessageRow';
-import CMessageContent from '@/components/CMessageContent';
 import CSearchInput from '@/components/CSearchInput';
-import CTh from '@/components/CTh';
-import CPageFooter from '@/components/CPageFooter';
+import CTable from '@/components/CTable';
 import { mapState } from 'vuex';
 import utils from '@/utils';
 require('@/assets/css/spinner.css');
 export default {
   name: 'CMessageTable',
-  components: { CMessageRow, CMessageContent, CTh, CPageFooter, CSearchInput },
-
-  data() {
-    return {
-      columns: [
-        // if the column is sortable must have a name
-        { label: 'Actor', name: 'actorName', sortable: true },
-        { label: 'Priority', name: 'priority', sortable: true },
-        { label: 'State', name: 'status', sortable: true },
-        { label: 'Started time', name: 'startedDatetime', sortable: true },
-        { label: 'Wait time' },
-        { label: 'Execution time' },
-        { label: 'Remaining time' },
-        { label: 'Progress', name: 'progress', sortable: true },
-        { label: 'Actions' }
-      ],
-      openedRows: []
-    };
+  components: {
+    CSearchInput,
+    CTable
   },
-
   computed: {
-    ...mapState(['messages', 'refreshInterval', 'actors', 'countMessages'])
-  },
-  methods: {
-    toggleRow(id) {
-      this.openedRows = utils.toggleItemFromList(id, this.openedRows);
+    ...mapState(['messages', 'refreshInterval', 'actors', 'countMessages']),
+    sortedColumn: {
+      get() {
+        return this.$store.state.sortedColumn;
+      },
+      set(column) {
+        this.$store.dispatch('updateSortedColumn', column);
+      }
+    },
+    sortDirection: {
+      get() {
+        return this.$store.state.sortDirection;
+      },
+      set(direction) {
+        this.$store.dispatch('updateSortDirection', direction);
+      }
     }
   },
   created() {
@@ -93,6 +50,15 @@ export default {
   beforeCreate() {
     this.$store.commit('clearIntervalTimeOut');
     this.$store.commit('resetAttributesPage');
+  },
+  methods: {
+    sort: function (columnName) {
+      [this.sortedColumn, this.sortDirection] = utils.getSortColumnAndDirection(
+        columnName,
+        this.sortedColumn,
+        this.sortDirection
+      );
+    }
   }
 };
 </script>

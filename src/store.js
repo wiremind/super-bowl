@@ -26,7 +26,8 @@ const store = new Vuex.Store({
     startDateTime: null,
     endDateTime: null,
     currentPage: 0,
-    currentPath: null
+    currentPath: null,
+    loadDateTime: null
   },
   mutations: {
     setRefreshInterval(state, interval) {
@@ -80,6 +81,9 @@ const store = new Vuex.Store({
     setEndDateTime(state, endDateTime) {
       state.endDateTime = endDateTime;
     },
+    setLoadDateTime(state, loadDateTime) {
+      state.loadDateTime = loadDateTime;
+    },
     setSortDirection(state, direction) {
       state.sortDirection = direction;
     },
@@ -122,12 +126,13 @@ const store = new Vuex.Store({
   actions: {
     getMessages(context) {
       context.commit('setLoading', true);
-      api.getMessages(context.getters.args).then(messages => {
+      api.getMessages(context.getters.args).then(data => {
+        context.commit('setLoadDateTime', data.loadDateTime);
         setTimeout(() => {
           context.commit('setLoading', false);
         }, 500);
-        context.commit('setCountMessages', messages.count);
-        context.commit('setMessages', messages.data);
+        context.commit('setCountMessages', data.count);
+        context.commit('setMessages', data.messages);
       });
     },
     getActors(context) {
@@ -145,16 +150,6 @@ const store = new Vuex.Store({
     getOptions(context) {
       api.getOptions().then(options => context.commit('setOptions', options));
     },
-    getGroups(context) {
-      context.commit('setLoading', true);
-      api.getGroups(context.getters.args).then(groups => {
-        setTimeout(() => {
-          context.commit('setLoading', false);
-        }, 500);
-        context.commit('setCountGroups', groups.count);
-        context.commit('setGroups', groups.data);
-      });
-    },
     cancelMessage(context, messageId) {
       return api.cancelMessage(messageId);
     },
@@ -168,8 +163,6 @@ const store = new Vuex.Store({
       if (context.state.currentPath === '/') {
         context.dispatch('getActors');
         context.dispatch('getMessages');
-      } else if (context.state.currentPath === '/groups') {
-        context.dispatch('getGroups');
       }
     },
     startRefresh(context) {
@@ -235,6 +228,15 @@ const store = new Vuex.Store({
       );
       const args = { max_age: interval };
       api.cleanStates(args).then(() => this.updateCurrentPage());
+    },
+    saveJob(context, job) {
+      context.commit('setLoading', true);
+      api.updateJob(job).then(jobs => {
+        setTimeout(() => {
+          context.commit('setLoading', false);
+        }, 500);
+        context.commit('setJobs', jobs);
+      });
     }
   }
 });
