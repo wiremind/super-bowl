@@ -75,7 +75,8 @@ export default {
     progress: Number,
     enqueuedDatetime: Date,
     startedDatetime: Date,
-    endDatetime: Date
+    endDatetime: Date,
+    colspan: Number
   },
   data() {
     return {
@@ -156,7 +157,7 @@ export default {
     },
     onToggle() {
       this.isOpened = !this.isOpened;
-      this.$emit('onToggle', this.messageId);
+      this.$emit('toggle', this.messageId);
     },
     searchActor() {
       this.$store.dispatch('updateSelectedActors', [this.actorName]);
