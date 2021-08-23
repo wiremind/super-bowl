@@ -3,11 +3,11 @@
     <td class="border text-xs px-4 py-2" :colspan="colspan - 3">
       <div class="text-xs">
         <div class="font-bold inline-block">Message Id</div>
-        : {{ messageId }}
+        : {{ message.messageId }}
       </div>
       <div class="text-xs">
         <div class="font-bold inline-block">Queue Name</div>
-        : {{ queueName }}
+        : {{ message.queueName }}
       </div>
       <pre
         class="text-xs bg-white"
@@ -33,11 +33,8 @@ import api from '@/api';
 export default {
   name: 'CMessageContent',
   props: {
-    messageId: String,
-    actorName: String,
-    queueName: String,
-    colspan: Number,
-    stateName: String
+    message: Object,
+    colspan: Number
   },
   data() {
     return {
@@ -54,8 +51,8 @@ export default {
   },
   methods: {
     updateResult() {
-      if (this.stateName === 'Success') {
-        api.getResult(this.messageId).then(res => {
+      if (this.message.status === 'Success') {
+        api.getResult(this.message.messageId).then(res => {
           this.result = res;
         });
       }
@@ -64,10 +61,24 @@ export default {
   watch: {
     stateName() {
       this.updateResult();
+    },
+    message() {
+      if (this.message.status) {
+        api.getArgsKwargs(this.message.messageId).then(res => {
+          this.args = res.args;
+          this.kwargs = res.kwargs;
+          this.options = res.options;
+        });
+        this.updateResult();
+      } else {
+        this.args = null;
+        this.kwargs = null;
+        this.options = null;
+      }
     }
   },
   created() {
-    api.getArgsKwargs(this.messageId).then(res => {
+    api.getArgsKwargs(this.message.messageId).then(res => {
       this.args = res.args;
       this.kwargs = res.kwargs;
       this.options = res.options;

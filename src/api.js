@@ -21,16 +21,14 @@ const getMessages = args => {
 };
 
 function parseMessages(data) {
-  console.log(data);
   function findTargetIndex(target_id) {
     return messages.findIndex(
       element =>
-        element.message_id === target_id ||
-        (element.type === 'pipeline' && element.messages[0] === target_id)
+        element.messageId === target_id ||
+        (element.type === 'pipeline' && element.messages[0].messageId === target_id)
     );
   }
   const messages = data.map(parseMessage);
-  console.log(messages);
   let pipe_index = messages.findIndex(element => element.pipe_target);
   while (pipe_index !== -1) {
     messages[pipe_index] = { type: 'pipeline', messages: [messages[pipe_index]] };
@@ -41,7 +39,7 @@ function parseMessages(data) {
         pipe_index -= 1;
       }
       if (next_message.type === 'pipeline') {
-        messages[pipe_index].messages.push(next_message.messages);
+        messages[pipe_index].messages = messages[pipe_index].messages.concat(next_message.messages);
       } else {
         messages[pipe_index].messages.push(next_message);
       }
@@ -66,7 +64,6 @@ function parseMessages(data) {
 
     pipe_index = messages.findIndex(element => !(element instanceof Array) && element.pipe_target);
   }
-  console.log(messages);
   return messages;
 }
 const parseMessage = rawMessage => {

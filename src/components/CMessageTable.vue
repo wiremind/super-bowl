@@ -15,36 +15,22 @@
       </thead>
       <tbody>
         <template v-for="message in messages">
-          <template v-if="message.type === 'pipeline'">
-            <c-pipeline-row
-              v-if="message.type === 'pipeline'"
-              :messages="message.messages"
-              :key="message.messages[0].messageId + 'pipeline-row'"
-            />
-          </template>
-          <template v-else>
-            <c-message-row
-              :key="message.messageId + 'message-row'"
-              :messageId="message.messageId"
-              :actorName="message.actorName"
-              :priority="message.priority"
-              :stateName="message.name"
-              :progress="message.progress"
-              :enqueuedDatetime="message.enqueuedDatetime"
-              :startedDatetime="message.startedDatetime"
-              :endDatetime="message.endDatetime"
-              @toggle="toggleRow"
-            />
-            <c-message-content
-              v-if="openedRows.includes(message.messageId)"
-              :key="message.messageId + 'message-content'"
-              :messageId="message.messageId"
-              :stateName="message.name"
-              :queueName="m.queueName"
-              :colspan="columns.length"
-              :actorName="message.actorName"
-            />
-          </template>
+          <tr
+            :is="rowType(message)"
+            :message="message"
+            @toggle="toggleRow"
+            :key="(message.messageId || message.messages[0].messageId) + '_row'"
+          />
+          <tr
+            v-if="
+              openedRows.includes(message.messageId) ||
+              (message.type === 'pipeline' && openedRows.includes(message.messages[0].messageId))
+            "
+            :is="contentType(message)"
+            :key="(message.messageId || message.messages[0].messageId) + '_content'"
+            :colspan="columns.length"
+            :message="message"
+          />
         </template>
         <tr class="border text-xs h-10 text-gray-800" v-if="countMessages > 10">
           <td :colspan="columns.length">
@@ -63,12 +49,21 @@ import CPageFooter from '@/components/CPageFooter';
 import CMessageRow from '@/components/CMessageRow';
 import CPipelineRow from '@/components/CPipelineRow';
 import CMessageContent from '@/components/CMessageContent';
+import CPipelineContent from '@/components/CPipelineContent';
 import { mapState } from 'vuex';
 import utils from '@/utils';
 require('@/assets/css/spinner.css');
 export default {
   name: 'CMessageTable',
-  components: { CTh, CPageFooter, CSearchInput, CMessageRow, CPipelineRow, CMessageContent },
+  components: {
+    CTh,
+    CPageFooter,
+    CSearchInput,
+    CMessageRow,
+    CPipelineRow,
+    CMessageContent,
+    CPipelineContent
+  },
 
   data() {
     return {
@@ -94,6 +89,18 @@ export default {
   methods: {
     toggleRow(id) {
       this.openedRows = utils.toggleItemFromList(id, this.openedRows);
+    },
+    rowType: function (message) {
+      if (message.type === 'pipeline') {
+        return 'c-pipeline-row';
+      }
+      return 'c-message-row';
+    },
+    contentType: function (message) {
+      if (message.type === 'pipeline') {
+        return 'c-pipeline-content';
+      }
+      return 'c-message-content';
     }
   },
   created() {

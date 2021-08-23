@@ -24,7 +24,7 @@
                 :messageId="m.messageId"
                 :actorName="m.actorName"
                 :priority="m.priority"
-                :stateName="m.status"
+                :status="m.status"
                 :progress="m.progress"
                 :args="m.args"
                 :kwargs="m.kwargs"
