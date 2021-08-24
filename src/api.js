@@ -28,30 +28,45 @@ function parseMessages(data) {
         (element.type === 'pipeline' && element.messages[0].messageId === target_id)
     );
   }
+  function findGroupIndex(group_id) {
+    return messages.findIndex(element => element.groupId === group_id);
+  }
   const messages = data.map(parseMessage);
-  let pipe_index = messages.findIndex(element => element.pipe_target);
+  let pipe_index = messages.findIndex(element => element.pipeTarget);
   while (pipe_index !== -1) {
     messages[pipe_index] = { type: 'pipeline', messages: [messages[pipe_index]] };
-    let target_index = findTargetIndex(messages[pipe_index].messages[0].pipe_target[0].message_id);
+    let target_index = findTargetIndex(messages[pipe_index].messages[0].pipeTarget[0].message_id);
     while (target_index !== null && target_index !== -1) {
-      const next_message = messages.splice(target_index, 1)[0];
+      let next_message = messages.splice(target_index, 1)[0];
       if (pipe_index > target_index) {
         pipe_index -= 1;
       }
       if (next_message.type === 'pipeline') {
         messages[pipe_index].messages = messages[pipe_index].messages.concat(next_message.messages);
       } else {
+        if (next_message.options.groupId) {
+          const group_id = next_message.groupId;
+          next_message = { type: 'group', messages: [next_message] };
+          let target_index = findGroupIndex(group_id);
+          while (target_index !== -1) {
+            next_message.messages.push(messages.splice(target_index, 1)[0]);
+            if (pipe_index > target_index) {
+              pipe_index -= 1;
+            }
+            target_index = findGroupIndex(group_id);
+          }
+        }
         messages[pipe_index].messages.push(next_message);
       }
-      if (next_message.pipe_target) {
-        target_index = findTargetIndex(next_message.pipe_target[0].message_id);
+      if (next_message.pipeTarget) {
+        target_index = findTargetIndex(next_message.pipeTarget[0].message_id);
       } else {
         target_index = null;
       }
     }
     if (target_index) {
       let next_message =
-        messages[pipe_index].messages[messages[pipe_index].messages.length - 1].pipe_target[0];
+        messages[pipe_index].messages[messages[pipe_index].messages.length - 1].pipeTarget[0];
       while (next_message) {
         messages[pipe_index].messages.push(parseMessage(next_message));
         if (next_message.options && next_message.options.pipe_target) {
@@ -62,7 +77,21 @@ function parseMessages(data) {
       }
     }
 
-    pipe_index = messages.findIndex(element => !(element instanceof Array) && element.pipe_target);
+    pipe_index = messages.findIndex(element => !(element instanceof Array) && element.pipeTarget);
+  }
+  let group_index = messages.findIndex(element => element.groupId);
+  while (group_index !== -1) {
+    const group_id = messages[group_index].groupId;
+    messages[group_index] = { type: 'group', messages: [messages[group_index]] };
+    let target_index = findGroupIndex(group_id);
+    while (target_index !== -1) {
+      messages[group_index].messages.push(messages.splice(target_index, 1)[0]);
+      if (group_index > target_index) {
+        group_index -= 1;
+      }
+      target_index = findGroupIndex(group_id);
+    }
+    group_index = messages.findIndex(element => element.groupId);
   }
   return messages;
 }
@@ -77,8 +106,12 @@ const parseMessage = rawMessage => {
     startedDatetime: rawMessage.started_datetime ? new Date(rawMessage.started_datetime) : null,
     endDatetime: rawMessage.end_datetime ? new Date(rawMessage.end_datetime) : null,
     queueName: rawMessage.queue_name,
-    pipe_target:
-      rawMessage.options && rawMessage.options.pipe_target ? rawMessage.options.pipe_target : null
+    pipeTarget:
+      rawMessage.options && rawMessage.options.pipe_target ? rawMessage.options.pipe_target : null,
+    groupId:
+      rawMessage.options && rawMessage.options.group_info
+        ? rawMessage.options.group_info.group_id
+        : null
   };
 };
 

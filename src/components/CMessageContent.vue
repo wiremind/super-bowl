@@ -9,15 +9,22 @@
         <div class="font-bold inline-block">Queue Name</div>
         : {{ message.queueName }}
       </div>
-      <pre
-        class="text-xs bg-white"
-      ><span class="font-bold inline-block">Args</span>:{{args | json}}</pre>
-      <pre
-        class="text-xs bg-white"
-      ><span class="font-bold inline-block">Kwargs</span>:{{kwargs | json}}</pre>
-      <pre
-        class="text-xs bg-white"
-      ><span class="font-bold inline-block">Options</span>:{{options | json}}</pre>
+      <div class="text-xs" v-if="extra_info">
+        <div class="font-bold inline-block">Started at</div>
+        :{{ message.startedDatetime | datetime }}
+      </div>
+      <div class="text-xs bg-white whitespace-pre-wrap">
+        <span class="font-bold inline-block">Args</span>
+        :{{ args | json }}
+      </div>
+      <div class="text-xs bg-white whitespace-pre-wrap">
+        <span class="font-bold inline-block">Kwargs</span>
+        :{{ kwargs | json }}
+      </div>
+      <div class="text-xs bg-white whitespace-pre-wrap">
+        <span class="font-bold inline-block">Options</span>
+        :{{ options | json }}
+      </div>
     </td>
     <td class="border text-xs px-4 py-2" :colspan="3">
       <p class="text-xs bg-white" v-if="result">
@@ -34,7 +41,11 @@ export default {
   name: 'CMessageContent',
   props: {
     message: Object,
-    colspan: Number
+    colspan: Number,
+    extra_info: {
+      type: Boolean,
+      default: false
+    }
   },
   data() {
     return {

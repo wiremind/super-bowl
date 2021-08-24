@@ -48,6 +48,7 @@ import CTh from '@/components/CTh';
 import CPageFooter from '@/components/CPageFooter';
 import CMessageRow from '@/components/CMessageRow';
 import CPipelineRow from '@/components/CPipelineRow';
+import CGroupRow from '@/components/CGroupRow';
 import CMessageContent from '@/components/CMessageContent';
 import CPipelineContent from '@/components/CPipelineContent';
 import { mapState } from 'vuex';
@@ -61,6 +62,7 @@ export default {
     CSearchInput,
     CMessageRow,
     CPipelineRow,
+    CGroupRow,
     CMessageContent,
     CPipelineContent
   },
@@ -93,6 +95,8 @@ export default {
     rowType: function (message) {
       if (message.type === 'pipeline') {
         return 'c-pipeline-row';
+      } else if (message.type === 'group') {
+        return 'c-group-row';
       }
       return 'c-message-row';
     },

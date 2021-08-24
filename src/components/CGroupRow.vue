@@ -5,7 +5,7 @@
       <img v-else src="@/assets/img/expand_less.svg" width="20rem" />
       <pre
         class="text-xs ml-2 whitespace-normal"
-      ><b>Pipeline ({{message.messages.length}})</b>{{ actorNames }}</pre>
+      ><b>Group ({{message.messages.length}})</b>{{ actorNames }}</pre>
     </td>
     <td class="border px-4 py-2">
       {{ message.messages[currentActorIndex].priority }}
@@ -54,7 +54,7 @@
 import utils from '@/utils';
 
 export default {
-  name: 'CPipelineRow',
+  name: 'CGroupRow',
   props: {
     message: Object
   },
@@ -63,37 +63,6 @@ export default {
       isOpened: false,
       response: null
     };
-  },
-  methods: {
-    showResponse(response) {
-      this.response = response;
-      setTimeout(() => {
-        this.response = null;
-      }, 3000);
-    },
-    cancelMessage() {
-      this.$store
-        .dispatch('cancelMessage', this.message.messages[this.currentActorIndex].messageId)
-        .then(() => {
-          this.canCancel = false;
-          this.showResponse('Message Canceled!');
-        })
-        .catch(error => {
-          this.showResponse('Error: ' + error.response.data.error);
-        });
-    },
-    onToggle() {
-      this.isOpened = !this.isOpened;
-      this.$emit('toggle', this.message.messages[0].messageId);
-    },
-    getColorState() {
-      const colors = {
-        Success: 'green',
-        Canceled: 'red',
-        Failure: 'red'
-      };
-      return colors[this.message.messages[this.currentActorIndex].status] || 'black';
-    }
   },
   computed: {
     remainingTime() {
@@ -114,6 +83,19 @@ export default {
           factor
       );
       return `${diff.hours}:${diff.minutes}:${diff.seconds}`;
+    },
+    actorNames: function () {
+      let actorString = '';
+      this.message.messages.forEach(message => (actorString += ' ' + message.actorName));
+      return actorString;
+    },
+    currentActorIndex: function () {
+      const index = Math.max(this.message.messages.findIndex(el => el.status === undefined) - 1, 0);
+      if (index === -2) {
+        return this.message.messages.length - 1;
+      } else {
+        return index;
+      }
     },
     executionTime() {
       if (!this.message.messages[0].startedDatetime) {
@@ -144,19 +126,20 @@ export default {
       }
       wait_time = utils.formatMillis(wait_time);
       return `${wait_time.hours}:${wait_time.minutes}:${wait_time.seconds}`;
+    }
+  },
+  methods: {
+    onToggle() {
+      this.isOpened = !this.isOpened;
+      this.$emit('toggle', this.message.messages[0].messageId);
     },
-    actorNames: function () {
-      let actorString = '';
-      this.message.messages.forEach(message => (actorString += ' ' + message.actorName));
-      return actorString;
-    },
-    currentActorIndex: function () {
-      const index = Math.max(this.message.messages.findIndex(el => el.status === undefined) - 1, 0);
-      if (index === -2) {
-        return this.message.messages.length - 1;
-      } else {
-        return index;
-      }
+    getColorState() {
+      const colors = {
+        Success: 'green',
+        Canceled: 'red',
+        Failure: 'red'
+      };
+      return colors[this.message.messages[this.currentActorIndex].status] || 'black';
     }
   }
 };

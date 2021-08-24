@@ -10,13 +10,15 @@
             :class="{ 'border-black': index === currentActorIndex }"
             @click="toggle(index)"
           >
-            {{ m.actorName }}
-            <template v-if="m.status">
-              :
-              <span :style="{ color: statusStyles[m.status] || 'black' }">
-                {{ m.status }}
-              </span>
-            </template>
+            <div>
+              {{ m.actorName }}
+              <template v-if="m.status">
+                :
+                <span :style="{ color: statusStyles[m.status] || 'black' }">
+                  {{ m.status }}
+                </span>
+              </template>
+            </div>
           </div>
         </div>
         <div class="border" v-if="openedActorIndex !== null">
@@ -24,6 +26,8 @@
             :message="this.message.messages[openedActorIndex]"
             class="w-10"
             :key="message.messageId + '_content'"
+            :colspan="colspan"
+            :extra_info="true"
           />
         </div>
       </div>
