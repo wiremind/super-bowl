@@ -1,7 +1,13 @@
 <template>
   <tr>
     <td :colspan="colspan" class="p-10">
-      <c-table :messages="message.messages" :name="message.messages[0].groupId + '_table'" />
+      <c-table
+        :messages="sortedMessages"
+        :name="message.messages[0].groupId + '_table'"
+        :sort-direction="sortDirection"
+        :sorted-column="sortedColumn"
+        @sort="updateSort"
+      />
     </td>
   </tr>
 </template>
@@ -28,12 +34,49 @@ export default {
         { label: 'Progress', name: 'progress', sortable: true },
         { label: 'Actions', name: 'actions' }
       ],
-      openedRows: []
+      openedRows: [],
+      sortedColumn: null,
+      sortDirection: null
     };
   },
   methods: {
     toggleRow(id) {
       this.openedRows = utils.toggleItemFromList(id, this.openedRows);
+    },
+    updateSort(columnName) {
+      [this.sortedColumn, this.sortDirection] = utils.getSortColumnAndDirection(
+        columnName,
+        this.sortedColumn,
+        this.sortDirection
+      );
+    }
+  },
+  computed: {
+    sortedMessages: function () {
+      const sortedColumn = this.sortedColumn;
+      const sortDirection = this.sortDirection;
+      const sortedArray = [...this.message.messages];
+      if (this.sortedColumn) {
+        sortedArray.sort(function (a, b) {
+          if (a[sortedColumn] === b[sortedColumn]) {
+            return 0;
+          }
+          if (sortDirection === 'asc') {
+            if (a[sortedColumn] > b[sortedColumn]) {
+              return 1;
+            } else {
+              return -1;
+            }
+          } else {
+            if (a[sortedColumn] < b[sortedColumn]) {
+              return 1;
+            } else {
+              return -1;
+            }
+          }
+        });
+      }
+      return sortedArray;
     }
   }
 };
