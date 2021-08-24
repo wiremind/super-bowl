@@ -23,7 +23,7 @@
         </div>
         <div class="border" v-if="openedActorIndex !== null">
           <c-message-content
-            :message="this.message.messages[openedActorIndex]"
+            :message="message.messages[openedActorIndex]"
             class="w-10"
             :key="message.messageId + '_content'"
             :colspan="colspan"

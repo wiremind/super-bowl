@@ -44,7 +44,7 @@ function parseMessages(data) {
       if (next_message.type === 'pipeline') {
         messages[pipe_index].messages = messages[pipe_index].messages.concat(next_message.messages);
       } else {
-        if (next_message.options.groupId) {
+        if (next_message.groupId) {
           const group_id = next_message.groupId;
           next_message = { type: 'group', messages: [next_message] };
           let target_index = findGroupIndex(group_id);

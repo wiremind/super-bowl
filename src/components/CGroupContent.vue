@@ -1,13 +1,19 @@
 <template>
-  <div />
+  <tr>
+    <td :colspan="colspan" class="p-10">
+      <c-table :messages="message.messages" :name="message.messages[0].groupId + '_table'" />
+    </td>
+  </tr>
 </template>
 <script>
 import utils from '@/utils';
 export default {
   name: 'CGroupContent',
+  components: { CTable: () => import('./CTable.vue') },
   props: {
-    message: Array,
-    groupId: String
+    message: Object,
+    groupId: String,
+    colspan: Number
   },
   data() {
     return {
