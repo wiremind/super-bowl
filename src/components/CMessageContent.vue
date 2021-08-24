@@ -89,12 +89,14 @@ export default {
     }
   },
   created() {
-    api.getArgsKwargs(this.message.messageId).then(res => {
-      this.args = res.args;
-      this.kwargs = res.kwargs;
-      this.options = res.options;
-    });
-    this.updateResult();
+    if (this.message.status) {
+      api.getArgsKwargs(this.message.messageId).then(res => {
+        this.args = res.args;
+        this.kwargs = res.kwargs;
+        this.options = res.options;
+      });
+      this.updateResult();
+    }
   }
 };
 </script>

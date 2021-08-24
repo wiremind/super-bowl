@@ -35,7 +35,7 @@ function parseMessages(data) {
   let pipe_index = messages.findIndex(element => element.pipeTarget);
   while (pipe_index !== -1) {
     messages[pipe_index] = { type: 'pipeline', messages: [messages[pipe_index]] };
-    let target_index = findTargetIndex(messages[pipe_index].messages[0].pipeTarget[0].message_id);
+    let target_index = findTargetIndex(messages[pipe_index].messages[0].pipeTarget[0].messageId);
     while (target_index !== null && target_index !== -1) {
       let next_message = messages.splice(target_index, 1)[0];
       if (pipe_index > target_index) {
@@ -59,7 +59,7 @@ function parseMessages(data) {
         messages[pipe_index].messages.push(next_message);
       }
       if (next_message.pipeTarget) {
-        target_index = findTargetIndex(next_message.pipeTarget[0].message_id);
+        target_index = findTargetIndex(next_message.pipeTarget[0].messageId);
       } else {
         target_index = null;
       }
@@ -68,9 +68,9 @@ function parseMessages(data) {
       let next_message =
         messages[pipe_index].messages[messages[pipe_index].messages.length - 1].pipeTarget[0];
       while (next_message) {
-        messages[pipe_index].messages.push(parseMessage(next_message));
-        if (next_message.options && next_message.options.pipe_target) {
-          next_message = next_message.options.pipe_target[0];
+        messages[pipe_index].messages.push(next_message);
+        if (next_message.pipeTarget) {
+          next_message = next_message.pipeTarget[0];
         } else {
           next_message = null;
         }
@@ -107,7 +107,9 @@ const parseMessage = rawMessage => {
     endDatetime: rawMessage.end_datetime ? new Date(rawMessage.end_datetime) : null,
     queueName: rawMessage.queue_name,
     pipeTarget:
-      rawMessage.options && rawMessage.options.pipe_target ? rawMessage.options.pipe_target : null,
+      rawMessage.options && rawMessage.options.pipe_target
+        ? rawMessage.options.pipe_target.map(parseMessage)
+        : null,
     groupId:
       rawMessage.options && rawMessage.options.group_info
         ? rawMessage.options.group_info.group_id
