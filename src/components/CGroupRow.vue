@@ -1,17 +1,19 @@
 <template>
   <tr class="border-b text-xs border-gray-200 hover:bg-blue-100 cursor-pointer" @click="onToggle">
-    <td class="border px-4 py-2 flex">
-      <img v-if="isOpened" src="@/assets/img/expand_more.svg" width="20rem" />
-      <img v-else src="@/assets/img/expand_less.svg" width="20rem" />
-      <pre
-        class="text-xs ml-2 whitespace-normal"
-      ><b>Group ({{message.messages.length}})</b>{{ actorNames }}</pre>
+    <td class="border px-4 py-2">
+      <div class="flex">
+        <img v-if="isOpened" src="@/assets/img/expand_more.svg" width="20rem" />
+        <img v-else src="@/assets/img/expand_less.svg" width="20rem" />
+        <pre
+          class="text-xs ml-2 whitespace-normal"
+        ><b>Group ({{message.messages.length}}) : </b>{{ actorNames }}</pre>
+      </div>
     </td>
     <td class="border px-4 py-2">
-      {{ message.messages[currentActorIndex].priority }}
+      {{ priority }}
     </td>
     <td class="border px-4 py-2 font-semibold" :style="{ color: getColorState() }">
-      {{ message.messages[currentActorIndex].status }}
+      {{ status }}
     </td>
     <td class="border px-4 py-2">
       <div class="whitespace-normal">
@@ -22,25 +24,17 @@
       {{ waitTime }}
     </td>
     <td class="border px-4 py-2">
-      <div
-        v-if="
-          message.messages[message.messages.length - 1].status === 'Success' ||
-          message.messages[message.messages.length - 1].status === 'Failure'
-        "
-        class="whitespace-normal"
-      >
+      <div v-if="status === 'Success' || status === 'Failure'" class="whitespace-normal">
         {{ executionTime }}
       </div>
     </td>
     <td class="border px-4 py-2">
-      <div v-if="message.messages[currentActorIndex].status === 'Started'" class="overflow-auto">
+      <div v-if="status === 'Started'" class="overflow-auto">
         {{ remainingTime }}
       </div>
     </td>
-    <td class="border px-4 py-2 flex">
-      <pre class="text-xs whitespace-normal">{{
-        message.messages[currentActorIndex].progress | percentage
-      }}</pre>
+    <td class="border px-4 py-2">
+      <pre class="text-xs whitespace-normal">{{ progress | percentage }}</pre>
     </td>
     <td class="border px-4 py-2">
       <div class="inline-flex items-center">
@@ -65,37 +59,75 @@ export default {
     };
   },
   computed: {
+    status() {
+      const statusArray = this.message.messages.map(el => el.status);
+      if (statusArray.includes('Failure')) {
+        return 'Failure';
+      }
+      if (statusArray.includes('Skipped')) {
+        return 'Skipped';
+      }
+      if (statusArray.includes('Canceled')) {
+        return 'Canceled';
+      }
+      if (statusArray.includes('Started')) {
+        return 'Started';
+      }
+      if (statusArray.every(el => el === 'Success')) {
+        return 'Success';
+      }
+      if (statusArray.every(el => el === 'Pending')) {
+        return 'Pending';
+      }
+      return 'Started';
+    },
+    priority() {
+      const prioArray = [];
+      this.message.messages.forEach(function (element) {
+        if (!prioArray.includes(element.priority)) {
+          prioArray.push(element.priority);
+        }
+      });
+      prioArray.sort();
+      let prioString = '';
+      prioArray.forEach(element => (prioString += element + ', '));
+      prioString = prioString.slice(0, -2);
+      return prioString;
+    },
     remainingTime() {
       if (
-        this.message.messages[this.currentActorIndex].endDatetime ||
-        !this.message.messages[this.currentActorIndex].progress ||
-        !this.message.messages[this.currentActorIndex].startedDatetime ||
-        this.message.messages[this.currentActorIndex].status !== 'Started'
+        this.message.messages.every(element => element.endDatetime) ||
+        !this.message.messages.every(element => element.progress && element.startedDatetime) ||
+        this.status !== 'Started'
       ) {
         return null;
       }
-      const factor =
-        (1 - this.message.messages[this.currentActorIndex].progress) /
-        this.message.messages[this.currentActorIndex].progress;
-      const diff = utils.formatMillis(
-        (utils.dateToUTC(new Date()) -
-          utils.dateToUTC(this.message.messages[this.currentActorIndex].startedDatetime)) *
-          factor
+      const diff = this.message.messages.map(element =>
+        element.endDatetime
+          ? 0
+          : ((1 - element.progress) / element.progress) *
+            (utils.dateToUTC(new Date()) - utils.dateToUTC(element.startedDatetime))
       );
-      return `${diff.hours}:${diff.minutes}:${diff.seconds}`;
+      const maxDiff = utils.formatMillis(Math.max(diff));
+      return `${maxDiff.hours}:${maxDiff.minutes}:${maxDiff.seconds}`;
+    },
+    progress() {
+      return Math.min(this.message.messages.map(el => el.progress));
     },
     actorNames: function () {
+      const actorCount = {};
+      this.message.messages.forEach(message => {
+        if (actorCount[message.actorName]) {
+          actorCount[message.actorName] += 1;
+        } else {
+          actorCount[message.actorName] = 1;
+        }
+      });
       let actorString = '';
-      this.message.messages.forEach(message => (actorString += ' ' + message.actorName));
+      Object.entries(actorCount).forEach(
+        actor => (actorString += actor[0] + (actor[1] > 1 ? '*' + actor[1] + ' ' : ' '))
+      );
       return actorString;
-    },
-    currentActorIndex: function () {
-      const index = Math.max(this.message.messages.findIndex(el => el.status === undefined) - 1, 0);
-      if (index === -2) {
-        return this.message.messages.length - 1;
-      } else {
-        return index;
-      }
     },
     executionTime() {
       if (!this.message.messages[0].startedDatetime) {
@@ -139,7 +171,7 @@ export default {
         Canceled: 'red',
         Failure: 'red'
       };
-      return colors[this.message.messages[this.currentActorIndex].status] || 'black';
+      return colors[this.status] || 'black';
     }
   }
 };

@@ -20,81 +20,6 @@ const getMessages = args => {
     .then(res => ({ count: res.data.count, data: parseMessages(res.data.data.map) }));
 };
 
-function parseMessages(data) {
-  function findTargetIndex(target_id) {
-    return messages.findIndex(
-      element =>
-        element.messageId === target_id ||
-        (element.type === 'pipeline' && element.messages[0].messageId === target_id)
-    );
-  }
-  function findGroupIndex(group_id) {
-    return messages.findIndex(element => element.groupId === group_id);
-  }
-  const messages = data.map(parseMessage);
-  let pipe_index = messages.findIndex(element => element.pipeTarget);
-  while (pipe_index !== -1) {
-    messages[pipe_index] = { type: 'pipeline', messages: [messages[pipe_index]] };
-    let target_index = findTargetIndex(messages[pipe_index].messages[0].pipeTarget[0].messageId);
-    while (target_index !== null && target_index !== -1) {
-      let next_message = messages.splice(target_index, 1)[0];
-      if (pipe_index > target_index) {
-        pipe_index -= 1;
-      }
-      if (next_message.type === 'pipeline') {
-        messages[pipe_index].messages = messages[pipe_index].messages.concat(next_message.messages);
-      } else {
-        if (next_message.groupId) {
-          const group_id = next_message.groupId;
-          next_message = { type: 'group', messages: [next_message] };
-          let target_index = findGroupIndex(group_id);
-          while (target_index !== -1) {
-            next_message.messages.push(messages.splice(target_index, 1)[0]);
-            if (pipe_index > target_index) {
-              pipe_index -= 1;
-            }
-            target_index = findGroupIndex(group_id);
-          }
-        }
-        messages[pipe_index].messages.push(next_message);
-      }
-      if (next_message.pipeTarget) {
-        target_index = findTargetIndex(next_message.pipeTarget[0].messageId);
-      } else {
-        target_index = null;
-      }
-    }
-    if (target_index) {
-      let next_message =
-        messages[pipe_index].messages[messages[pipe_index].messages.length - 1].pipeTarget[0];
-      while (next_message) {
-        messages[pipe_index].messages.push(next_message);
-        if (next_message.pipeTarget) {
-          next_message = next_message.pipeTarget[0];
-        } else {
-          next_message = null;
-        }
-      }
-    }
-
-    pipe_index = messages.findIndex(element => !(element instanceof Array) && element.pipeTarget);
-  }
-  let group_index = messages.findIndex(element => element.groupId);
-  while (group_index !== -1) {
-    const group_id = messages[group_index].groupId;
-    messages[group_index] = { type: 'group', messages: [messages[group_index]] };
-    let target_index = findGroupIndex(group_id);
-    while (target_index !== -1) {
-      messages[group_index].messages.push(messages.splice(target_index, 1)[0]);
-      if (group_index > target_index) {
-        group_index -= 1;
-      }
-      target_index = findGroupIndex(group_id);
-    }
-    group_index = messages.findIndex(element => element.groupId);
-  }
-  return messages;
-}
 const parseMessage = rawMessage => {
   return {
     priority: rawMessage.priority,
@@ -113,9 +38,137 @@ const parseMessage = rawMessage => {
     groupId:
       rawMessage.options && rawMessage.options.group_info
         ? rawMessage.options.group_info.group_id
-        : null
+        : null,
+    compositionId: rawMessage.options ? rawMessage.options.composition_id : null
   };
 };
+
+function parseMessages(data) {
+  const messages = data.map(parseMessage);
+  const a = [...messages];
+  console.log(a);
+  function findTargetIndex(target_id) {
+    messages.findIndex(element => {
+      return element.messageId === target_id;
+    });
+    return messages.findIndex(element => element.messageId === target_id);
+  }
+
+  function findPreviousElement(index) {
+    return messages.findIndex(
+      el =>
+        el.pipeTarget && el.pipeTarget.map(el => el.messageId).includes(messages[index].messageId)
+    );
+  }
+
+  // adding not yet enqueued messages
+  messages.forEach(function (message) {
+    if (message.pipeTarget) {
+      message.pipeTarget.forEach(function (pipe_element) {
+        if (messages.findIndex(message => message.messageId === pipe_element.messageId) === -1) {
+          messages.push(pipe_element);
+        }
+      });
+    }
+  });
+
+  function assemblePipeline(pipe_index) {
+    console.log('pipeline');
+    const pipeline = { type: 'pipeline', messages: messages.splice(pipe_index, 1) };
+    let ids_next = pipeline.messages[0].pipeTarget.map(pipe_element => pipe_element.messageId);
+    while (ids_next) {
+      if (ids_next.length === 1) {
+        const next_message = messages.splice(findTargetIndex(ids_next[0]), 1)[0];
+        pipeline.messages.push(next_message);
+        if (next_message.groupId) {
+          pipeline.groupId = next_message.groupId;
+          if (next_message.pipeTarget) {
+            pipeline.pipeTarget = next_message.pipeTarget;
+          }
+          ids_next = null;
+        } else {
+          ids_next = next_message.pipeTarget;
+        }
+      } else {
+        const group = assembleGroup(ids_next);
+        pipeline.messages.push(group);
+        ids_next = group.pipeTarget;
+      }
+    }
+    pipeline.compositionId = pipeline.messages[0].compositionId;
+    return pipeline;
+  }
+  function assembleGroup(start_ids) {
+    console.log('group');
+    const group = { type: 'group', messages: [] };
+    start_ids.forEach(id => {
+      const index = findTargetIndex(id);
+      if (messages[index].groupId) {
+        group.messages.push(messages.splice(index, 1)[0]);
+      } else {
+        group.messages.push(assemblePipeline(index));
+      }
+    });
+    if (group.messages[0].pipeTarget) {
+      group.pipeTarget = group.messages[0].pipeTarget;
+    }
+    group.compositionId = group.messages[0].compositionId;
+    console.log(group);
+    return group;
+  }
+
+  function assembleComposition(index) {
+    // finding the index of one of the first messages of a composition
+    let prev_index = findPreviousElement(index);
+    while (prev_index !== -1) {
+      index = prev_index;
+      prev_index = findPreviousElement(index);
+    }
+    if (messages[index].groupId) {
+      const group_indexes = [];
+      messages.forEach((message, index_message) => {
+        if (message.groupId === messages[index].groupId) {
+          group_indexes.push(index_message);
+        }
+      });
+      const group_ids = group_indexes.map(index_message => {
+        let prev_index = findPreviousElement(index_message);
+        while (prev_index !== -1 && messages[prev_index].pipeTarget.length === 1) {
+          index_message = prev_index;
+          prev_index = findPreviousElement(index_message);
+        }
+        return messages[index_message].messageId;
+      });
+      const group = assembleGroup(group_ids);
+      if (group.pipeTarget) {
+        messages.push(group);
+        return assembleComposition(messages.length - 1);
+      } else {
+        return group;
+      }
+    } else {
+      const pipeline = assemblePipeline(index);
+      if (pipeline.groupId) {
+        messages.push(pipeline);
+        return assembleComposition(messages.length - 1);
+      }
+      return pipeline;
+    }
+  }
+
+  let index = messages.findIndex(message => message.compositionId);
+  while (index !== -1) {
+    const composition = assembleComposition(index);
+    console.log(composition);
+    delete composition.compositionId;
+    messages.push(composition);
+    const b = [...messages];
+    console.log(b);
+    index = messages.findIndex(message => message.compositionId);
+  }
+
+  return messages;
+}
 
 const cancelMessage = message_id => {
   return axios.post('/messages/cancel/' + message_id);

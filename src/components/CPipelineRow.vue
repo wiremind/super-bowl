@@ -1,11 +1,13 @@
 <template>
   <tr class="border-b text-xs border-gray-200 hover:bg-blue-100 cursor-pointer" @click="onToggle">
-    <td class="border px-4 py-2 flex">
-      <img v-if="isOpened" src="@/assets/img/expand_more.svg" width="20rem" />
-      <img v-else src="@/assets/img/expand_less.svg" width="20rem" />
-      <pre
-        class="text-xs ml-2 whitespace-normal"
-      ><b>Pipeline ({{message.messages.length}})</b>{{ actorNames }}</pre>
+    <td class="border px-4 py-2">
+      <div class="flex">
+        <img v-if="isOpened" src="@/assets/img/expand_more.svg" width="20rem" />
+        <img v-else src="@/assets/img/expand_less.svg" width="20rem" />
+        <pre
+          class="text-xs ml-2 whitespace-normal"
+        ><b>Pipeline ({{message.messages.length}}) : </b>{{ actorNames }}</pre>
+      </div>
     </td>
     <td class="border px-4 py-2">
       {{ message.messages[currentActorIndex].priority }}
@@ -22,13 +24,7 @@
       {{ waitTime }}
     </td>
     <td class="border px-4 py-2">
-      <div
-        v-if="
-          message.messages[message.messages.length - 1].status === 'Success' ||
-          message.messages[message.messages.length - 1].status === 'Failure'
-        "
-        class="whitespace-normal"
-      >
+      <div class="whitespace-normal">
         {{ executionTime }}
       </div>
     </td>
@@ -37,7 +33,7 @@
         {{ remainingTime }}
       </div>
     </td>
-    <td class="border px-4 py-2 flex">
+    <td class="border px-4 py-2">
       <pre class="text-xs whitespace-normal">{{
         message.messages[currentActorIndex].progress | percentage
       }}</pre>
@@ -116,18 +112,19 @@ export default {
       return `${diff.hours}:${diff.minutes}:${diff.seconds}`;
     },
     executionTime() {
-      if (!this.message.messages[0].startedDatetime) {
-        return null;
+      let index = 0;
+      let exec_time = 0;
+      while (
+        index < this.message.messages.length &&
+        this.message.messages[index].startedDatetime &&
+        this.message.messages[index].endDatetime
+      ) {
+        exec_time +=
+          this.message.messages[index].endDatetime - this.message.messages[index].startedDatetime;
+        index += 1;
       }
-      const diff = utils.formatMillis(
-        utils.dateToUTC(this.message.messages[0].startedDatetime) -
-          utils.dateToUTC(
-            this.message.messages[this.message.messages.length - 1].endDatetime
-              ? this.message.messages[this.message.messages.length - 1].endDatetime
-              : new Date()
-          )
-      );
-      return `${diff.hours}:${diff.minutes}:${diff.seconds}`;
+      exec_time = utils.formatMillis(exec_time);
+      return `${exec_time.hours}:${exec_time.minutes}:${exec_time.seconds}`;
     },
     waitTime() {
       let index = 0;

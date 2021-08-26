@@ -1,5 +1,5 @@
 <template>
-  <tr>
+  <tr class="border text-xs px-4 py-2">
     <td :colspan="colspan" class="p-10">
       <c-table
         :messages="sortedMessages"
