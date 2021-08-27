@@ -5,7 +5,7 @@
         <div class="border flex">
           <div
             v-for="(m, index) in message.messages"
-            :key="m.messageId + '_content'"
+            :key="index + '_content'"
             class="border p-5 w-full text-center font-bold"
             :class="{ 'border-black': index === currentActorIndex }"
             @click="toggle(index)"

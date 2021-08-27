@@ -6,6 +6,7 @@
       :countMessages="countMessages"
       :sorted-column="sortedColumn"
       :sort-direction="sortDirection"
+      name="main_table"
       @sort="sort"
     />
   </div>

@@ -45,8 +45,6 @@ const parseMessage = rawMessage => {
 
 function parseMessages(data) {
   const messages = data.map(parseMessage);
-  const a = [...messages];
-  console.log(a);
   function findTargetIndex(target_id) {
     messages.findIndex(element => {
       return element.messageId === target_id;
@@ -73,8 +71,8 @@ function parseMessages(data) {
   });
 
   function assemblePipeline(pipe_index) {
-    console.log('pipeline');
     const pipeline = { type: 'pipeline', messages: messages.splice(pipe_index, 1) };
+    console.log('pipeline');
     let ids_next = pipeline.messages[0].pipeTarget.map(pipe_element => pipe_element.messageId);
     while (ids_next) {
       if (ids_next.length === 1) {
@@ -113,7 +111,6 @@ function parseMessages(data) {
       group.pipeTarget = group.messages[0].pipeTarget;
     }
     group.compositionId = group.messages[0].compositionId;
-    console.log(group);
     return group;
   }
 
@@ -158,12 +155,12 @@ function parseMessages(data) {
 
   let index = messages.findIndex(message => message.compositionId);
   while (index !== -1) {
+    const a = index;
+    console.log('newComp');
+    console.log(messages.filter(message => message.compositionId === messages[a].compositionId));
     const composition = assembleComposition(index);
-    console.log(composition);
     delete composition.compositionId;
     messages.push(composition);
-    const b = [...messages];
-    console.log(b);
     index = messages.findIndex(message => message.compositionId);
   }
 

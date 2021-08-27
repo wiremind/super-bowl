@@ -3,7 +3,7 @@
     <td :colspan="colspan" class="p-10">
       <c-table
         :messages="sortedMessages"
-        :name="message.messages[0].groupId + '_table'"
+        :name="name + '_table'"
         :sort-direction="sortDirection"
         :sorted-column="sortedColumn"
         @sort="updateSort"
@@ -19,7 +19,8 @@ export default {
   props: {
     message: Object,
     groupId: String,
-    colspan: Number
+    colspan: Number,
+    name: String
   },
   data() {
     return {
@@ -40,9 +41,6 @@ export default {
     };
   },
   methods: {
-    toggleRow(id) {
-      this.openedRows = utils.toggleItemFromList(id, this.openedRows);
-    },
     updateSort(columnName) {
       [this.sortedColumn, this.sortDirection] = utils.getSortColumnAndDirection(
         columnName,

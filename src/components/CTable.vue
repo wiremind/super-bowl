@@ -15,22 +15,24 @@
       </tr>
     </thead>
     <tbody>
-      <template v-for="message in messages">
+      <template v-for="(message, index) in messages">
         <tr
           :is="rowType(message)"
           :message="message"
-          @toggle="toggleRow"
-          :key="(message.messageId || message.messages[0].messageId) + '_row'"
+          @toggle="toggleRow(index)"
+          :key="name + '_' + index + '_row'"
+          :name="name + '_' + index + '_row'"
         />
         <tr
           v-if="
-            openedRows.includes(message.messageId) ||
+            openedRows.includes(index) ||
             (message.type && openedRows.includes(message.messages[0].messageId))
           "
           :is="contentType(message)"
-          :key="(message.messageId || message.messages[0].messageId) + '_content'"
+          :key="name + '_' + index + '_content'"
           :colspan="columns.length"
           :message="message"
+          :name="name + '_' + index + '_content'"
         />
       </template>
       <tr class="border text-xs h-10 text-gray-800" v-if="countMessages > 10">
@@ -90,8 +92,8 @@ export default {
     };
   },
   methods: {
-    toggleRow(id) {
-      this.openedRows = utils.toggleItemFromList(id, this.openedRows);
+    toggleRow(index) {
+      this.openedRows = utils.toggleItemFromList(index, this.openedRows);
     },
     rowType: function (message) {
       if (message.type === 'pipeline') {
