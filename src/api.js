@@ -17,7 +17,7 @@ const getMessages = args => {
   const url = '/messages/states';
   return axios
     .post(url, args)
-    .then(res => ({ count: res.data.count, data: parseMessages(res.data.data.map) }));
+    .then(res => ({ count: res.data.count, data: parseMessages(res.data.data) }));
 };
 
 const parseMessage = rawMessage => {
@@ -46,16 +46,13 @@ const parseMessage = rawMessage => {
 function parseMessages(data) {
   const messages = data.map(parseMessage);
   function findTargetIndex(target_id) {
-    messages.findIndex(element => {
-      return element.messageId === target_id;
-    });
     return messages.findIndex(element => element.messageId === target_id);
   }
 
   function findPreviousElement(index) {
     return messages.findIndex(
-      el =>
-        el.pipeTarget && el.pipeTarget.map(el => el.messageId).includes(messages[index].messageId)
+      msg =>
+        msg.pipeTarget && msg.pipeTarget.map(el => el.messageId).includes(messages[index].messageId)
     );
   }
 
@@ -71,8 +68,14 @@ function parseMessages(data) {
   });
 
   function assemblePipeline(pipe_index) {
-    const pipeline = { type: 'pipeline', messages: messages.splice(pipe_index, 1) };
+    const first_message = messages.splice(pipe_index, 1);
+    const pipeline = {
+      type: 'pipeline',
+      messages: first_message,
+      messageId: first_message[0].messageId
+    };
     console.log('pipeline');
+    console.log(pipeline.messages[0]);
     let ids_next = pipeline.messages[0].pipeTarget.map(pipe_element => pipe_element.messageId);
     while (ids_next) {
       if (ids_next.length === 1) {
@@ -85,12 +88,21 @@ function parseMessages(data) {
           }
           ids_next = null;
         } else {
-          ids_next = next_message.pipeTarget;
+          if (next_message.pipeTarget) {
+            ids_next = next_message.pipeTarget.map(pipe_element => pipe_element.messageId);
+          } else {
+            ids_next = null;
+          }
         }
       } else {
+        console.log(ids_next, 'IDSS');
         const group = assembleGroup(ids_next);
         pipeline.messages.push(group);
-        ids_next = group.pipeTarget;
+        if (group.pipeTarget) {
+          ids_next = group.pipeTarget.map(pipe_element => pipe_element.messageId);
+        } else {
+          ids_next = null;
+        }
       }
     }
     pipeline.compositionId = pipeline.messages[0].compositionId;
@@ -100,7 +112,8 @@ function parseMessages(data) {
     console.log('group');
     const group = { type: 'group', messages: [] };
     start_ids.forEach(id => {
-      const index = findTargetIndex(id);
+      index = findTargetIndex(id);
+      console.log(index);
       if (messages[index].groupId) {
         group.messages.push(messages.splice(index, 1)[0]);
       } else {
@@ -111,16 +124,19 @@ function parseMessages(data) {
       group.pipeTarget = group.messages[0].pipeTarget;
     }
     group.compositionId = group.messages[0].compositionId;
+    group.messageId = group.messages[0].messageId;
     return group;
   }
 
   function assembleComposition(index) {
+    console.log('comp');
     // finding the index of one of the first messages of a composition
     let prev_index = findPreviousElement(index);
     while (prev_index !== -1) {
       index = prev_index;
       prev_index = findPreviousElement(index);
     }
+    console.log(messages[index]);
     if (messages[index].groupId) {
       const group_indexes = [];
       messages.forEach((message, index_message) => {
