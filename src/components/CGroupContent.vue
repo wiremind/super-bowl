@@ -1,6 +1,6 @@
 <template>
-  <tr class="border text-xs px-4 py-2">
-    <td :colspan="colspan" class="p-10">
+  <div :is="inTable ? 'tr' : 'div'" class="border text-xs px-4 py-2">
+    <div :is="inTable ? 'td' : 'div'" :colspan="colspan" class="p-10">
       <c-table
         :messages="sortedMessages"
         :name="name + '_table'"
@@ -8,8 +8,8 @@
         :sorted-column="sortedColumn"
         @sort="updateSort"
       />
-    </td>
-  </tr>
+    </div>
+  </div>
 </template>
 <script>
 import utils from '@/utils';
@@ -20,7 +20,11 @@ export default {
     message: Object,
     groupId: String,
     colspan: Number,
-    name: String
+    name: String,
+    inTable: {
+      type: Boolean,
+      default: true
+    }
   },
   data() {
     return {

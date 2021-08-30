@@ -4,9 +4,10 @@
       <div class="flex">
         <img v-if="isOpened" src="@/assets/img/expand_more.svg" width="20rem" />
         <img v-else src="@/assets/img/expand_less.svg" width="20rem" />
-        <pre
-          class="text-xs ml-2 whitespace-normal"
-        ><b>Pipeline ({{message.messages.length}}) : </b>{{ actorNames }}</pre>
+        <span class="text-xs ml-2 whitespace-normal flex">
+          <b>Pipeline ({{ message.messages.length }}) :</b>
+          <pre v-html="actorNames" class="flex ml-2 items-center space-x-2">{{ actorNames }}</pre>
+        </span>
       </div>
     </td>
     <td class="border px-4 py-2">
@@ -144,7 +145,11 @@ export default {
     },
     actorNames: function () {
       let actorString = '';
-      this.message.messages.forEach(message => (actorString += ' ' + message.actorName));
+      this.message.messages.forEach(
+        message =>
+          (actorString +=
+            (message.type ? `<b>${message.type.toUpperCase()}</b>` : message.actorName) + ' ')
+      );
       return actorString;
     },
     currentActorIndex: function () {

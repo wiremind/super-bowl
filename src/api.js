@@ -1,4 +1,5 @@
 const axios = require('axios');
+import utils from '@/utils';
 
 const getArgsKwargs = id => {
   const url = '/messages/states/' + id;
@@ -89,6 +90,112 @@ function parseMessages(data) {
     compositions[composition_id].forEach(message => fillPipe(composition_id, message));
   });
 
+  function addDetails(composition) {
+    // add status
+    const statuses = composition.messages.map(message => message.status);
+    if (statuses.includes('Failure')) {
+      composition.status = 'Failure';
+    } else if (statuses.includes('Skipped')) {
+      composition.status = 'Skipped';
+    } else if (statuses.includes('Canceled')) {
+      composition.status = 'Canceled';
+    } else if (statuses.includes('Started')) {
+      composition.status = 'Started';
+    } else if (statuses.every(status => status === 'Success')) {
+      composition.status = 'Success';
+    } else if (
+      (composition.type === 'group' && statuses.every(status => status === 'Pending')) ||
+      (composition.type === 'pipeline' && statuses[0] === 'Pending')
+    ) {
+      composition.status = 'Pending';
+    } else {
+      composition.status = 'Started';
+    }
+    // add Priority
+    composition.priority = composition.messages[0].priority;
+    // add Started time
+    if (composition.type === 'pipeline') {
+      composition.startedDatetime = composition.messages[0].startedDatetime;
+    } else {
+      const datetime = Math.min(
+        ...composition.messages.map(message =>
+          message.startedDatetime ? message.startedDatetime.valueOf() : Infinity
+        )
+      );
+      if (datetime !== Infinity) {
+        composition.startedDatetime = new Date(datetime);
+      }
+    }
+    // add Wait time
+    let wait_time = 0;
+    composition.messages.forEach(message => {
+      if (message.type) {
+        if (message.waitTime) {
+          wait_time += message.waitTime;
+        }
+      } else {
+        if (message.enqueuedDatetime) {
+          wait_time +=
+            (message.startedDatetime || utils.dateToUTC(new Date())) - message.enqueuedDatetime;
+        }
+      }
+    });
+    composition.waitTime = wait_time;
+    // add Execution time
+    let execution_time = 0;
+    composition.messages.forEach(message => {
+      if (message.type) {
+        if (message.executionTime) {
+          execution_time += message.executionTime;
+        }
+      } else {
+        if (message.startedDatetime) {
+          execution_time += (message.endDatetime || new Date()) - message.startedDatetime;
+        }
+      }
+    });
+    composition.executionTime = execution_time;
+    //add Remaining Time
+    let remaining_time = 0;
+    if (
+      composition.messages.every(
+        message =>
+          (message.type && (message.status === 'Success' || message.remainingTime)) ||
+          message.endDatetime ||
+          (message.progress && message.startedDatetime && message.status === 'Started')
+      ) &&
+      !composition.messages.every(
+        message => message.endDatetime || (message.type && message.status === 'Success')
+      )
+    ) {
+      composition.messages.forEach(message => {
+        if (message.type) {
+          if (message.remainingTime) {
+            remaining_time = Math.max(remaining_time, message.remainingTime);
+          }
+        } else if (!message.endDatetime) {
+          remaining_time = Math.max(
+            remaining_time,
+            ((new Date() - message.endDatetime) * (1 - message.progress)) / message.progress
+          );
+        }
+      });
+      composition.remainingTime = remaining_time;
+    }
+    // add Progress
+    if (
+      composition.messages.every(message => message.status === 'Success' || message.progress) &&
+      !composition.messages.every(message => (message.status = 'Success'))
+    ) {
+      composition.progress =
+        composition.messages
+          .map(message => message.progress || 1)
+          .reduce((value, acc) => value + acc) / composition.messages.length;
+    }
+
+    return composition;
+  }
+
   function assemblePipeline(pipe_index, composition_msgs) {
     const first_message = composition_msgs.splice(pipe_index, 1);
     const pipeline = {
@@ -127,7 +234,7 @@ function parseMessages(data) {
         }
       }
     }
-    return pipeline;
+    return addDetails(pipeline);
   }
   function assembleGroup(start_ids, composition_msgs) {
     const group = { type: 'group', messages: [] };
@@ -143,7 +250,7 @@ function parseMessages(data) {
       group.pipeTarget = group.messages[0].pipeTarget;
     }
     group.messageId = group.messages[0].messageId;
-    return group;
+    return addDetails(group);
   }
 
   function assembleComposition(composition_index, composition_msgs) {

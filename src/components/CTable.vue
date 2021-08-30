@@ -16,8 +16,7 @@
     </thead>
     <tbody>
       <template v-for="(message, index) in messages">
-        <tr
-          :is="rowType(message)"
+        <c-message-row
           :message="message"
           @toggle="toggleRow(index)"
           :key="name + '_' + index + '_row'"

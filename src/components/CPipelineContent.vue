@@ -11,7 +11,7 @@
             @click="toggle(index)"
           >
             <div>
-              {{ m.actorName }}
+              {{ m.actorName || m.type.toUpperCase() }}
               <template v-if="m.status">
                 :
                 <span :style="{ color: statusStyles[m.status] || 'black' }">
@@ -22,7 +22,15 @@
           </div>
         </div>
         <div class="border" v-if="openedActorIndex !== null">
+          <c-group-content
+            v-if="message.messages[openedActorIndex].type === 'group'"
+            :message="message.messages[openedActorIndex]"
+            :key="message.messageId + '_content'"
+            :colspan="colspan"
+            :inTable="false"
+          />
           <c-message-content
+            v-else
             :message="message.messages[openedActorIndex]"
             class="w-10"
             :key="message.messageId + '_content'"
@@ -37,9 +45,10 @@
 
 <script>
 import CMessageContent from '@/components/CMessageContent';
+import CGroupContent from '@/components/CGroupContent';
 export default {
   name: 'CPipelineContent',
-  components: { CMessageContent },
+  components: { CGroupContent, CMessageContent },
   props: {
     message: Object,
     colspan: Number

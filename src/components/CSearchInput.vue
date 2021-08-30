@@ -1,6 +1,24 @@
 <template>
   <div>
     <div class="flex float-right space-x-5 mb-3 search relative mr-6 my-2 w-3/4">
+      <multiselect
+        v-model="selectedTypes"
+        :options="[{ name: 'All', types: ['Messages', 'Pipelines', 'Groups'] }]"
+        :multiple="true"
+        :close-on-select="false"
+        :clear-on-select="false"
+        placeholder="Pick Types"
+        group-values="types"
+        group-label="name"
+        :group-select="true"
+      >
+        <template slot="selection" slot-scope="{ values, search, isOpen }">
+          <span class="multiselect__single" v-if="values.length && !isOpen">
+            {{ values.length }} types selected
+          </span>
+          <span v-else-if="isOpen"></span>
+        </template>
+      </multiselect>
       <vue-ctk-date-time-picker
         v-model="startDateTime"
         format="YYYY-MM-DD HH:mmZ"
@@ -135,6 +153,14 @@ export default {
       },
       set(select) {
         this.$store.dispatch('updateEndDateTime', select);
+      }
+    },
+    selectedTypes: {
+      get() {
+        return this.$store.state.selectedTypes;
+      },
+      set(select) {
+        this.$store.dispatch('updateSelectedTypes', select);
       }
     }
   }
