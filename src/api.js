@@ -45,41 +45,64 @@ const parseMessage = rawMessage => {
 
 function parseMessages(data) {
   const messages = data.map(parseMessage);
-  function findTargetIndex(target_id) {
-    return messages.findIndex(element => element.messageId === target_id);
+  function findTargetIndex(target_id, array) {
+    return array.findIndex(element => element.messageId === target_id);
   }
 
-  function findPreviousElement(index) {
-    return messages.findIndex(
+  function findPreviousElement(index, array) {
+    return array.findIndex(
       msg =>
-        msg.pipeTarget && msg.pipeTarget.map(el => el.messageId).includes(messages[index].messageId)
+        msg.pipeTarget && msg.pipeTarget.map(el => el.messageId).includes(array[index].messageId)
     );
   }
-
+  //grouping messages by composition_id
+  const compositions = {};
+  let i = 0;
+  while (i < messages.length) {
+    const compositionId = messages[i].compositionId;
+    if (compositionId) {
+      if (!compositions[compositionId]) {
+        compositions[compositionId] = [];
+      }
+      compositions[compositionId].push(messages.splice(i, 1)[0]);
+    } else {
+      i += 1;
+    }
+  }
   // adding not yet enqueued messages
-  messages.forEach(function (message) {
+  function fillPipe(composition_id, message) {
     if (message.pipeTarget) {
-      message.pipeTarget.forEach(function (pipe_element) {
-        if (messages.findIndex(message => message.messageId === pipe_element.messageId) === -1) {
-          messages.push(pipe_element);
+      message.pipeTarget.forEach(pipe_element => {
+        if (
+          compositions[composition_id].findIndex(
+            composition_element => composition_element.messageId === pipe_element.messageId
+          ) === -1
+        ) {
+          compositions[composition_id].push(pipe_element);
+          fillPipe(composition_id, pipe_element);
         }
       });
     }
+  }
+
+  Object.keys(compositions).forEach(composition_id => {
+    compositions[composition_id].forEach(message => fillPipe(composition_id, message));
   });
 
-  function assemblePipeline(pipe_index) {
-    const first_message = messages.splice(pipe_index, 1);
+  function assemblePipeline(pipe_index, composition_msgs) {
+    const first_message = composition_msgs.splice(pipe_index, 1);
     const pipeline = {
       type: 'pipeline',
       messages: first_message,
       messageId: first_message[0].messageId
     };
-    console.log('pipeline');
-    console.log(pipeline.messages[0]);
     let ids_next = pipeline.messages[0].pipeTarget.map(pipe_element => pipe_element.messageId);
     while (ids_next) {
       if (ids_next.length === 1) {
-        const next_message = messages.splice(findTargetIndex(ids_next[0]), 1)[0];
+        const next_message = composition_msgs.splice(
+          findTargetIndex(ids_next[0], composition_msgs),
+          1
+        )[0];
         pipeline.messages.push(next_message);
         if (next_message.groupId) {
           pipeline.groupId = next_message.groupId;
@@ -95,8 +118,7 @@ function parseMessages(data) {
           }
         }
       } else {
-        console.log(ids_next, 'IDSS');
-        const group = assembleGroup(ids_next);
+        const group = assembleGroup(ids_next, composition_msgs);
         pipeline.messages.push(group);
         if (group.pipeTarget) {
           ids_next = group.pipeTarget.map(pipe_element => pipe_element.messageId);
@@ -105,80 +127,69 @@ function parseMessages(data) {
         }
       }
     }
-    pipeline.compositionId = pipeline.messages[0].compositionId;
     return pipeline;
   }
-  function assembleGroup(start_ids) {
-    console.log('group');
+  function assembleGroup(start_ids, composition_msgs) {
     const group = { type: 'group', messages: [] };
     start_ids.forEach(id => {
-      index = findTargetIndex(id);
-      console.log(index);
-      if (messages[index].groupId) {
-        group.messages.push(messages.splice(index, 1)[0]);
+      const index = findTargetIndex(id, composition_msgs);
+      if (composition_msgs[index].groupId) {
+        group.messages.push(composition_msgs.splice(index, 1)[0]);
       } else {
-        group.messages.push(assemblePipeline(index));
+        group.messages.push(assemblePipeline(index, composition_msgs));
       }
     });
     if (group.messages[0].pipeTarget) {
       group.pipeTarget = group.messages[0].pipeTarget;
     }
-    group.compositionId = group.messages[0].compositionId;
     group.messageId = group.messages[0].messageId;
     return group;
   }
 
-  function assembleComposition(index) {
-    console.log('comp');
+  function assembleComposition(composition_index, composition_msgs) {
     // finding the index of one of the first messages of a composition
-    let prev_index = findPreviousElement(index);
+    let index = 0;
+    let prev_index = findPreviousElement(index, composition_msgs);
     while (prev_index !== -1) {
       index = prev_index;
-      prev_index = findPreviousElement(index);
+      prev_index = findPreviousElement(index, composition_msgs);
     }
-    console.log(messages[index]);
-    if (messages[index].groupId) {
+    if (composition_msgs[index].groupId) {
       const group_indexes = [];
-      messages.forEach((message, index_message) => {
-        if (message.groupId === messages[index].groupId) {
+      composition_msgs.forEach((message, index_message) => {
+        if (message.groupId === composition_msgs[index].groupId) {
           group_indexes.push(index_message);
         }
       });
       const group_ids = group_indexes.map(index_message => {
-        let prev_index = findPreviousElement(index_message);
-        while (prev_index !== -1 && messages[prev_index].pipeTarget.length === 1) {
+        let prev_index = findPreviousElement(index_message, composition_msgs);
+        while (prev_index !== -1 && composition_msgs[prev_index].pipeTarget.length === 1) {
           index_message = prev_index;
-          prev_index = findPreviousElement(index_message);
+          prev_index = findPreviousElement(index_message, composition_msgs);
         }
-        return messages[index_message].messageId;
+        return composition_msgs[index_message].messageId;
       });
-      const group = assembleGroup(group_ids);
+      const group = assembleGroup(group_ids, composition_msgs);
       if (group.pipeTarget) {
-        messages.push(group);
-        return assembleComposition(messages.length - 1);
+        composition_msgs.push(group);
+        return assembleComposition(composition_msgs.length - 1, composition_msgs);
       } else {
         return group;
       }
     } else {
-      const pipeline = assemblePipeline(index);
+      const pipeline = assemblePipeline(index, composition_msgs);
       if (pipeline.groupId) {
-        messages.push(pipeline);
-        return assembleComposition(messages.length - 1);
+        composition_msgs.push(pipeline);
+        return assembleComposition(composition_msgs.length - 1, composition_msgs);
       }
       return pipeline;
     }
   }
 
-  let index = messages.findIndex(message => message.compositionId);
-  while (index !== -1) {
-    const a = index;
-    console.log('newComp');
-    console.log(messages.filter(message => message.compositionId === messages[a].compositionId));
-    const composition = assembleComposition(index);
-    delete composition.compositionId;
+  Object.entries(compositions).forEach(composition_messages => {
+    const composition = assembleComposition(0, composition_messages[1]);
     messages.push(composition);
-    index = messages.findIndex(message => message.compositionId);
-  }
+  });
 
   return messages;
 }
