@@ -2,34 +2,59 @@
   <tr>
     <td class="border text-xs px-4 py-2" :colspan="colspan - 3">
       <div class="text-xs">
+<<<<<<< HEAD
         <div class="font-bold inline-block">Message Id</div>
         : {{ message.messageId }}
       </div>
       <div class="text-xs">
         <div class="font-bold inline-block">Queue Name</div>
         : {{ message.queueName }}
+=======
+        <div class="font-bold inline-block">Message Id :</div>
+        {{ message.messageId }}
+      </div>
+      <div class="text-xs">
+        <div class="font-bold inline-block">Queue Name :</div>
+        {{ message.queueName }}
+>>>>>>> feat: merge row components
       </div>
       <div class="text-xs" v-if="extra_info">
-        <div class="font-bold inline-block">Started at</div>
-        :{{ message.startedDatetime | datetime }}
+        <div class="font-bold inline-block">Started at :</div>
+        {{ message.startedDatetime | datetime }}
+      </div>
+      <div class="text-xs" v-if="extra_info">
+        <div class="font-bold inline-block">Wait time :</div>
+        {{ waitTime }}
+      </div>
+      <div class="text-xs" v-if="extra_info">
+        <div class="font-bold inline-block">Execution time :</div>
+        {{ executionTime }}
+      </div>
+      <div class="text-xs" v-if="extra_info">
+        <div class="font-bold inline-block">Progress :</div>
+        {{ message.progress }}
+      </div>
+      <div class="text-xs" v-if="extra_info">
+        <div class="font-bold inline-block">Remaining time :</div>
+        {{ remainingTime }}
       </div>
       <div class="text-xs bg-white whitespace-pre-wrap">
-        <span class="font-bold inline-block">Args</span>
-        :{{ args | json }}
+        <span class="font-bold inline-block">Args :</span>
+        {{ args | json }}
       </div>
       <div class="text-xs bg-white whitespace-pre-wrap">
-        <span class="font-bold inline-block">Kwargs</span>
-        :{{ kwargs | json }}
+        <span class="font-bold inline-block">Kwargs :</span>
+        {{ kwargs | json }}
       </div>
       <div class="text-xs bg-white whitespace-pre-wrap">
-        <span class="font-bold inline-block">Options</span>
-        :{{ options | json }}
+        <span class="font-bold inline-block">Options :</span>
+        {{ options | json }}
       </div>
     </td>
     <td class="border text-xs px-4 py-2" :colspan="3">
       <p class="text-xs bg-white" v-if="result">
-        <span class="font-bold inline-block">Result</span>
-        :{{ result }}
+        <span class="font-bold inline-block">Result :</span>
+        {{ result }}
       </p>
     </td>
   </tr>

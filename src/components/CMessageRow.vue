@@ -45,7 +45,7 @@
       </div>
     </td>
     <td class="border px-4 py-2">
-      <pre class="text-xs whitespace-normal" v-if="message.status != 'Success'">{{
+      <pre v-if="message.status !== 'Success'" class="text-xs whitespace-normal">{{
         message.progress | percentage
       }}</pre>
     </td>

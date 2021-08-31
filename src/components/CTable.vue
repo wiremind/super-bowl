@@ -47,8 +47,6 @@
 import CPageFooter from '@/components/CPageFooter';
 import CTh from '@/components/CTh';
 import CMessageRow from '@/components/CMessageRow';
-import CPipelineRow from '@/components/CPipelineRow';
-import CGroupRow from '@/components/CGroupRow';
 import CMessageContent from '@/components/CMessageContent';
 import CPipelineContent from '@/components/CPipelineContent';
 import CGroupContent from '@/components/CGroupContent';
@@ -60,8 +58,6 @@ export default {
     CTh,
     CPageFooter,
     CMessageRow,
-    CPipelineRow,
-    CGroupRow,
     CMessageContent,
     CPipelineContent,
     CGroupContent
@@ -93,14 +89,6 @@ export default {
   methods: {
     toggleRow(index) {
       this.openedRows = utils.toggleItemFromList(index, this.openedRows);
-    },
-    rowType: function (message) {
-      if (message.type === 'pipeline') {
-        return 'c-pipeline-row';
-      } else if (message.type === 'group') {
-        return 'c-group-row';
-      }
-      return 'c-message-row';
     },
     contentType: function (message) {
       if (message.type === 'pipeline') {

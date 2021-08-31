@@ -1,5 +1,14 @@
 <template>
   <div>
+    <div class="flex float-left space-x-3 mb-3 ml-6 my-2">
+      <vue-ctk-date-time-picker
+        v-model="minDateTime"
+        format="YYYY-MM-DD HH:mm"
+        formatted="ddd DD MMM YYYY HH:mm"
+        label="Min Date and Time"
+      />
+      <button class="btn" :disabled="minDateTime == null" @click="clean">Clean</button>
+    </div>
     <div class="flex float-right space-x-5 mb-3 search relative mr-6 my-2 w-3/4">
       <multiselect
         v-model="selectedTypes"

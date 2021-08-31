@@ -185,7 +185,7 @@ function parseMessages(data) {
     // add Progress
     if (
       composition.messages.every(message => message.status === 'Success' || message.progress) &&
-      !composition.messages.every(message => (message.status = 'Success'))
+      !composition.messages.every(message => message.status === 'Success')
     ) {
       composition.progress =
         composition.messages
