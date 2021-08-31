@@ -6,9 +6,11 @@ describe('Computed properties in Message Row', () => {
   it('returns the right wait time', () => {
     const wrapper = mount(CMessageRow, {
       propsData: {
-        startedDatetime: new Date('December 10, 2020 05:32:10 UTC'),
-        enqueuedDatetime: new Date('December 10, 2020 03:24:00 UTC'),
-        status: 'Pending'
+        message: {
+          startedDatetime: new Date('December 10, 2020 05:32:10 UTC'),
+          enqueuedDatetime: new Date('December 10, 2020 03:24:00 UTC'),
+          status: 'Pending'
+        }
       }
     });
     expect(wrapper.vm.waitTime).toBe('02:08:10');
@@ -32,9 +34,11 @@ describe('Computed properties in Message Row', () => {
 
       const wrapper = mount(CMessageRow, {
         propsData: {
-          startedDatetime,
-          progress,
-          status: 'Started'
+          message: {
+            startedDatetime,
+            progress,
+            status: 'Started'
+          }
         }
       });
       expect(wrapper.vm.remainingTime).toBe(expectedResult);
