@@ -198,9 +198,9 @@ export default {
       if (!this.message.type) {
         this.$store.dispatch('updateSelectedActors', [this.message.actorName]);
       } else if (this.message.type === 'pipeline') {
-        this.$store.dispatch('updateSelectedTypes', ['Pipelines']);
+        this.$store.dispatch('updateSelectedType', ['Pipelines']);
       } else {
-        this.$store.dispatch('updateSelectedTypes', ['Groups']);
+        this.$store.dispatch('updateSelectedType', ['Groups']);
       }
     },
     searchState() {

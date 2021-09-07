@@ -23,7 +23,7 @@ const store = new Vuex.Store({
     selectedActors: null,
     selectedStatuses: ['Started', 'Pending', 'Skipped', 'Canceled', 'Failure', 'Success'],
     selectedId: null,
-    selectedTypes: ['Messages', 'Pipelines', 'Groups'],
+    selectedType: null,
     startDateTime: null,
     endDateTime: null,
     currentPage: 0,
@@ -72,8 +72,8 @@ const store = new Vuex.Store({
     setSelectedStatuses(state, selectedStatuses) {
       state.selectedStatuses = selectedStatuses;
     },
-    setSelectedTypes(state, selectedTypes) {
-      state.selectedTypes = selectedTypes;
+    setSelectedType(state, selectedType) {
+      state.selectedType = selectedType;
     },
     setSelectedId(state, selectedId) {
       state.selectedId = selectedId;
@@ -119,7 +119,8 @@ const store = new Vuex.Store({
           state.selectedId !== '' && state.selectedId != null ? [state.selectedId] : null,
         start_datetime: state.startDateTime,
         end_datetime: state.endDateTime,
-        offset: state.currentPage * state.sizePage
+        offset: state.currentPage * state.sizePage,
+        selected_type: state.selectedType
       };
     }
   },
@@ -233,8 +234,10 @@ const store = new Vuex.Store({
     updateSortedColumn(context, column) {
       context.commit('setSortedColumn', column);
     },
-    updateSelectedTypes(context, types) {
-      context.commit('setSelectedTypes', types);
+    updateSelectedType(context, types) {
+      context.commit('setSelectedType', types);
+      context.commit('setCurrentPage', 0);
+      context.dispatch('refresh');
     },
     cleanStates(context, minDateTime) {
       const interval = Math.round(

@@ -2,7 +2,7 @@
   <div class="px-4 pt-2">
     <c-search-input />
     <c-table
-      :messages="parsedMessages"
+      :messages="messages"
       :countMessages="countMessages"
       :sorted-column="sortedColumn"
       :sort-direction="sortDirection"
@@ -43,7 +43,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(['messages', 'refreshInterval', 'actors', 'countMessages', 'selectedTypes']),
+    ...mapState(['messages', 'refreshInterval', 'actors', 'countMessages', 'selectedType']),
     sortedColumn: {
       get() {
         return this.$store.state.sortedColumn;
@@ -58,21 +58,6 @@ export default {
       },
       set(direction) {
         this.$store.dispatch('updateSortDirection', direction);
-      }
-    },
-    parsedMessages() {
-      const includesMessages = this.selectedTypes.includes('Messages');
-      const includesGroups = this.selectedTypes.includes('Groups');
-      const includesPipelines = this.selectedTypes.includes('Pipelines');
-      if (!(includesMessages && includesGroups && includesPipelines)) {
-        return this.messages.filter(
-          message =>
-            (!message.type && includesMessages) ||
-            (message.type === 'pipeline' && includesPipelines) ||
-            (message.type === 'group' && includesGroups)
-        );
-      } else {
-        return this.messages;
       }
     }
   },
