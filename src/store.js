@@ -23,7 +23,6 @@ const store = new Vuex.Store({
     selectedActors: null,
     selectedStatuses: ['Started', 'Pending', 'Skipped', 'Canceled', 'Failure', 'Success'],
     selectedId: null,
-    selectedType: null,
     startDateTime: null,
     endDateTime: null,
     currentPage: 0,
@@ -72,9 +71,6 @@ const store = new Vuex.Store({
     setSelectedStatuses(state, selectedStatuses) {
       state.selectedStatuses = selectedStatuses;
     },
-    setSelectedType(state, selectedType) {
-      state.selectedType = selectedType;
-    },
     setSelectedId(state, selectedId) {
       state.selectedId = selectedId;
     },
@@ -119,8 +115,7 @@ const store = new Vuex.Store({
           state.selectedId !== '' && state.selectedId != null ? [state.selectedId] : null,
         start_datetime: state.startDateTime,
         end_datetime: state.endDateTime,
-        offset: state.currentPage * state.sizePage,
-        selected_type: state.selectedType
+        offset: state.currentPage * state.sizePage
       };
     }
   },

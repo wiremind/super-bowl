@@ -43,7 +43,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(['messages', 'refreshInterval', 'actors', 'countMessages', 'selectedType']),
+    ...mapState(['messages', 'refreshInterval', 'actors', 'countMessages']),
     sortedColumn: {
       get() {
         return this.$store.state.sortedColumn;
