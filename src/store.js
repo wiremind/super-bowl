@@ -229,11 +229,6 @@ const store = new Vuex.Store({
     updateSortedColumn(context, column) {
       context.commit('setSortedColumn', column);
     },
-    updateSelectedType(context, types) {
-      context.commit('setSelectedType', types);
-      context.commit('setCurrentPage', 0);
-      context.dispatch('refresh');
-    },
     cleanStates(context, minDateTime) {
       const interval = Math.round(
         new Date(Date.now()).getTime() - new Date(minDateTime).getTime() / 1000

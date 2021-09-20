@@ -197,10 +197,6 @@ export default {
     searchActor() {
       if (!this.message.type) {
         this.$store.dispatch('updateSelectedActors', [this.message.actorName]);
-      } else if (this.message.type === 'pipeline') {
-        this.$store.dispatch('updateSelectedType', ['Pipelines']);
-      } else {
-        this.$store.dispatch('updateSelectedType', ['Groups']);
       }
     },
     searchState() {
