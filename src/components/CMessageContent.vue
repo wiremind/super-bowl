@@ -2,21 +2,16 @@
   <tr>
     <td class="border text-xs px-4 py-2" :colspan="colspan - 3">
       <div class="text-xs">
-<<<<<<< HEAD
         <div class="font-bold inline-block">Message Id</div>
         : {{ message.messageId }}
       </div>
       <div class="text-xs">
         <div class="font-bold inline-block">Queue Name</div>
         : {{ message.queueName }}
-=======
-        <div class="font-bold inline-block">Message Id :</div>
-        {{ message.messageId }}
       </div>
-      <div class="text-xs">
-        <div class="font-bold inline-block">Queue Name :</div>
-        {{ message.queueName }}
->>>>>>> feat: merge row components
+      <div class="text-xs" v-if="extra_info">
+        <div class="font-bold inline-block">Priority :</div>
+        {{ message.priority }}
       </div>
       <div class="text-xs" v-if="extra_info">
         <div class="font-bold inline-block">Started at :</div>
@@ -31,12 +26,12 @@
         {{ executionTime }}
       </div>
       <div class="text-xs" v-if="extra_info">
-        <div class="font-bold inline-block">Progress :</div>
-        {{ message.progress }}
-      </div>
-      <div class="text-xs" v-if="extra_info">
         <div class="font-bold inline-block">Remaining time :</div>
         {{ remainingTime }}
+      </div>
+      <div class="text-xs" v-if="extra_info">
+        <div class="font-bold inline-block">Progress :</div>
+        {{ message.progress }}
       </div>
       <div class="text-xs bg-white whitespace-pre-wrap">
         <span class="font-bold inline-block">Args :</span>
@@ -62,6 +57,7 @@
 
 <script>
 import api from '@/api';
+
 export default {
   name: 'CMessageContent',
   props: {
@@ -99,7 +95,7 @@ export default {
       this.updateResult();
     },
     message() {
-      if (this.message.status) {
+      if (this.message.status !== 'Not yet enqueued') {
         api.getArgsKwargs(this.message.messageId).then(res => {
           this.args = res.args;
           this.kwargs = res.kwargs;
@@ -114,7 +110,7 @@ export default {
     }
   },
   created() {
-    if (this.message.status) {
+    if (this.message.status !== 'Not yet enqueued') {
       api.getArgsKwargs(this.message.messageId).then(res => {
         this.args = res.args;
         this.kwargs = res.kwargs;

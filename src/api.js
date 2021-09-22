@@ -18,34 +18,60 @@ const getMessages = args => {
   const url = '/messages/states';
   return axios
     .post(url, args)
-    .then(res => ({ count: res.data.count, data: parseMessages(res.data.data) }));
-};
-
-const parseMessage = rawMessage => {
-  return {
-    priority: rawMessage.priority,
-    messageId: rawMessage.message_id,
-    status: rawMessage.status,
-    actorName: rawMessage.actor_name,
-    progress: rawMessage.progress ? rawMessage.progress : null,
-    enqueuedDatetime: rawMessage.enqueued_datetime ? new Date(rawMessage.enqueued_datetime) : null,
-    startedDatetime: rawMessage.started_datetime ? new Date(rawMessage.started_datetime) : null,
-    endDatetime: rawMessage.end_datetime ? new Date(rawMessage.end_datetime) : null,
-    queueName: rawMessage.queue_name,
-    pipeTarget:
-      rawMessage.options && rawMessage.options.pipe_target
-        ? rawMessage.options.pipe_target.map(parseMessage)
-        : null,
-    groupId:
-      rawMessage.options && rawMessage.options.group_info
-        ? rawMessage.options.group_info.group_id
-        : null,
-    compositionId: rawMessage.options ? rawMessage.options.composition_id : null
-  };
+    .then(res => Object.assign(parseMessages(res.data.data), { count: res.data.count }));
 };
 
 function parseMessages(data) {
+  const loadDateTime = utils.dateToUTC(new Date());
+
+  const parseMessage = rawMessage => {
+    const parsedMessage = {
+      priority: rawMessage.priority,
+      messageId: rawMessage.message_id,
+      status: rawMessage.status,
+      actorName: rawMessage.actor_name,
+      progress: rawMessage.progress ? rawMessage.progress : null,
+      enqueuedDatetime: rawMessage.enqueued_datetime
+        ? new Date(rawMessage.enqueued_datetime)
+        : null,
+      startedDatetime: rawMessage.started_datetime ? new Date(rawMessage.started_datetime) : null,
+      endDatetime: rawMessage.end_datetime ? new Date(rawMessage.end_datetime) : null,
+      pipeTarget:
+        rawMessage.options && rawMessage.options.pipe_target
+          ? rawMessage.options.pipe_target.map(parseMessage)
+          : null,
+      groupId:
+        rawMessage.options && rawMessage.options.group_info
+          ? rawMessage.options.group_info.group_id
+          : null,
+      compositionId: rawMessage.options ? rawMessage.options.composition_id : null,
+      queueName: rawMessage.queue_name
+    };
+    if (parsedMessage.enqueuedDatetime) {
+      if (parsedMessage.startedDatetime) {
+        parsedMessage.waitTime = parsedMessage.startedDatetime - parsedMessage.enqueuedDatetime;
+      } else {
+        parsedMessage.waitTime = loadDateTime - utils.dateToUTC(parsedMessage.enqueuedDatetime);
+      }
+    }
+    if (parsedMessage.startedDatetime) {
+      if (parsedMessage.endDatetime) {
+        parsedMessage.executionTime = parsedMessage.endDatetime - parsedMessage.startedDatetime;
+      } else {
+        parsedMessage.executionTime = loadDateTime - utils.dateToUTC(parsedMessage.startedDatetime);
+      }
+    }
+    if (parsedMessage.startedDatetime && parsedMessage.progress > 0 && !parsedMessage.endDatetime) {
+      parsedMessage.remainingTime =
+        ((loadDateTime - utils.dateToUTC(parsedMessage.startedDatetime)) *
+          (1 - parsedMessage.progress)) /
+        parsedMessage.progress;
+    }
+    return parsedMessage;
+  };
+
   const messages = data.map(parseMessage);
+
   function findTargetIndex(target_id, array) {
     return array.findIndex(element => element.messageId === target_id);
   }
@@ -79,6 +105,7 @@ function parseMessages(data) {
             composition_element => composition_element.messageId === pipe_element.messageId
           ) === -1
         ) {
+          pipe_element.status = 'Not yet enqueued';
           compositions[composition_id].push(pipe_element);
           fillPipe(composition_id, pipe_element);
         }
@@ -103,6 +130,8 @@ function parseMessages(data) {
       composition.status = 'Started';
     } else if (statuses.every(status => status === 'Success')) {
       composition.status = 'Success';
+    } else if (statuses.every(status => status === 'Not yet enqueued')) {
+      composition.status = 'Not yet enqueued';
     } else if (
       (composition.type === 'group' && statuses.every(status => status === 'Pending')) ||
       (composition.type === 'pipeline' && statuses[0] === 'Pending')
@@ -129,55 +158,25 @@ function parseMessages(data) {
     // add Wait time
     let wait_time = 0;
     composition.messages.forEach(message => {
-      if (message.type) {
-        if (message.waitTime) {
-          wait_time += message.waitTime;
-        }
-      } else {
-        if (message.enqueuedDatetime) {
-          wait_time +=
-            (message.startedDatetime || utils.dateToUTC(new Date())) - message.enqueuedDatetime;
-        }
+      if (message.waitTime) {
+        wait_time += message.waitTime;
       }
     });
     composition.waitTime = wait_time;
     // add Execution time
     let execution_time = 0;
     composition.messages.forEach(message => {
-      if (message.type) {
-        if (message.executionTime) {
-          execution_time += message.executionTime;
-        }
-      } else {
-        if (message.startedDatetime) {
-          execution_time += (message.endDatetime || new Date()) - message.startedDatetime;
-        }
+      if (message.executionTime) {
+        execution_time += message.executionTime;
       }
     });
     composition.executionTime = execution_time;
     //add Remaining Time
-    let remaining_time = 0;
-    if (
-      composition.messages.every(
-        message =>
-          (message.type && (message.status === 'Success' || message.remainingTime)) ||
-          message.endDatetime ||
-          (message.progress && message.startedDatetime && message.status === 'Started')
-      ) &&
-      !composition.messages.every(
-        message => message.endDatetime || (message.type && message.status === 'Success')
-      )
-    ) {
+    if (composition.messages.every(message => message.endDatetime || message.remainingTime)) {
+      let remaining_time = 0;
       composition.messages.forEach(message => {
-        if (message.type) {
-          if (message.remainingTime) {
-            remaining_time = Math.max(remaining_time, message.remainingTime);
-          }
-        } else if (!message.endDatetime) {
-          remaining_time = Math.max(
-            remaining_time,
-            ((new Date() - message.endDatetime) * (1 - message.progress)) / message.progress
-          );
+        if (message.remainingTime) {
+          remaining_time = Math.max(remaining_time, message.remainingTime);
         }
       });
       composition.remainingTime = remaining_time;
@@ -298,7 +297,7 @@ function parseMessages(data) {
     messages.push(composition);
   });
 
-  return messages;
+  return { messages: messages, loadDateTime: loadDateTime };
 }
 
 const cancelMessage = message_id => {
@@ -359,20 +358,6 @@ const getOptions = () => {
   return axios.get('/options').then(res => res.data.options);
 };
 
-const getGroups = () => {
-  const url = '/groups';
-  return axios
-    .post(url)
-    .then(res => ({ count: res.data.count, data: res.data.data.map(parseGroup) }));
-};
-
-const parseGroup = rawGroup => {
-  return {
-    groupId: rawGroup.group_id,
-    messages: rawGroup.messages.map(parseMessage)
-  };
-};
-
 const requeue = messageId => {
   const url = '/messages/requeue/' + messageId;
   return axios.get(url);
@@ -398,6 +383,5 @@ export default {
   getJobs,
   enqueueMessage,
   getActors,
-  getOptions,
-  getGroups
+  getOptions
 };

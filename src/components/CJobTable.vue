@@ -1,6 +1,5 @@
 <template>
   <div class="px-4 pt-2">
-    <c-search-input />
     <table class="w-full bg-white rounded mb-4">
       <thead>
         <tr class="bg-gray-100 h-8">
@@ -33,7 +32,6 @@
   </div>
 </template>
 <script>
-import CSearchInput from '@/components/CSearchInput';
 import { mapState } from 'vuex';
 import CTh from '@/components/CTh';
 import CJobRow from '@/components/CJobRow';
@@ -41,7 +39,7 @@ import utils from '@/utils';
 
 export default {
   name: 'CJobTable',
-  components: { CTh, CJobRow, CSearchInput },
+  components: { CTh, CJobRow },
   data() {
     return {
       columns: [

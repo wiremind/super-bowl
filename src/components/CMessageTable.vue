@@ -24,24 +24,6 @@ export default {
     CSearchInput,
     CTable
   },
-
-  data() {
-    return {
-      columns: [
-        // if the column is sortable must have a name
-        { label: 'Actor', name: 'actorName', sortable: true },
-        { label: 'Priority', name: 'priority', sortable: true },
-        { label: 'State', name: 'status', sortable: true },
-        { label: 'Started time', name: 'startedDatetime', sortable: true },
-        { label: 'Wait time' },
-        { label: 'Execution time' },
-        { label: 'Remaining time' },
-        { label: 'Progress', name: 'progress', sortable: true },
-        { label: 'Actions' }
-      ],
-      openedRows: []
-    };
-  },
   computed: {
     ...mapState(['messages', 'refreshInterval', 'actors', 'countMessages']),
     sortedColumn: {

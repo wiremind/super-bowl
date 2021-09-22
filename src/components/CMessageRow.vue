@@ -28,19 +28,16 @@
         {{ message.startedDatetime | datetime }}
       </div>
     </td>
-    <td class="border px-4 py-2">
+    <td class="border px-4 py-2" v-if="message.waitTime">
       {{ waitTime }}
     </td>
     <td class="border px-4 py-2">
-      <div
-        v-if="message.status === 'Success' || message.status === 'Failure'"
-        class="whitespace-normal"
-      >
+      <div v-if="message.executionTime" class="whitespace-normal">
         {{ executionTime }}
       </div>
     </td>
     <td class="border px-4 py-2">
-      <div v-if="message.status === 'Started'">
+      <div v-if="message.remainingTime">
         {{ remainingTime }}
       </div>
     </td>
@@ -70,6 +67,7 @@
 
 <script>
 import utils from '@/utils';
+import { mapState } from 'vuex';
 
 export default {
   name: 'CMessageRow',
@@ -85,6 +83,7 @@ export default {
   },
 
   computed: {
+    ...mapState(['loadDateTime']),
     actorName() {
       if (!this.message.type) {
         return this.message.actorName;
@@ -107,48 +106,15 @@ export default {
       return actorString;
     },
     waitTime() {
-      if (this.message.type) {
-        const diff = utils.formatMillis(this.message.waitTime);
-        return `${diff.hours}:${diff.minutes}:${diff.seconds}`;
-      }
-      if (!this.message.startedDatetime || !this.message.enqueuedDatetime) {
-        return null;
-      }
-      const diff = utils.formatMillis(this.message.startedDatetime - this.message.enqueuedDatetime);
+      const diff = utils.formatMillis(this.message.waitTime);
       return `${diff.hours}:${diff.minutes}:${diff.seconds}`;
     },
     remainingTime() {
-      if (this.message.type) {
-        const diff = this.message.remainingTime;
-        if (diff) {
-          return `${diff.hours}:${diff.minutes}:${diff.seconds}`;
-        }
-      }
-      if (
-        this.message.endDatetime ||
-        !this.message.progress ||
-        !this.message.startedDatetime ||
-        this.message.status !== 'Started'
-      ) {
-        return null;
-      }
-      const factor = (1 - this.message.progress) / this.message.progress;
-      const diff = utils.formatMillis((new Date() - this.message.startedDatetime) * factor);
+      const diff = utils.formatMillis(this.message.remainingTime);
       return `${diff.hours}:${diff.minutes}:${diff.seconds}`;
     },
     executionTime() {
-      if (this.message.type) {
-        const diff = utils.formatMillis(this.message.executionTime);
-        return `${diff.hours}:${diff.minutes}:${diff.seconds}`;
-      }
-      if (!this.message.startedDatetime) {
-        return null;
-      }
-      const diff = utils.formatMillis(
-        this.message.startedDatetime - this.message.endDatetime
-          ? this.message.endDatetime
-          : new Date()
-      );
+      const diff = utils.formatMillis(this.message.executionTime);
       return `${diff.hours}:${diff.minutes}:${diff.seconds}`;
     },
     canRequeue() {
