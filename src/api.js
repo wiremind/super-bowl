@@ -310,6 +310,7 @@ const getJobs = () => {
 
 const parseJob = rawJob => {
   return {
+    hash: rawJob.hash,
     actorName: rawJob.actor_name,
     args: rawJob.args,
     dailyTime: rawJob.daily_time,
@@ -373,6 +374,38 @@ const cleanStates = args => {
   return axios.delete(url, args);
 };
 
+function formatJob(job) {
+  const parsedJob = {
+    actor_name: job.actorName,
+    args: job.args,
+    daily_time: job.dailyTime,
+    enabled: job.enabled,
+    interval: job.interval,
+    iso_weekday: job.isoWeekday,
+    kwargs: job.kwargs,
+    lastQueued: job.last_queued,
+    tz: job.tz
+  };
+  if (parsedJob.daily_time) {
+    parsedJob.interval = 86400;
+  }
+  return parsedJob;
+}
+const deleteJob = job => {
+  const url = '/scheduled/jobs/' + job.hash;
+  return axios.delete(url).then(res => res.data.result.map(parseJob));
+};
+
+const addJob = job => {
+  const url = '/scheduled/jobs';
+  return axios.post(url, formatJob(job)).then(res => res.data.result);
+};
+
+const updateJob = job => {
+  const url = '/scheduled/jobs/' + job.hash;
+  return axios.put(url, formatJob(job)).then(res => res.data.result.map(parseJob));
+};
+
 export default {
   cleanStates,
   getResult,
@@ -383,5 +416,8 @@ export default {
   getJobs,
   enqueueMessage,
   getActors,
-  getOptions
+  getOptions,
+  deleteJob,
+  addJob,
+  updateJob
 };

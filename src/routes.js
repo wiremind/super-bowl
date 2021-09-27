@@ -4,7 +4,12 @@ import CEnqueueForm from '@/components/CEnqueueForm';
 import CNotFound from '@/components/CNotFound';
 const routes = [
   { path: '/', component: CMessageTable, name: 'Messages', meta: { requiresRefreshButton: true } },
-  { path: '/jobs', component: CJobTable, name: 'Scheduled Jobs' },
+  {
+    path: '/jobs',
+    component: CJobTable,
+    name: 'Scheduled Jobs',
+    meta: { requiresRefreshButton: true }
+  },
   { path: '/enqueue', component: CEnqueueForm, name: 'Enqueue' },
   { path: '*', component: CNotFound }
 ];

@@ -228,6 +228,15 @@ const store = new Vuex.Store({
       );
       const args = { max_age: interval };
       api.cleanStates(args).then(() => this.updateCurrentPage());
+    },
+    saveJob(context, job) {
+      context.commit('setLoading', true);
+      api.updateJob(job).then(jobs => {
+        setTimeout(() => {
+          context.commit('setLoading', false);
+        }, 500);
+        context.commit('setJobs', jobs);
+      });
     }
   }
 });
