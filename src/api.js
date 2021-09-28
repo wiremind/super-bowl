@@ -118,6 +118,28 @@ function parseMessages(data) {
   });
 
   function addDetails(composition) {
+    // add name
+    if (composition.type === 'group') {
+      const nameCount = composition.messages.map(message => message.actorName);
+      const nameDict = {};
+      for (const name of nameCount) {
+        nameDict[name] = nameDict[name] ? nameDict[name] + 1 : 1;
+      }
+      let actorName = '';
+      for (const name in nameDict) {
+        actorName += (name.includes('|') ? '(' + name + ')' : name) + '[' + nameDict[name] + '] ';
+      }
+      if (Object.keys(nameDict).length > 1) {
+        actorName = '[' + actorName + ']';
+      }
+      composition.actorName = actorName;
+    } else {
+      let actorName = '';
+      for (const name of composition.messages.map(message => message.actorName)) {
+        actorName += name + ' | ';
+      }
+      composition.actorName = actorName.substring(0, actorName.length - 3);
+    }
     // add status
     const statuses = composition.messages.map(message => message.status);
     if (statuses.includes('Failure')) {

@@ -7,7 +7,7 @@
       <div class="flex">
         <img v-if="isOpened" src="@/assets/img/expand_more.svg" width="20rem" />
         <img v-else src="@/assets/img/expand_less.svg" width="20rem" />
-        <pre class="text-xs ml-2 whitespace-normal" v-html="actorName">{{ actorName }}</pre>
+        <pre class="text-xs ml-2 whitespace-normal">{{ message.actorName }}</pre>
       </div>
     </td>
     <td class="border px-4 py-2">
@@ -84,27 +84,6 @@ export default {
 
   computed: {
     ...mapState(['loadDateTime']),
-    actorName() {
-      if (!this.message.type) {
-        return this.message.actorName;
-      }
-      const actorCount = {};
-      this.message.messages.forEach(message => {
-        const actorName = message.type
-          ? `<b class="capitalize">${message.type}</b>`
-          : message.actorName;
-        if (actorCount[actorName]) {
-          actorCount[actorName] += 1;
-        } else {
-          actorCount[actorName] = 1;
-        }
-      });
-      let actorString = `<b class="capitalize">${this.message.type} (${this.message.messages.length}) : </b>`;
-      Object.entries(actorCount).forEach(
-        actor => (actorString += actor[0] + (actor[1] > 1 ? '*' + actor[1] + ' ' : ' '))
-      );
-      return actorString;
-    },
     waitTime() {
       const diff = utils.formatMillis(this.message.waitTime);
       return `${diff.hours}:${diff.minutes}:${diff.seconds}`;
