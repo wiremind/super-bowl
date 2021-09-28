@@ -235,15 +235,66 @@ function parseMessages(data) {
     }
     return addDetails(pipeline);
   }
+  function findMessagesGroupIds(start_ids, composition_msgs) {
+    const composition_group_ids = [];
+    start_ids.forEach(id => {
+      const msg_group_ids = [];
+      let msg = composition_msgs[findTargetIndex(id, composition_msgs)];
+      if (msg.groupId) {
+        msg_group_ids.push(msg.groupId);
+      }
+      while (msg.pipeTarget) {
+        msg = msg.pipeTarget[0];
+        if (msg.groupId) {
+          msg_group_ids.push(msg.groupId);
+        }
+      }
+      composition_group_ids.push(msg_group_ids);
+    });
+    return composition_group_ids;
+  }
+  function findGroupId(start_ids, composition_msgs) {
+    // We find the group's group_id thanks to this property :
+    // The group's groupId is the first group_id that all first messages + their pipe targets have in common
+    const composition_group_ids = findMessagesGroupIds(start_ids, composition_msgs);
+
+    function isGroupId(group_id) {
+      return composition_group_ids.every(msg_group_ids => msg_group_ids.includes(group_id));
+    }
+
+    for (const group_id of composition_group_ids[0]) {
+      if (isGroupId(group_id)) {
+        return group_id;
+      }
+    }
+    throw 'Invalid composition';
+  }
   function assembleGroup(start_ids, composition_msgs) {
     const group = { type: 'group', messages: [] };
+    const groupId = findGroupId(start_ids, composition_msgs);
+    const inner_groups = {};
     start_ids.forEach(id => {
       const index = findTargetIndex(id, composition_msgs);
-      if (composition_msgs[index].groupId) {
+      if (composition_msgs[index].groupId === groupId) {
         group.messages.push(composition_msgs.splice(index, 1)[0]);
       } else {
-        group.messages.push(assemblePipeline(index, composition_msgs));
+        if (composition_msgs[index].groupId) {
+          if (!inner_groups[composition_msgs[index].groupId]) {
+            inner_groups[composition_msgs[index].groupId] = [];
+          }
+          inner_groups[composition_msgs[index].groupId].push(composition_msgs.splice(index, 1)[0]);
+        } else {
+          group.messages.push(assemblePipeline(index, composition_msgs));
+        }
       }
+    });
+    Object.values(inner_groups).forEach(inner_grp => {
+      const grp = assembleGroup(
+        inner_grp.map(msg => msg.messageId),
+        inner_grp
+      );
+      composition_msgs.push(grp);
+      group.messages.push(assemblePipeline(composition_msgs.length - 1, composition_msgs));
     });
     if (group.messages[0].pipeTarget) {
       group.pipeTarget = group.messages[0].pipeTarget;
@@ -419,5 +470,6 @@ export default {
   getOptions,
   deleteJob,
   addJob,
-  updateJob
+  updateJob,
+  parseMessages
 };

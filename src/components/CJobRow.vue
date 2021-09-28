@@ -13,14 +13,14 @@
     </td>
     <td class="border px-4 py-2">
       <div class="flex">
-        <input v-model="editableEnabled" type="checkbox" class="h-5" />
+        <input v-model="editableEnabled" type="checkbox" class="h-5 w-5 mr-2" />
         {{ editableEnabled }}
       </div>
     </td>
     <td class="border px-4 py-2">
-      <div class="flex items-center">
-        <div class="w-1/4">{{ interval | formatSeconds }}</div>
-        <input v-model.number="editableInterval" class="w3/4" type="number" />
+      <div class="flex items-center space-x-2">
+        <div class="w-1/3">{{ interval | formatSeconds }}</div>
+        <input v-model.number="editableInterval" class="w2/3" type="number" />
       </div>
     </td>
     <td class="border px-4 py-2">
@@ -41,7 +41,7 @@
     <td class="border px-4 py-2">
       <input v-model="editableTz" />
     </td>
-    <td class="border px-4 w-64">
+    <td class="border px-4 w-60">
       <div class="space-x-2 flex" v-if="isEdited && !errorMessage">
         <button class="btn btn-success w-1/2" @click="save">Save</button>
         <button class="btn btn-danger w-1/2" @click="$emit('discard')">Discard</button>
