@@ -21,15 +21,17 @@
       {{ message.status }}
     </td>
     <td class="border px-4 py-2">
-      <div
-        class="whitespace-normal"
-        v-if="message.status !== 'Success' || message.status !== 'Failure'"
-      >
+      <div class="whitespace-normal">
         {{ message.startedDatetime | datetime }}
       </div>
     </td>
-    <td class="border px-4 py-2" v-if="message.waitTime">
-      {{ waitTime }}
+    <td class="border px-4 py-2">
+      <div
+        v-if="message.waitTime && (message.status === 'Pending' || message.startedDatetime)"
+        class="whitespace-normal"
+      >
+        {{ waitTime }}
+      </div>
     </td>
     <td class="border px-4 py-2">
       <div v-if="message.executionTime" class="whitespace-normal">
@@ -42,12 +44,12 @@
       </div>
     </td>
     <td class="border px-4 py-2">
-      <pre v-if="message.status !== 'Success'" class="text-xs whitespace-normal">{{
+      <pre v-if="!message.endDateTime" class="text-xs whitespace-normal">{{
         message.progress | percentage
       }}</pre>
     </td>
     <td class="border px-4 py-2">
-      <div class="inline-flex items-center">
+      <div class="inline-flex items-center" v-if="!message.type">
         <button
           v-if="message.status === 'Pending' && canCancel"
           @click.stop="cancelMessage"

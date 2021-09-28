@@ -17,19 +17,26 @@
         <div class="font-bold inline-block">Started at :</div>
         {{ message.startedDatetime | datetime }}
       </div>
-      <div class="text-xs" v-if="extra_info">
+      <div
+        class="text-xs"
+        v-if="
+          extra_info &&
+          message.waitTime &&
+          (message.status === 'Pending' || message.startedDatetime)
+        "
+      >
         <div class="font-bold inline-block">Wait time :</div>
         {{ waitTime }}
       </div>
-      <div class="text-xs" v-if="extra_info">
+      <div class="text-xs" v-if="extra_info && message.executionTime">
         <div class="font-bold inline-block">Execution time :</div>
         {{ executionTime }}
       </div>
-      <div class="text-xs" v-if="extra_info">
+      <div class="text-xs" v-if="extra_info && message.remainingTime">
         <div class="font-bold inline-block">Remaining time :</div>
         {{ remainingTime }}
       </div>
-      <div class="text-xs" v-if="extra_info">
+      <div class="text-xs" v-if="extra_info && !message.endDateTime">
         <div class="font-bold inline-block">Progress :</div>
         {{ message.progress }}
       </div>
