@@ -3,11 +3,11 @@
     <td class="border text-xs px-4 py-2" :colspan="colspan - 3">
       <div class="text-xs">
         <div class="font-bold inline-block">Message Id</div>
-        :{{ messageId }}
+        : {{ messageId }}
       </div>
       <div class="text-xs">
         <div class="font-bold inline-block">Queue Name</div>
-        :{{ queueName }}
+        : {{ queueName }}
       </div>
       <pre
         class="text-xs bg-white"
@@ -29,13 +29,13 @@
 </template>
 
 <script>
-import utils from '@/utils';
 import api from '@/api';
 export default {
   name: 'CMessageContent',
   props: {
     messageId: String,
     actorName: String,
+    queueName: String,
     colspan: Number,
     stateName: String
   },
@@ -47,15 +47,9 @@ export default {
       result: null
     };
   },
-  computed: {
-    queueName() {
-      const actors = this.$store.getters.actorsByName;
-      return actors[this.actorName] ? actors[this.actorName].queueName : '';
-    }
-  },
   filters: {
-    json(str) {
-      return str && utils.isJson(str) ? JSON.stringify(utils.toJson(str), undefined, 2) : '';
+    json(obj) {
+      return obj ? JSON.stringify(obj) : null;
     }
   },
   methods: {

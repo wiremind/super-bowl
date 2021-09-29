@@ -21,7 +21,7 @@ const store = new Vuex.Store({
     sortedColumn: null,
     sortDirection: null,
     selectedActors: null,
-    selectedStatuses: ['Started', 'Pending', 'Skipped', 'Cancelled', 'Failure', 'Success'],
+    selectedStatuses: ['Started', 'Pending', 'Skipped', 'Canceled', 'Failure', 'Success'],
     selectedId: null,
     startDateTime: null,
     endDateTime: null,
@@ -94,7 +94,7 @@ const store = new Vuex.Store({
     },
     resetAttributesPage(state) {
       state.selectedActors = null;
-      state.selectedStatuses = ['Started', 'Pending', 'Skipped', 'Cancelled', 'Failure', 'Success'];
+      state.selectedStatuses = ['Started', 'Pending', 'Skipped', 'Canceled', 'Failure', 'Success'];
       state.selectedId = null;
       state.startDateTime = null;
       state.endDateTime = null;
@@ -104,7 +104,6 @@ const store = new Vuex.Store({
     }
   },
   getters: {
-    actorsByName: state => Object.fromEntries(state.actors.map(a => [a.name, a])),
     args: state => {
       return {
         size: state.sizePage,

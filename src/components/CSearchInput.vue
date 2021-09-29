@@ -70,7 +70,7 @@ export default {
       status_list: [
         {
           name: 'All',
-          statuses: ['Started', 'Pending', 'Skipped', 'Cancelled', 'Failure', 'Success']
+          statuses: ['Started', 'Pending', 'Skipped', 'Canceled', 'Failure', 'Success']
         }
       ],
       minDateTime: null
