@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 const getArgsKwargs = id => {
-  const url = '/messages/state/' + id;
+  const url = '/messages/states/' + id;
   return axios.get(url).then(res => parseArgs(res.data));
 };
 
@@ -29,7 +29,8 @@ const parseMessage = rawMessage => {
     progress: rawMessage.progress ? rawMessage.progress : null,
     enqueuedDatetime: rawMessage.enqueued_datetime ? new Date(rawMessage.enqueued_datetime) : null,
     startedDatetime: rawMessage.started_datetime ? new Date(rawMessage.started_datetime) : null,
-    endDatetime: rawMessage.end_datetime ? new Date(rawMessage.end_datetime) : null
+    endDatetime: rawMessage.end_datetime ? new Date(rawMessage.end_datetime) : null,
+    queueName: rawMessage.queue_name
   };
 };
 

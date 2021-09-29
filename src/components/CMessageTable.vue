@@ -31,6 +31,7 @@
             v-if="openedRows.includes(m.messageId)"
             :key="m.messageId + 'message-content'"
             :messageId="m.messageId"
+            :queueName="m.queueName"
             :stateName="m.status"
             :colspan="columns.length"
             :actorName="m.actorName"
