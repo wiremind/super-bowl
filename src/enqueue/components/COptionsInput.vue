@@ -70,13 +70,14 @@ export default {
         notify_shutdown: { type: 'bool' },
         pipe_ignore: { type: 'bool' },
         min_backoff: { type: 'int', unit: 'ms' },
-        pipe_target: null,
-        retry_when: null,
         on_success: { type: 'str' },
         store_results: { type: 'bool' },
         max_retries: { type: 'int' },
         result_ttl: { type: 'int', unit: 'ms' },
-        max_backoff: { type: 'int', unit: 'ms' }
+        max_backoff: { type: 'int', unit: 'ms' },
+        logging_metadata: { type: 'dict' },
+        backoff_strategy: { type: 'str' },
+        jitter: { type: 'bool' }
       }
     };
   },
