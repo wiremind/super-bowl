@@ -37,14 +37,14 @@ export default {
   data() {
     return {
       columns: [
-        { label: 'Actor Name', name: 'actorName', sortable: true },
+        { label: 'Actor Name', name: 'actorName' },
+        { label: 'Enabled', name: 'enabled' },
+        { label: 'Interval', name: 'interval' },
         { label: 'Daily Time', name: 'dailyTime' },
-        { label: 'Enabled', name: 'enabled', sortable: true },
-        { label: 'Interval', name: 'interval', sortable: true },
-        { label: 'Weekday', name: 'isoWeekday', sortable: true },
+        { label: 'Weekday', name: 'isoWeekday' },
         { label: 'Args', name: 'args' },
         { label: 'Kwargs', name: 'kwargs' },
-        { label: 'Last Queued', name: 'lastQueued', sortable: true },
+        { label: 'Last Queued', name: 'lastQueued' },
         { label: 'Time Zone', name: 'tz' },
         { label: 'Actions', name: 'actions' }
       ],

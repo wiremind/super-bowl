@@ -377,8 +377,12 @@ const cancelMessage = message_id => {
   return axios.post('/messages/cancel/' + message_id);
 };
 
+function compareJobs(a, b) {
+  return a.actorName > b.actorName ? 1 : -1;
+}
+
 const getJobs = () => {
-  return axios.get('scheduled/jobs').then(res => res.data.result.map(parseJob));
+  return axios.get('scheduled/jobs').then(res => res.data.result.map(parseJob).sort(compareJobs));
 };
 
 const parseJob = rawJob => {
@@ -466,17 +470,21 @@ function formatJob(job) {
 }
 const deleteJob = job => {
   const url = '/scheduled/jobs/' + job.hash;
-  return axios.delete(url).then(res => res.data.result.map(parseJob));
+  return axios.delete(url).then(res => res.data.result.map(parseJob).sort(compareJobs()));
 };
 
 const addJob = job => {
   const url = '/scheduled/jobs';
-  return axios.post(url, formatJob(job)).then(res => res.data.result);
+  return axios
+    .post(url, formatJob(job))
+    .then(res => res.data.result.map(parseJob).sort(compareJobs));
 };
 
 const updateJob = job => {
   const url = '/scheduled/jobs/' + job.hash;
-  return axios.put(url, formatJob(job)).then(res => res.data.result.map(parseJob));
+  return axios
+    .put(url, formatJob(job))
+    .then(res => res.data.result.map(parseJob).sort(compareJobs));
 };
 
 export default {
