@@ -88,20 +88,6 @@ const toggleItemFromList = (item, list) => {
   return list.indexOf(item) >= 0 ? list.filter(it => it !== item) : [...list, item];
 };
 
-/**
- * Get current UTC Date
- */
-const dateToUTC = date => {
-  return new Date(
-    date.getUTCFullYear(),
-    date.getUTCMonth(),
-    date.getUTCDate(),
-    date.getUTCHours(),
-    date.getUTCMinutes(),
-    date.getUTCSeconds()
-  );
-};
-
 export default {
   getSortColumnAndDirection,
   filterTable,
@@ -110,6 +96,5 @@ export default {
   toJson,
   formatMillis,
   camelCaseToUnderScore,
-  toggleItemFromList,
-  dateToUTC
+  toggleItemFromList
 };

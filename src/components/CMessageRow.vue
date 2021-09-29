@@ -103,9 +103,7 @@ export default {
         return null;
       }
       const factor = (1 - this.progress) / this.progress;
-      const diff = utils.formatMillis(
-        (utils.dateToUTC(new Date()) - utils.dateToUTC(this.startedDatetime)) * factor
-      );
+      const diff = utils.formatMillis((new Date() - this.startedDatetime) * factor);
       return `${diff.hours}:${diff.minutes}:${diff.seconds}`;
     },
     executionTime() {
@@ -113,8 +111,7 @@ export default {
         return null;
       }
       const diff = utils.formatMillis(
-        utils.dateToUTC(this.startedDatetime) -
-          utils.dateToUTC(this.endDatetime ? this.endDatetime : new Date())
+        this.startedDatetime - this.endDatetime ? this.endDatetime : new Date()
       );
       return `${diff.hours}:${diff.minutes}:${diff.seconds}`;
     },
