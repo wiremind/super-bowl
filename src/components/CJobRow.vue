@@ -23,10 +23,24 @@
         <input v-model.number="editableInterval" class="w2/3" type="number" />
       </div>
     </td>
-    <td class="border px-4 py-2">
-      <select v-model.number="editableWeekday">
+    <td class="border w-28">
+      <select v-model.number="editableWeekday" class="pl-2 pr-2">
         <option :value="null"></option>
-        <option value="1">Monday</option>
+        <option
+          v-for="(day, index) in [
+            'Monday',
+            'Tuesday',
+            'Wednesday',
+            'Thursday',
+            'Friday',
+            'Saturday',
+            'Sunday'
+          ]"
+          :key="index"
+          :value="index + 1"
+        >
+          {{ day }}
+        </option>
       </select>
     </td>
     <td class="border px-4 py-2">

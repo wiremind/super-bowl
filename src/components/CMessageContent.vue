@@ -113,9 +113,11 @@ export default {
     getDetails() {
       if (this.message.status !== 'Not yet enqueued') {
         api.getArgsKwargs(this.message.messageId).then(res => {
-          this.args = JSON.parse(res.args);
-          this.kwargs = JSON.parse(res.kwargs);
-          this.options = JSON.parse(res.options);
+          for (const key in res) {
+            if (JSON.stringify(this[key]) !== JSON.stringify(res[key])) {
+              this[key] = res[key];
+            }
+          }
         });
         this.updateResult();
       } else {

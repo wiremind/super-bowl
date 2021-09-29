@@ -7,7 +7,7 @@
             v-for="(m, index) in message.messages"
             :key="index + '_content'"
             class="border p-5 w-full text-center font-bold"
-            :class="{ 'border-black': index === currentActorIndex }"
+            :class="{ 'bg-gray-200': index === openedActorIndex }"
             @click="toggle(index)"
           >
             <div>
@@ -62,16 +62,6 @@ export default {
       },
       openedActorIndex: null
     };
-  },
-  computed: {
-    currentActorIndex: function () {
-      const index = Math.max(this.message.messages.findIndex(el => el.status === undefined) - 1, 0);
-      if (index === -2) {
-        return this.message.messages.length - 1;
-      } else {
-        return index;
-      }
-    }
   },
   methods: {
     toggle: function (index) {

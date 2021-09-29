@@ -7,7 +7,6 @@ const getArgsKwargs = id => {
 };
 
 const parseArgs = rawMessage => {
-  console.log(rawMessage.options.pipe_target);
   return {
     args: rawMessage.args,
     kwargs: rawMessage.kwargs,
