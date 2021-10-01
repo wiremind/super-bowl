@@ -39,7 +39,7 @@ function parseMessages(data) {
       messageId: rawMessage.message_id,
       status: rawMessage.status,
       actorName: rawMessage.actor_name,
-      progress: rawMessage.progress ? rawMessage.progress : null,
+      progress: rawMessage.progress,
       enqueuedDatetime: rawMessage.enqueued_datetime
         ? new Date(rawMessage.enqueued_datetime)
         : null,
@@ -375,55 +375,32 @@ function parseMessages(data) {
    * @param composition_msgs
    * @returns {*}
    */
-  function assembleComposition(composition_index, composition_msgs) {
-    // finding the index of one of the first messages of a composition
-    let index = 0;
-    let prev_index = findPreviousElement(index, composition_msgs);
-    while (prev_index !== -1) {
-      index = prev_index;
-      prev_index = findPreviousElement(index, composition_msgs);
-    }
-    // If the composition is a group, find all the other messages in the group
-    if (composition_msgs[index].groupId) {
-      const group_indexes = [];
-      composition_msgs.forEach((message, index_message) => {
-        if (message.groupId === composition_msgs[index].groupId) {
-          group_indexes.push(index_message);
-        }
-      });
-      // From the messages at the end of the group, find the ones at the beginning
-      const group_ids = group_indexes.map(index_message => {
-        let prev_index = findPreviousElement(index_message, composition_msgs);
-        while (prev_index !== -1) {
-          index_message = prev_index;
-          prev_index = findPreviousElement(index_message, composition_msgs);
-        }
-        return composition_msgs[index_message].messageId;
-      });
-      // Using those ids, assemble the group
-      const group = assembleGroup(group_ids, composition_msgs);
-      // If the group is the first element of a pipeline, push the group back to the composition messages list and assemble this composition
-      if (group.pipeTarget) {
-        composition_msgs.push(group);
-        return assembleComposition(composition_msgs.length - 1, composition_msgs);
-      } else {
-        // Else the composition has successfully been assembled
-        return group;
+  function assembleComposition(composition_msgs) {
+    // finding the indexes of the first messages of the composition
+    const start_indexes = [];
+    for (let index = 0; index < composition_msgs.length; index += 1) {
+      if (findPreviousElement(index, composition_msgs) === -1) {
+        start_indexes.push(index);
       }
-    } else {
-      // Else the composition is a pipeline
-      const pipeline = assemblePipeline(index, composition_msgs);
-      // If the pipeline is part of a group, push the pipeline back to the composition messages list and assemble this composition
-      if (pipeline.groupId) {
-        composition_msgs.push(pipeline);
-        return assembleComposition(composition_msgs.length - 1, composition_msgs);
-      }
-      return pipeline;
     }
+    // If there is a single start message then the composition is a pipeline starting with this message
+    if (start_indexes.length === 1) {
+      return assemblePipeline(start_indexes[0], composition_msgs);
+    }
+    // Else, these messages are the start messages of a group
+    const start_ids = start_indexes.map(index => composition_msgs[index].messageId);
+    const group = assembleGroup(start_ids, composition_msgs);
+    // If the group has a pipe target, then the composition is a pipeline starting with this group
+    if (group.pipeTarget) {
+      composition_msgs.push(group);
+      return assemblePipeline(composition_msgs.length - 1, composition_msgs);
+    }
+    // Else it's just this group
+    return group;
   }
 
   Object.values(compositions).forEach(composition_messages => {
-    messages.push(assembleComposition(0, composition_messages));
+    messages.push(assembleComposition(composition_messages));
   });
 
   return { messages: messages, loadDateTime: loadDateTime };

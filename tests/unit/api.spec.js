@@ -468,7 +468,17 @@ describe('Composition status', () => {
     expect(
       api.parseMessages([
         {
-          message_id: 'msg_id',
+          message_id: 'msg_id1',
+          status: 'Success',
+          options: {
+            group_info: {
+              group_id: 'grp_id'
+            },
+            composition_id: 'comp_id'
+          }
+        },
+        {
+          message_id: 'msg_id2',
           status: 'Success',
           options: {
             group_info: {
@@ -489,7 +499,17 @@ describe('Composition status', () => {
     expect(
       api.parseMessages([
         {
-          message_id: 'msg_id',
+          message_id: 'msg_id1',
+          status: 'Not yet enqueued',
+          options: {
+            group_info: {
+              group_id: 'grp_id'
+            },
+            composition_id: 'comp_id'
+          }
+        },
+        {
+          message_id: 'msg_id2',
           status: 'Not yet enqueued',
           options: {
             group_info: {
@@ -691,6 +711,16 @@ test('Composition priority test', () => {
     api.parseMessages([
       {
         message_id: 'id0',
+        priority: 0,
+        options: {
+          composition_id: 'comp_id',
+          group_info: {
+            group_id: 'grp_id'
+          }
+        }
+      },
+      {
+        message_id: 'id1',
         priority: 0,
         options: {
           composition_id: 'comp_id',
