@@ -69,7 +69,6 @@
 
 <script>
 import utils from '@/utils';
-import { mapState } from 'vuex';
 
 export default {
   name: 'CMessageRow',
@@ -85,7 +84,6 @@ export default {
   },
 
   computed: {
-    ...mapState(['loadDateTime']),
     waitTime() {
       const diff = utils.formatMillis(this.message.waitTime);
       return `${diff.hours}:${diff.minutes}:${diff.seconds}`;

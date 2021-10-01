@@ -711,77 +711,71 @@ test('Composition priority test', () => {
 describe('Composition started_time', () => {
   it('is correct for a group', () => {
     expect(
-      api.parseMessages([
-        {
-          message_id: 'id0',
-          started_datetime: '2021-05-01 10:00:00',
-          options: {
-            composition_id: 'comp_id',
-            group_info: {
-              group_id: 'grp_id'
+      api
+        .parseMessages([
+          {
+            message_id: 'id0',
+            started_datetime: '2021-05-01 11:00:00',
+            options: {
+              composition_id: 'comp_id',
+              group_info: {
+                group_id: 'grp_id'
+              }
+            }
+          },
+          {
+            message_id: 'id1',
+            started_datetime: '2021-05-01 10:00:00',
+            options: {
+              composition_id: 'comp_id',
+              group_info: {
+                group_id: 'grp_id'
+              }
+            }
+          },
+          {
+            message_id: 'id2',
+            options: {
+              composition_id: 'comp_id',
+              group_info: {
+                group_id: 'grp_id'
+              }
             }
           }
-        },
-        {
-          message_id: 'id1',
-          started_datetime: '2021-05-01 11:00:00',
-          options: {
-            composition_id: 'comp_id',
-            group_info: {
-              group_id: 'grp_id'
-            }
-          }
-        },
-        {
-          message_id: 'id2',
-          options: {
-            composition_id: 'comp_id',
-            group_info: {
-              group_id: 'grp_id'
-            }
-          }
-        }
-      ]).messages
-    ).toMatchObject([
-      {
-        type: 'group',
-        startedDatetime: new Date('2021-05-01 10:00:00')
-      }
-    ]);
+        ])
+        .messages[0].startedDatetime.getTime()
+    ).toBe(new Date('2021-05-01 10:00:00').getTime());
   });
   it('is correct for a pipeline', () => {
     expect(
-      api.parseMessages([
-        {
-          message_id: 'id0',
-          started_datetime: '2021-05-01 10:00:00',
-          options: {
-            composition_id: 'comp_id',
-            pipe_target: [
-              {
-                message_id: 'id1',
-                started_datetime: '2021-05-01 10:00:20',
-                options: {
-                  composition_id: 'comp_id'
+      api
+        .parseMessages([
+          {
+            message_id: 'id0',
+            started_datetime: '2021-05-01 10:00:00',
+            options: {
+              composition_id: 'comp_id',
+              pipe_target: [
+                {
+                  message_id: 'id1',
+                  started_datetime: '2021-05-01 10:00:20',
+                  options: {
+                    composition_id: 'comp_id'
+                  }
                 }
-              }
-            ]
+              ]
+            }
+          },
+          {
+            message_id: 'id1',
+            started_datetime: '2021-05-01 10:00:20',
+            options: {
+              composition_id: 'comp_id'
+            }
           }
-        },
-        {
-          message_id: 'id1',
-          started_datetime: '2021-05-01 10:00:20',
-          options: {
-            composition_id: 'comp_id'
-          }
-        }
-      ]).messages
-    ).toMatchObject([
-      {
-        type: 'pipeline',
-        startedDatetime: new Date('2021-05-01 10:00:00')
-      }
-    ]);
+        ])
+        .messages[0].startedDatetime.getTime()
+    ).toBe(new Date('2021-05-01 10:00:00').getTime());
   });
 });
 

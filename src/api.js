@@ -1,5 +1,4 @@
 const axios = require('axios');
-import utils from '@/utils';
 
 const getArgsKwargs = id => {
   const url = '/messages/states/' + id;
@@ -21,9 +20,19 @@ const getMessages = args => {
     .then(res => Object.assign(parseMessages(res.data.data), { count: res.data.count }));
 };
 
+/**
+ * Parse Messages, regroup them into their compositions and add computed properties such as waitTime.
+ * @param data
+ * @returns {{loadDateTime: Date, messages}}
+ */
 function parseMessages(data) {
-  const loadDateTime = utils.dateToUTC(new Date());
+  const loadDateTime = new Date();
 
+  /**
+   * Parse Messages, recursively parse their pipe_target and compute their waitTime, executionTime and remainingTime
+   * @param rawMessage
+   * @returns {{pipeTarget: (*[]|null), queueName: *, enqueuedDatetime: (Date|null), compositionId: (*|null), startedDatetime: (Date|null), groupId: (*|null), messageId, progress: (*|null), actorName: (string|null|*), priority, endDatetime: (Date|null), status}}
+   */
   const parseMessage = rawMessage => {
     const parsedMessage = {
       priority: rawMessage.priority,
@@ -51,20 +60,19 @@ function parseMessages(data) {
       if (parsedMessage.startedDatetime) {
         parsedMessage.waitTime = parsedMessage.startedDatetime - parsedMessage.enqueuedDatetime;
       } else {
-        parsedMessage.waitTime = loadDateTime - utils.dateToUTC(parsedMessage.enqueuedDatetime);
+        parsedMessage.waitTime = loadDateTime - parsedMessage.enqueuedDatetime;
       }
     }
     if (parsedMessage.startedDatetime) {
       if (parsedMessage.endDatetime) {
         parsedMessage.executionTime = parsedMessage.endDatetime - parsedMessage.startedDatetime;
       } else {
-        parsedMessage.executionTime = loadDateTime - utils.dateToUTC(parsedMessage.startedDatetime);
+        parsedMessage.executionTime = loadDateTime - parsedMessage.startedDatetime;
       }
     }
     if (parsedMessage.startedDatetime && parsedMessage.progress > 0 && !parsedMessage.endDatetime) {
       parsedMessage.remainingTime =
-        ((loadDateTime - utils.dateToUTC(parsedMessage.startedDatetime)) *
-          (1 - parsedMessage.progress)) /
+        ((loadDateTime - parsedMessage.startedDatetime) * (1 - parsedMessage.progress)) /
         parsedMessage.progress;
     }
     return parsedMessage;
@@ -72,10 +80,22 @@ function parseMessages(data) {
 
   const messages = data.map(parseMessage);
 
+  /**
+   * Find the index of the message or composition in the array that has the target id
+   * @param target_id
+   * @param array
+   * @returns {*}
+   */
   function findTargetIndex(target_id, array) {
     return array.findIndex(element => element.messageId === target_id);
   }
 
+  /**
+   * Find the index of an element that is before the element with the given index in a pipeline
+   * @param index
+   * @param array
+   * @returns {*}
+   */
   function findPreviousElement(index, array) {
     return array.findIndex(
       msg =>
@@ -96,49 +116,56 @@ function parseMessages(data) {
       i += 1;
     }
   }
-  // adding not yet enqueued messages
-  function fillPipe(composition_id, message) {
+
+  /**
+   * Recursively adds to the composition all the messages from the pipe target that have not been enqueued
+   * @param composition_id
+   * @param message
+   */
+  function fillPipe(message) {
     if (message.pipeTarget) {
       message.pipeTarget.forEach(pipe_element => {
         if (
-          compositions[composition_id].findIndex(
+          compositions[message.compositionId].findIndex(
             composition_element => composition_element.messageId === pipe_element.messageId
           ) === -1
         ) {
           pipe_element.status = 'Not yet enqueued';
-          compositions[composition_id].push(pipe_element);
-          fillPipe(composition_id, pipe_element);
+          compositions[message.compositionId].push(pipe_element);
+          fillPipe(pipe_element);
         }
       });
     }
   }
 
-  Object.keys(compositions).forEach(composition_id => {
-    compositions[composition_id].forEach(message => fillPipe(composition_id, message));
+  // adding not yet enqueued messages
+  Object.values(compositions).forEach(messages => {
+    messages.map(fillPipe);
   });
 
+  /**
+   * Adds to the composition all the properties that are computed from its children's properties
+   * @param composition
+   * @returns {*}
+   */
   function addDetails(composition) {
     // add name
     if (composition.type === 'group') {
-      const nameCount = composition.messages.map(message => message.actorName);
-      const nameDict = {};
-      for (const name of nameCount) {
-        nameDict[name] = nameDict[name] ? nameDict[name] + 1 : 1;
-      }
+      const actorsCount = composition.messages.reduce((count, { actorName }) => {
+        count[actorName] = count[actorName] + 1 || 1;
+        return count;
+      }, {});
       let actorName = '';
-      for (const name in nameDict) {
-        actorName += (name.includes('|') ? '(' + name + ')' : name) + '[' + nameDict[name] + '] ';
+      for (const name in actorsCount) {
+        actorName +=
+          (name.includes('|') ? '(' + name + ')' : name) + '[' + actorsCount[name] + '] ';
       }
-      if (Object.keys(nameDict).length > 1) {
+      if (Object.keys(actorsCount).length > 1) {
         actorName = '[' + actorName + ']';
       }
       composition.actorName = actorName;
     } else {
-      let actorName = '';
-      for (const name of composition.messages.map(message => message.actorName)) {
-        actorName += name + ' | ';
-      }
-      composition.actorName = actorName.substring(0, actorName.length - 3);
+      composition.actorName = composition.messages.map(({ actorName }) => actorName).join(' | ');
     }
     // add status
     const statuses = composition.messages.map(message => message.status);
@@ -168,40 +195,30 @@ function parseMessages(data) {
     if (composition.type === 'pipeline') {
       composition.startedDatetime = composition.messages[0].startedDatetime;
     } else {
-      const datetime = Math.min(
-        ...composition.messages.map(message =>
-          message.startedDatetime ? message.startedDatetime.valueOf() : Infinity
-        )
+      const datetime = composition.messages.reduce(
+        (count, { startedDatetime }) => Math.min(count, startedDatetime || Infinity),
+        Infinity
       );
       if (datetime !== Infinity) {
         composition.startedDatetime = new Date(datetime);
       }
     }
     // add Wait time
-    let wait_time = 0;
-    composition.messages.forEach(message => {
-      if (message.waitTime) {
-        wait_time += message.waitTime;
-      }
-    });
-    composition.waitTime = wait_time;
+    composition.waitTime = composition.messages.reduce(
+      (count, { waitTime }) => count + (waitTime || 0),
+      0
+    );
     // add Execution time
-    let execution_time = 0;
-    composition.messages.forEach(message => {
-      if (message.executionTime) {
-        execution_time += message.executionTime;
-      }
-    });
-    composition.executionTime = execution_time;
+    composition.executionTime = composition.messages.reduce(
+      (count, { executionTime }) => count + (executionTime || 0),
+      0
+    );
     //add Remaining Time
     if (composition.messages.every(message => message.endDatetime || message.remainingTime)) {
-      let remaining_time = 0;
-      composition.messages.forEach(message => {
-        if (message.remainingTime) {
-          remaining_time = Math.max(remaining_time, message.remainingTime);
-        }
-      });
-      composition.remainingTime = remaining_time;
+      composition.remainingTime = composition.messages.reduce(
+        (count, { remainingTime }) => Math.max(count, remainingTime || 0),
+        0
+      );
     }
     // add Progress
     if (
@@ -209,14 +226,19 @@ function parseMessages(data) {
       !composition.messages.every(message => message.status === 'Success')
     ) {
       composition.progress =
-        composition.messages
-          .map(message => message.progress || 1)
-          .reduce((value, acc) => value + acc) / composition.messages.length;
+        composition.messages.reduce((acc, { progress }) => acc + (progress || 1)) /
+        composition.messages.length;
     }
 
     return composition;
   }
 
+  /**
+   * Assemble the pipeline starting with the message at the given index from the given messages
+   * @param pipe_index
+   * @param composition_msgs
+   * @returns {*}
+   */
   function assemblePipeline(pipe_index, composition_msgs) {
     const first_message = composition_msgs.splice(pipe_index, 1);
     const pipeline = {
@@ -257,6 +279,13 @@ function parseMessages(data) {
     }
     return addDetails(pipeline);
   }
+
+  /**
+   * Returns for each given id the list of group_ids contained in the message with the given id and its pipe_target
+   * @param start_ids
+   * @param composition_msgs
+   * @returns {*[]}
+   */
   function findMessagesGroupIds(start_ids, composition_msgs) {
     const composition_group_ids = [];
     start_ids.forEach(id => {
@@ -275,6 +304,13 @@ function parseMessages(data) {
     });
     return composition_group_ids;
   }
+
+  /**
+   * Returns the group_id of the group that starts with the messages with the given ids
+   * @param start_ids
+   * @param composition_msgs
+   * @returns {any}
+   */
   function findGroupId(start_ids, composition_msgs) {
     // We find the group's group_id thanks to this property :
     // The group's groupId is the first group_id that all first messages + their pipe targets have in common
@@ -291,33 +327,41 @@ function parseMessages(data) {
     }
     throw 'Invalid composition';
   }
+
+  /**
+   * Assemble the group starting with the given ids
+   * @param start_ids
+   * @param composition_msgs
+   * @returns {*}
+   */
   function assembleGroup(start_ids, composition_msgs) {
     const group = { type: 'group', messages: [] };
     const groupId = findGroupId(start_ids, composition_msgs);
-    const inner_groups = {};
-    start_ids.forEach(id => {
-      const index = findTargetIndex(id, composition_msgs);
+    while (start_ids.length > 0) {
+      const index = findTargetIndex(start_ids[0], composition_msgs);
+      // If the message at the start has the correct groupId, it means it is directly a message of this group
       if (composition_msgs[index].groupId === groupId) {
         group.messages.push(composition_msgs.splice(index, 1)[0]);
+        start_ids.splice(0, 1);
       } else {
+        // If it has another groupId, find all the ids of the messages that are part of the subgroup and assemble it
+        // Then remove from start_ids the ids of messages absorbed by the new group
         if (composition_msgs[index].groupId) {
-          if (!inner_groups[composition_msgs[index].groupId]) {
-            inner_groups[composition_msgs[index].groupId] = [];
-          }
-          inner_groups[composition_msgs[index].groupId].push(composition_msgs.splice(index, 1)[0]);
+          const subgroup_id = composition_msgs[index].groupId;
+          const pipe_group_ids = findMessagesGroupIds(start_ids, composition_msgs);
+          const start_id_subgroup = start_ids.filter((id, index) =>
+            pipe_group_ids[index].includes(subgroup_id)
+          );
+          composition_msgs.push(assembleGroup(start_id_subgroup, composition_msgs));
+          const msg_ids = composition_msgs.map(msg => msg.messageId);
+          start_ids = start_ids.filter(id => msg_ids.includes(id));
         } else {
+          // If it doesn't have a groupId, it is the first message of a pipeline
           group.messages.push(assemblePipeline(index, composition_msgs));
+          start_ids.splice(0, 1);
         }
       }
-    });
-    Object.values(inner_groups).forEach(inner_grp => {
-      const grp = assembleGroup(
-        inner_grp.map(msg => msg.messageId),
-        inner_grp
-      );
-      composition_msgs.push(grp);
-      group.messages.push(assemblePipeline(composition_msgs.length - 1, composition_msgs));
-    });
+    }
     if (group.messages[0].pipeTarget) {
       group.pipeTarget = group.messages[0].pipeTarget;
     }
@@ -325,6 +369,12 @@ function parseMessages(data) {
     return addDetails(group);
   }
 
+  /**
+   * Assemble a composition
+   * @param composition_index
+   * @param composition_msgs
+   * @returns {*}
+   */
   function assembleComposition(composition_index, composition_msgs) {
     // finding the index of one of the first messages of a composition
     let index = 0;
@@ -333,6 +383,7 @@ function parseMessages(data) {
       index = prev_index;
       prev_index = findPreviousElement(index, composition_msgs);
     }
+    // If the composition is a group, find all the other messages in the group
     if (composition_msgs[index].groupId) {
       const group_indexes = [];
       composition_msgs.forEach((message, index_message) => {
@@ -340,23 +391,29 @@ function parseMessages(data) {
           group_indexes.push(index_message);
         }
       });
+      // From the messages at the end of the group, find the ones at the beginning
       const group_ids = group_indexes.map(index_message => {
         let prev_index = findPreviousElement(index_message, composition_msgs);
-        while (prev_index !== -1 && composition_msgs[prev_index].pipeTarget.length === 1) {
+        while (prev_index !== -1) {
           index_message = prev_index;
           prev_index = findPreviousElement(index_message, composition_msgs);
         }
         return composition_msgs[index_message].messageId;
       });
+      // Using those ids, assemble the group
       const group = assembleGroup(group_ids, composition_msgs);
+      // If the group is the first element of a pipeline, push the group back to the composition messages list and assemble this composition
       if (group.pipeTarget) {
         composition_msgs.push(group);
         return assembleComposition(composition_msgs.length - 1, composition_msgs);
       } else {
+        // Else the composition has successfully been assembled
         return group;
       }
     } else {
+      // Else the composition is a pipeline
       const pipeline = assemblePipeline(index, composition_msgs);
+      // If the pipeline is part of a group, push the pipeline back to the composition messages list and assemble this composition
       if (pipeline.groupId) {
         composition_msgs.push(pipeline);
         return assembleComposition(composition_msgs.length - 1, composition_msgs);
@@ -365,9 +422,8 @@ function parseMessages(data) {
     }
   }
 
-  Object.entries(compositions).forEach(composition_messages => {
-    const composition = assembleComposition(0, composition_messages[1]);
-    messages.push(composition);
+  Object.values(compositions).forEach(composition_messages => {
+    messages.push(assembleComposition(0, composition_messages));
   });
 
   return { messages: messages, loadDateTime: loadDateTime };
@@ -463,9 +519,6 @@ function formatJob(job) {
     lastQueued: job.last_queued,
     tz: job.tz
   };
-  if (parsedJob.daily_time) {
-    parsedJob.interval = 86400;
-  }
   return parsedJob;
 }
 const deleteJob = job => {

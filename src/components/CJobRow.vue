@@ -69,6 +69,8 @@
 
 <script>
 import { formatDistance, formatDistanceStrict, addSeconds } from 'date-fns';
+import utils from '@/utils';
+
 export default {
   name: 'CJobRow',
   props: {
@@ -133,6 +135,9 @@ export default {
         return this.dailyTime;
       },
       set(val) {
+        if (val !== null && this.editableWeekday === null) {
+          this.editableInterval = 86400;
+        }
         this.$emit('update:dailyTime', val);
       }
     },
@@ -141,6 +146,10 @@ export default {
         return this.interval;
       },
       set(val) {
+        if (val !== 86400 && val !== null) {
+          this.editableDailyTime = null;
+          this.editableWeekday = null;
+        }
         this.$emit('update:interval', val);
       }
     },
@@ -149,6 +158,9 @@ export default {
         return this.isoWeekday;
       },
       set(val) {
+        if (val !== null) {
+          this.editableInterval = null;
+        }
         this.$emit('update:isoWeekday', val);
       }
     },
@@ -163,11 +175,6 @@ export default {
   },
   methods: {
     save() {
-      if (this.dailyTime && this.interval !== 86400) {
-        this.errorMessage = 'Daily Time can only be used with a 24 hour interval (86400 seconds)';
-        setTimeout(() => (this.errorMessage = null), 3000);
-        return;
-      }
       if (!this.isArgsValid) {
         this.errorMessage = 'Invalid Args';
         setTimeout(() => (this.errorMessage = null), 3000);
