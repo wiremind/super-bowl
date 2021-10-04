@@ -17,7 +17,7 @@ const getMessages = args => {
   const url = '/messages/states';
   return axios
     .post(url, args)
-    .then(res => Object.assign(parseMessages(res.data.data), { count: res.data.count }));
+    .then(res => ({ ...parseMessages(res.data.data), count: res.data.count }));
 };
 
 /**
@@ -29,7 +29,7 @@ function parseMessages(data) {
   const loadDateTime = new Date();
 
   /**
-   * Parse Messages, recursively parse their pipe_target and compute their waitTime, executionTime and remainingTime
+   * Parse Messages, recursively parse their pipeTarget and compute their waitTime, executionTime and remainingTime
    * @param rawMessage
    * @returns {{pipeTarget: (*[]|null), queueName: *, enqueuedDatetime: (Date|null), compositionId: (*|null), startedDatetime: (Date|null), groupId: (*|null), messageId, progress: (*|null), actorName: (string|null|*), priority, endDatetime: (Date|null), status}}
    */
@@ -82,12 +82,12 @@ function parseMessages(data) {
 
   /**
    * Find the index of the message or composition in the array that has the target id
-   * @param target_id
+   * @param targetId
    * @param array
    * @returns {*}
    */
-  function findTargetIndex(target_id, array) {
-    return array.findIndex(element => element.messageId === target_id);
+  function findTargetIndex(targetId, array) {
+    return array.findIndex(element => element.messageId === targetId);
   }
 
   /**
@@ -102,6 +102,17 @@ function parseMessages(data) {
         msg.pipeTarget && msg.pipeTarget.map(el => el.messageId).includes(array[index].messageId)
     );
   }
+
+  function findFirstMessages(compositionMsgs) {
+    const startIndexes = [];
+    for (let index = 0; index < compositionMsgs.length; index += 1) {
+      if (findPreviousElement(index, compositionMsgs) === -1) {
+        startIndexes.push(index);
+      }
+    }
+    return startIndexes;
+  }
+
   //grouping messages by composition_id
   const compositions = {};
   let i = 0;
@@ -119,20 +130,19 @@ function parseMessages(data) {
 
   /**
    * Recursively adds to the composition all the messages from the pipe target that have not been enqueued
-   * @param composition_id
    * @param message
    */
   function fillPipe(message) {
     if (message.pipeTarget) {
-      message.pipeTarget.forEach(pipe_element => {
+      message.pipeTarget.forEach(targetMessage => {
         if (
           compositions[message.compositionId].findIndex(
-            composition_element => composition_element.messageId === pipe_element.messageId
+            ({ messageId }) => messageId === targetMessage.messageId
           ) === -1
         ) {
-          pipe_element.status = 'Not yet enqueued';
-          compositions[message.compositionId].push(pipe_element);
-          fillPipe(pipe_element);
+          targetMessage.status = 'Not yet enqueued';
+          compositions[message.compositionId].push(targetMessage);
+          fillPipe(targetMessage);
         }
       });
     }
@@ -235,45 +245,45 @@ function parseMessages(data) {
 
   /**
    * Assemble the pipeline starting with the message at the given index from the given messages
-   * @param pipe_index
-   * @param composition_msgs
+   * @param firstIndex
+   * @param compositionMsgs
    * @returns {*}
    */
-  function assemblePipeline(pipe_index, composition_msgs) {
-    const first_message = composition_msgs.splice(pipe_index, 1);
+  function assemblePipeline(firstIndex, compositionMsgs) {
+    const firstMessage = compositionMsgs.splice(firstIndex, 1);
     const pipeline = {
       type: 'pipeline',
-      messages: first_message,
-      messageId: first_message[0].messageId
+      messages: firstMessage,
+      messageId: firstMessage[0].messageId
     };
-    let ids_next = pipeline.messages[0].pipeTarget.map(pipe_element => pipe_element.messageId);
-    while (ids_next) {
-      if (ids_next.length === 1) {
-        const next_message = composition_msgs.splice(
-          findTargetIndex(ids_next[0], composition_msgs),
+    let targetIds = pipeline.messages[0].pipeTarget.map(targetMessage => targetMessage.messageId);
+    while (targetIds) {
+      if (targetIds.length === 1) {
+        const nextMessage = compositionMsgs.splice(
+          findTargetIndex(targetIds[0], compositionMsgs),
           1
         )[0];
-        pipeline.messages.push(next_message);
-        if (next_message.groupId) {
-          pipeline.groupId = next_message.groupId;
-          if (next_message.pipeTarget) {
-            pipeline.pipeTarget = next_message.pipeTarget;
+        pipeline.messages.push(nextMessage);
+        if (nextMessage.groupId) {
+          pipeline.groupId = nextMessage.groupId;
+          if (nextMessage.pipeTarget) {
+            pipeline.pipeTarget = nextMessage.pipeTarget;
           }
-          ids_next = null;
+          targetIds = null;
         } else {
-          if (next_message.pipeTarget) {
-            ids_next = next_message.pipeTarget.map(pipe_element => pipe_element.messageId);
+          if (nextMessage.pipeTarget) {
+            targetIds = nextMessage.pipeTarget.map(pipeElement => pipeElement.messageId);
           } else {
-            ids_next = null;
+            targetIds = null;
           }
         }
       } else {
-        const group = assembleGroup(ids_next, composition_msgs);
+        const group = assembleGroup(targetIds, compositionMsgs);
         pipeline.messages.push(group);
         if (group.pipeTarget) {
-          ids_next = group.pipeTarget.map(pipe_element => pipe_element.messageId);
+          targetIds = group.pipeTarget.map(pipeElement => pipeElement.messageId);
         } else {
-          ids_next = null;
+          targetIds = null;
         }
       }
     }
@@ -281,48 +291,48 @@ function parseMessages(data) {
   }
 
   /**
-   * Returns for each given id the list of group_ids contained in the message with the given id and its pipe_target
-   * @param start_ids
-   * @param composition_msgs
+   * Returns for each given id the list of groupIds contained in the message with the given id and its pipeTarget
+   * @param startIds
+   * @param compositionMsgs
    * @returns {*[]}
    */
-  function findMessagesGroupIds(start_ids, composition_msgs) {
-    const composition_group_ids = [];
-    start_ids.forEach(id => {
-      const msg_group_ids = [];
-      let msg = composition_msgs[findTargetIndex(id, composition_msgs)];
+  function findMessagesGroupIds(startIds, compositionMsgs) {
+    const compositionGroupIds = [];
+    startIds.forEach(id => {
+      const msgGroupIds = [];
+      let msg = compositionMsgs[findTargetIndex(id, compositionMsgs)];
       if (msg.groupId) {
-        msg_group_ids.push(msg.groupId);
+        msgGroupIds.push(msg.groupId);
       }
       while (msg.pipeTarget) {
         msg = msg.pipeTarget[0];
         if (msg.groupId) {
-          msg_group_ids.push(msg.groupId);
+          msgGroupIds.push(msg.groupId);
         }
       }
-      composition_group_ids.push(msg_group_ids);
+      compositionGroupIds.push(msgGroupIds);
     });
-    return composition_group_ids;
+    return compositionGroupIds;
   }
 
   /**
-   * Returns the group_id of the group that starts with the messages with the given ids
-   * @param start_ids
-   * @param composition_msgs
+   * Returns the groupId of the group that starts with the messages with the given ids
+   * @param startIds
+   * @param compositionMsgs
    * @returns {any}
    */
-  function findGroupId(start_ids, composition_msgs) {
-    // We find the group's group_id thanks to this property :
-    // The group's groupId is the first group_id that all first messages + their pipe targets have in common
-    const composition_group_ids = findMessagesGroupIds(start_ids, composition_msgs);
+  function findGroupId(startIds, compositionMsgs) {
+    // We find the group's groupId thanks to this property :
+    // The group's groupId is the first groupId that all first messages + their pipe targets have in common
+    const compositionGroupIds = findMessagesGroupIds(startIds, compositionMsgs);
 
-    function isGroupId(group_id) {
-      return composition_group_ids.every(msg_group_ids => msg_group_ids.includes(group_id));
+    function isGroupId(groupId) {
+      return compositionGroupIds.every(msgGroupIds => msgGroupIds.includes(groupId));
     }
 
-    for (const group_id of composition_group_ids[0]) {
-      if (isGroupId(group_id)) {
-        return group_id;
+    for (const groupId of compositionGroupIds[0]) {
+      if (isGroupId(groupId)) {
+        return groupId;
       }
     }
     throw 'Invalid composition';
@@ -330,35 +340,35 @@ function parseMessages(data) {
 
   /**
    * Assemble the group starting with the given ids
-   * @param start_ids
-   * @param composition_msgs
+   * @param startIds
+   * @param compositionMsgs
    * @returns {*}
    */
-  function assembleGroup(start_ids, composition_msgs) {
+  function assembleGroup(startIds, compositionMsgs) {
     const group = { type: 'group', messages: [] };
-    const groupId = findGroupId(start_ids, composition_msgs);
-    while (start_ids.length > 0) {
-      const index = findTargetIndex(start_ids[0], composition_msgs);
+    const groupId = findGroupId(startIds, compositionMsgs);
+    while (startIds.length > 0) {
+      const index = findTargetIndex(startIds[0], compositionMsgs);
       // If the message at the start has the correct groupId, it means it is directly a message of this group
-      if (composition_msgs[index].groupId === groupId) {
-        group.messages.push(composition_msgs.splice(index, 1)[0]);
-        start_ids.splice(0, 1);
+      if (compositionMsgs[index].groupId === groupId) {
+        group.messages.push(compositionMsgs.splice(index, 1)[0]);
+        startIds.splice(0, 1);
       } else {
         // If it has another groupId, find all the ids of the messages that are part of the subgroup and assemble it
-        // Then remove from start_ids the ids of messages absorbed by the new group
-        if (composition_msgs[index].groupId) {
-          const subgroup_id = composition_msgs[index].groupId;
-          const pipe_group_ids = findMessagesGroupIds(start_ids, composition_msgs);
-          const start_id_subgroup = start_ids.filter((id, index) =>
-            pipe_group_ids[index].includes(subgroup_id)
+        // Then remove from startIds the ids of messages absorbed by the new group
+        if (compositionMsgs[index].groupId) {
+          const subgroupId = compositionMsgs[index].groupId;
+          const pipeGroupIds = findMessagesGroupIds(startIds, compositionMsgs);
+          const startIdSubgroup = startIds.filter((id, index) =>
+            pipeGroupIds[index].includes(subgroupId)
           );
-          composition_msgs.push(assembleGroup(start_id_subgroup, composition_msgs));
-          const msg_ids = composition_msgs.map(msg => msg.messageId);
-          start_ids = start_ids.filter(id => msg_ids.includes(id));
+          compositionMsgs.push(assembleGroup(startIdSubgroup, compositionMsgs));
+          const msgIds = compositionMsgs.map(msg => msg.messageId);
+          startIds = startIds.filter(id => msgIds.includes(id));
         } else {
           // If it doesn't have a groupId, it is the first message of a pipeline
-          group.messages.push(assemblePipeline(index, composition_msgs));
-          start_ids.splice(0, 1);
+          group.messages.push(assemblePipeline(index, compositionMsgs));
+          startIds.splice(0, 1);
         }
       }
     }
@@ -371,43 +381,37 @@ function parseMessages(data) {
 
   /**
    * Assemble a composition
-   * @param composition_index
-   * @param composition_msgs
+   * @param compositionMsgs
    * @returns {*}
    */
-  function assembleComposition(composition_msgs) {
+  function assembleComposition(compositionMsgs) {
     // finding the indexes of the first messages of the composition
-    const start_indexes = [];
-    for (let index = 0; index < composition_msgs.length; index += 1) {
-      if (findPreviousElement(index, composition_msgs) === -1) {
-        start_indexes.push(index);
-      }
-    }
+    const startIndexes = findFirstMessages(compositionMsgs);
     // If there is a single start message then the composition is a pipeline starting with this message
-    if (start_indexes.length === 1) {
-      return assemblePipeline(start_indexes[0], composition_msgs);
+    if (startIndexes.length === 1) {
+      return assemblePipeline(startIndexes[0], compositionMsgs);
     }
     // Else, these messages are the start messages of a group
-    const start_ids = start_indexes.map(index => composition_msgs[index].messageId);
-    const group = assembleGroup(start_ids, composition_msgs);
+    const startIds = startIndexes.map(index => compositionMsgs[index].messageId);
+    const group = assembleGroup(startIds, compositionMsgs);
     // If the group has a pipe target, then the composition is a pipeline starting with this group
     if (group.pipeTarget) {
-      composition_msgs.push(group);
-      return assemblePipeline(composition_msgs.length - 1, composition_msgs);
+      compositionMsgs.push(group);
+      return assemblePipeline(compositionMsgs.length - 1, compositionMsgs);
     }
     // Else it's just this group
     return group;
   }
 
-  Object.values(compositions).forEach(composition_messages => {
-    messages.push(assembleComposition(composition_messages));
+  Object.values(compositions).forEach(compositionMessages => {
+    messages.push(assembleComposition(compositionMessages));
   });
 
   return { messages: messages, loadDateTime: loadDateTime };
 }
 
-const cancelMessage = message_id => {
-  return axios.post('/messages/cancel/' + message_id);
+const cancelMessage = messageId => {
+  return axios.post('/messages/cancel/' + messageId);
 };
 
 function compareJobs(a, b) {
