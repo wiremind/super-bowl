@@ -68,7 +68,7 @@
 </template>
 
 <script>
-import utils from '@/utils';
+import utils from '@/messages/utils';
 
 export default {
   name: 'CMessageRow',

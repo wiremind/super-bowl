@@ -1,4 +1,4 @@
-import api from '@/api';
+import api from '@/messages/api';
 
 const DateTime = global.Date;
 const date = new Date('2021-05-01 10:00:00');

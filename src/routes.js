@@ -1,7 +1,7 @@
-import CMessageTable from '@/components/CMessageTable';
-import CJobTable from '@/components/CJobTable';
-import CEnqueueForm from '@/components/CEnqueueForm';
-import CNotFound from '@/components/CNotFound';
+import CMessageTable from '@/messages/components/CMessageTable';
+import CJobTable from '@/schedule/components/CJobTable';
+import CEnqueueForm from '@/enqueue/components/CEnqueueForm';
+import CNotFound from '@/shared/components/CNotFound';
 const routes = [
   { path: '/', component: CMessageTable, name: 'Messages', meta: { requiresRefreshButton: true } },
   {

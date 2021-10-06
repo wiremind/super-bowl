@@ -84,8 +84,8 @@
 
 <script>
 import { mapState } from 'vuex';
-import CActorArgument from '@/components/CActorArgument';
-import COptionsInput from '@/components/COptionsInput';
+import CActorArgument from '@/enqueue/components/CActorArgument';
+import COptionsInput from '@/enqueue/components/COptionsInput';
 
 const initialState = () => {
   return {
@@ -111,7 +111,10 @@ export default {
   components: { COptionsInput, CActorArgument },
   data: initialState,
   computed: {
-    ...mapState(['actors', 'isLoading', 'options']),
+    ...mapState({
+      actors: state => state.actors,
+      options: state => state.enqueue.options
+    }),
     isFormValid: function () {
       return (
         !this.emptyName &&

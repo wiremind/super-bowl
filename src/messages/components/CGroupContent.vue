@@ -12,7 +12,7 @@
   </div>
 </template>
 <script>
-import utils from '@/utils';
+import utils from '@/messages/utils';
 export default {
   name: 'CGroupContent',
   components: { CTable: () => import('./CTable.vue') },

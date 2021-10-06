@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import CNav from '@/components/CNav';
+import CNav from '@/shared/components/CNav';
 export default {
   name: 'App',
   components: { CNav }

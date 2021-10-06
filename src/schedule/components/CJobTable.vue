@@ -28,8 +28,8 @@
 </template>
 <script>
 import { mapState } from 'vuex';
-import CTh from '@/components/CTh';
-import CJobRow from '@/components/CJobRow';
+import CTh from '@/shared/components/CTh';
+import CJobRow from '@/schedule/components/CJobRow';
 
 export default {
   name: 'CJobTable',
@@ -52,7 +52,9 @@ export default {
     };
   },
   computed: {
-    ...mapState(['jobs'])
+    ...mapState({
+      jobs: state => state.schedule.jobs
+    })
   },
   created() {
     this.$store.dispatch('getJobs');

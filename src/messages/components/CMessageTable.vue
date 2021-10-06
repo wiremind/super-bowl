@@ -13,10 +13,10 @@
 </template>
 
 <script>
-import CSearchInput from '@/components/CSearchInput';
-import CTable from '@/components/CTable';
+import CSearchInput from '@/messages/components/CSearchInput';
+import CTable from '@/messages/components/CTable';
 import { mapState } from 'vuex';
-import utils from '@/utils';
+import utils from '@/messages/utils';
 require('@/assets/css/spinner.css');
 export default {
   name: 'CMessageTable',
@@ -25,10 +25,13 @@ export default {
     CTable
   },
   computed: {
-    ...mapState(['messages', 'refreshInterval', 'actors', 'countMessages']),
+    ...mapState({
+      messages: state => state.messages.messages,
+      countMessages: state => state.messages.countMessages
+    }),
     sortedColumn: {
       get() {
-        return this.$store.state.sortedColumn;
+        return this.$store.state.messages.sortedColumn;
       },
       set(column) {
         this.$store.dispatch('updateSortedColumn', column);
@@ -36,7 +39,7 @@ export default {
     },
     sortDirection: {
       get() {
-        return this.$store.state.sortDirection;
+        return this.$store.state.messages.sortDirection;
       },
       set(direction) {
         this.$store.dispatch('updateSortDirection', direction);
@@ -44,7 +47,6 @@ export default {
     }
   },
   created() {
-    this.$store.commit('setCurrentPath', this.$route.path);
     this.$store.dispatch('startRefresh');
   },
   beforeCreate() {

@@ -57,7 +57,7 @@ export default {
   computed: {
     sizePage: {
       get() {
-        return this.$store.state.sizePage;
+        return this.$store.state.messages.sizePage;
       },
       set(size) {
         this.$store.dispatch('updateSizePage', size);
@@ -65,7 +65,7 @@ export default {
     },
     currentPage: {
       get() {
-        return this.$store.state.currentPage;
+        return this.$store.state.messages.currentPage;
       },
       set(currentPage) {
         this.$store.dispatch('updateCurrentPage', currentPage);
