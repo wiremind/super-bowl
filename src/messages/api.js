@@ -406,71 +406,11 @@ function parseMessages(data) {
   Object.values(compositions).forEach(compositionMessages => {
     messages.push(assembleComposition(compositionMessages));
   });
-
   return { messages: messages, loadDateTime: loadDateTime };
 }
 
 const cancelMessage = messageId => {
   return axios.post('/messages/cancel/' + messageId);
-};
-
-function compareJobs(a, b) {
-  return a.actorName > b.actorName ? 1 : -1;
-}
-
-const getJobs = () => {
-  return axios.get('scheduled/jobs').then(res => res.data.result.map(parseJob).sort(compareJobs));
-};
-
-const parseJob = rawJob => {
-  return {
-    hash: rawJob.hash,
-    actorName: rawJob.actor_name,
-    args: rawJob.args,
-    dailyTime: rawJob.daily_time,
-    enabled: rawJob.enabled,
-    interval: rawJob.interval,
-    isoWeekday: rawJob.iso_weekday,
-    kwargs: rawJob.kwargs,
-    lastQueued: rawJob.last_queued ? new Date(rawJob.last_queued) : null,
-    tz: rawJob.tz
-  };
-};
-
-const enqueueMessage = message => {
-  return axios.post('/messages', formatMessage(message));
-};
-
-const formatMessage = message => {
-  return {
-    actor_name: message.actorName ? message.actorName : null,
-    delay: message.delay ? message.delay : null,
-    args: message.args ? message.args : null,
-    kwargs: message.kwargs ? message.kwargs : null,
-    options: message.options ? message.options : null
-  };
-};
-
-const getActors = () => {
-  return axios.get('/actors').then(res => res.data.result.map(parseActor));
-};
-
-const parseActor = rawActor => {
-  for (const arg of rawActor.args) {
-    if (arg.type === undefined) {
-      arg.type = 'empty';
-    }
-  }
-  return {
-    name: rawActor.name,
-    priority: rawActor.priority,
-    queueName: rawActor.queue_name,
-    args: rawActor.args
-  };
-};
-
-const getOptions = () => {
-  return axios.get('/options').then(res => res.data.options);
 };
 
 const requeue = messageId => {
@@ -488,39 +428,6 @@ const cleanStates = args => {
   return axios.delete(url, args);
 };
 
-function formatJob(job) {
-  const parsedJob = {
-    actor_name: job.actorName,
-    args: job.args,
-    daily_time: job.dailyTime,
-    enabled: job.enabled,
-    interval: job.interval,
-    iso_weekday: job.isoWeekday,
-    kwargs: job.kwargs,
-    lastQueued: job.last_queued,
-    tz: job.tz
-  };
-  return parsedJob;
-}
-const deleteJob = job => {
-  const url = '/scheduled/jobs/' + job.hash;
-  return axios.delete(url).then(res => res.data.result.map(parseJob).sort(compareJobs()));
-};
-
-const addJob = job => {
-  const url = '/scheduled/jobs';
-  return axios
-    .post(url, formatJob(job))
-    .then(res => res.data.result.map(parseJob).sort(compareJobs));
-};
-
-const updateJob = job => {
-  const url = '/scheduled/jobs/' + job.hash;
-  return axios
-    .put(url, formatJob(job))
-    .then(res => res.data.result.map(parseJob).sort(compareJobs));
-};
-
 export default {
   cleanStates,
   getResult,
@@ -528,12 +435,5 @@ export default {
   getArgsKwargs,
   getMessages,
   cancelMessage,
-  getJobs,
-  enqueueMessage,
-  getActors,
-  getOptions,
-  deleteJob,
-  addJob,
-  updateJob,
   parseMessages
 };

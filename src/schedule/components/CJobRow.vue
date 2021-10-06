@@ -69,7 +69,8 @@
 
 <script>
 import { formatDistance, formatDistanceStrict, addSeconds } from 'date-fns';
-import utils from '@/utils';
+import scheduleUtils from '@/schedule/utils';
+import utils from '@/shared/utils';
 
 export default {
   name: 'CJobRow',
@@ -96,7 +97,7 @@ export default {
   },
   filters: {
     formatDistance(time) {
-      return time ? formatDistance(new Date(), time) + ' ago' : '';
+      return time ? formatDistance(scheduleUtils.dateToUTC(new Date()), time) + ' ago' : '';
     },
     formatWeekDay(isoWeekday) {
       const weekdays = [

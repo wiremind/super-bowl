@@ -77,12 +77,15 @@ export default {
     };
   },
   computed: {
-    ...mapState(['isLoading', 'messages', 'actors']),
+    ...mapState({
+      isLoading: state => state.messages.isLoading,
+      actors: state => state.actors
+    }),
     actor_group: function () {
       if (this.actors.length > 0) {
         const actorNames = this.actors.map(actor => actor.name);
-        if (this.$store.state.selectedActors == null) {
-          this.$store.dispatch('updateSelectedActors', actorNames);
+        if (this.selectedActors == null) {
+          this.$store.commit('setSelectedActors', actorNames);
         }
         return [{ name: 'All', actors: actorNames }];
       } else {
@@ -91,10 +94,10 @@ export default {
     },
     selectedActors: {
       get() {
-        return this.$store.state.selectedActors;
+        return this.$store.state.messages.selectedActors;
       },
       set(select) {
-        if (this.$store.state.selectedActors === null && select.length === 0) {
+        if (this.selectedActors === null && select.length === 0) {
           return;
         }
         this.$store.dispatch('updateSelectedActors', select);
@@ -102,7 +105,7 @@ export default {
     },
     selectedStatuses: {
       get() {
-        return this.$store.state.selectedStatuses;
+        return this.$store.state.messages.selectedStatuses;
       },
       set(select) {
         this.$store.dispatch('updateSelectedStatuses', select);
@@ -110,7 +113,7 @@ export default {
     },
     selectedId: {
       get() {
-        return this.$store.state.selectedId;
+        return this.$store.state.messages.selectedId;
       },
       set(select) {
         this.$store.dispatch('updateSelectedId', select);
@@ -118,7 +121,7 @@ export default {
     },
     startDateTime: {
       get() {
-        return this.$store.state.startDateTime;
+        return this.$store.state.messages.startDateTime;
       },
       set(select) {
         this.$store.dispatch('updateStartDateTime', select);
@@ -126,12 +129,15 @@ export default {
     },
     endDateTime: {
       get() {
-        return this.$store.state.endDateTime;
+        return this.$store.state.messages.endDateTime;
       },
       set(select) {
         this.$store.dispatch('updateEndDateTime', select);
       }
     }
+  },
+  created() {
+    this.$store.dispatch('getActors');
   }
 };
 </script>

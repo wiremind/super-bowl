@@ -69,10 +69,10 @@
 </template>
 
 <script>
-import CDictInput from '@/components/CDictInput';
-import CListInput from '@/components/CListInput';
-import CDefaultInput from '@/components/CDefaultInput';
-import CTypedInput from '@/components/CTypedInput';
+import CDictInput from '@/enqueue/components/CDictInput';
+import CListInput from '@/enqueue/components/CListInput';
+import CDefaultInput from '@/enqueue/components/CDefaultInput';
+import CTypedInput from '@/enqueue/components/CTypedInput';
 
 export default {
   name: 'CActorArgument',

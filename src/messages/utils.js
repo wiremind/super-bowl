@@ -8,50 +8,9 @@ const getSortColumnAndDirection = (columnName, sortedColumn, sortDirection) => {
   return columnAndDirection;
 };
 
-const filterTable = (data, filter, filterKeys) => {
-  return data.filter(item =>
-    filterKeys
-      .map(key => item[key].toLowerCase())
-      .join('~~')
-      .includes(filter.toLowerCase())
-  );
-};
-
-const sortTable = (data, sortDirection, sortedColumn) => {
-  return [...data].sort((row1, row2) => {
-    const direction = sortDirection === 'asc' ? 1 : -1;
-    const a = row1[sortedColumn] || 0,
-      b = row2[sortedColumn] || 0;
-    return direction * (a < b ? -1 : 1);
-  });
-};
-
-/**
- * check if a given string is a valid string
- * @param {String} str
- */
-const isJson = str => {
-  try {
-    const obj = JSON.parse(str);
-    // Handle non-exception-throwing cases:
-    // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
-    // but... JSON.parse(null) returns null, and typeof null === "object",
-    if (obj && typeof obj === 'object') {
-      return true;
-    }
-  } catch (e) {
-    return false;
-  }
-  return false;
-};
-
-const toJson = str => {
-  return JSON.parse(str);
-};
-
 /**
  * return the dd:hh:mm:ss of a given milliseconds
- * @param  {millis} milliseconds(int)
+ * @param  millis milliseconds(int)
  */
 const formatMillis = millis => {
   let delta = Math.abs(millis) / 1000;
@@ -90,10 +49,6 @@ const toggleItemFromList = (item, list) => {
 
 export default {
   getSortColumnAndDirection,
-  filterTable,
-  sortTable,
-  isJson,
-  toJson,
   formatMillis,
   camelCaseToUnderScore,
   toggleItemFromList

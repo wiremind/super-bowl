@@ -1,4 +1,4 @@
-import utils from '@/utils';
+import utils from '@/messages/utils';
 
 describe('Test Transform to under score notation', () => {
   const cases = [

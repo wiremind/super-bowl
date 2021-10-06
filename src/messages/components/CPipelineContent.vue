@@ -44,8 +44,8 @@
 </template>
 
 <script>
-import CMessageContent from '@/components/CMessageContent';
-import CGroupContent from '@/components/CGroupContent';
+import CMessageContent from '@/messages/components/CMessageContent';
+import CGroupContent from '@/messages/components/CGroupContent';
 export default {
   name: 'CPipelineContent',
   components: { CGroupContent, CMessageContent },

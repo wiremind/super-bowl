@@ -51,13 +51,13 @@
 </template>
 
 <script>
-import CActorArgument from '@/components/CActorArgument';
+import CActorArgument from '@/enqueue/components/CActorArgument';
 
 export default {
   name: 'COptionsInput',
   components: { CActorArgument },
   props: ['value', 'options'],
-  data: function() {
+  data: function () {
     return {
       selectedOption: '',
       typedValue: '',
@@ -110,9 +110,11 @@ export default {
     },
     filteredOptions: function () {
       const filteredDict = {};
-      for (const option of this.options) {
-        if (this.optionsTypes[option] != null && this.inputOptions[option] === undefined) {
-          filteredDict[option] = this.optionsTypes[option].type;
+      if (this.options) {
+        for (const option of this.options) {
+          if (this.optionsTypes[option] != null && this.inputOptions[option] === undefined) {
+            filteredDict[option] = this.optionsTypes[option].type;
+          }
         }
       }
       return filteredDict;

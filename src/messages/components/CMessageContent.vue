@@ -63,8 +63,8 @@
 </template>
 
 <script>
-import api from '@/api';
-import utils from '@/utils';
+import api from '@/messages/api';
+import utils from '@/messages/utils';
 
 export default {
   name: 'CMessageContent',

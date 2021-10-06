@@ -44,13 +44,13 @@
 </template>
 
 <script>
-import CPageFooter from '@/components/CPageFooter';
-import CTh from '@/components/CTh';
-import CMessageRow from '@/components/CMessageRow';
-import CMessageContent from '@/components/CMessageContent';
-import CPipelineContent from '@/components/CPipelineContent';
-import CGroupContent from '@/components/CGroupContent';
-import utils from '@/utils';
+import CPageFooter from '@/messages/components/CPageFooter';
+import CTh from '@/shared/components/CTh';
+import CMessageRow from '@/messages/components/CMessageRow';
+import CMessageContent from '@/messages/components/CMessageContent';
+import CPipelineContent from '@/messages/components/CPipelineContent';
+import CGroupContent from '@/messages/components/CGroupContent';
+import utils from '@/messages/utils';
 
 export default {
   name: 'CTable',
