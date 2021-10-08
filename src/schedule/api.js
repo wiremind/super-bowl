@@ -49,10 +49,12 @@ const addJob = job => {
     .then(res => res.data.result.map(parseJob).sort(compareJobs));
 };
 
-const updateJob = job => {
-  const url = '/scheduled/jobs/' + job.hash;
+const updateJobs = jobs => {
+  const url = '/scheduled/jobs';
+  const jobs_dict = {};
+  jobs.forEach(job => (jobs_dict[job.hash] = formatJob(job)));
   return axios
-    .put(url, formatJob(job))
+    .put(url, { jobs: jobs_dict })
     .then(res => res.data.result.map(parseJob).sort(compareJobs));
 };
 
@@ -60,5 +62,5 @@ export default {
   getJobs,
   deleteJob,
   addJob,
-  updateJob
+  updateJobs
 };
