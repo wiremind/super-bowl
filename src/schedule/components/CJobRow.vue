@@ -23,6 +23,9 @@
         v-model="editableDailyTime"
       />
     </td>
+    <td class="border px-4 py-2">
+      {{ lastQueued | formatDistance }}
+    </td>
     <td class="border w-28">
       <select v-model.number="editableWeekday" class="pl-2 pr-2">
         <option :value="null"></option>
@@ -50,19 +53,7 @@
       <input v-model="editableKwargs" :class="{ 'invalid-input': !isKwargsValid }" />
     </td>
     <td class="border px-4 py-2">
-      {{ lastQueued | formatDistance }}
-    </td>
-    <td class="border px-4 py-2">
       <input v-model="editableTz" />
-    </td>
-    <td class="border px-4 w-60">
-      <div class="space-x-2 flex" v-if="isEdited && !errorMessage">
-        <button class="btn btn-success w-1/2" @click="save">Save</button>
-        <button class="btn btn-danger w-1/2" @click="$emit('discard')">Discard</button>
-      </div>
-      <p v-if="errorMessage">
-        {{ errorMessage }}
-      </p>
     </td>
   </tr>
 </template>
@@ -80,36 +71,19 @@ export default {
     enabled: Boolean,
     interval: Number,
     isoWeekday: Number,
-    args: Array,
-    kwargs: Object,
+    args: String,
+    kwargs: String,
     lastQueued: Date,
-    tz: String,
-    isEdited: Boolean
+    tz: String
   },
   data() {
     return {
-      errorMessage: null,
-      isArgsValid: true,
-      isKwargsValid: true,
-      editableArgs: null,
-      editableKwargs: null
+      errorMessage: null
     };
   },
   filters: {
     formatDistance(time) {
       return time ? formatDistance(scheduleUtils.dateToUTC(new Date()), time) + ' ago' : '';
-    },
-    formatWeekDay(isoWeekday) {
-      const weekdays = [
-        'Monday',
-        'Tuesday',
-        'Wednesday',
-        'Thursday',
-        'Friday',
-        'Saturday',
-        'Sunday'
-      ];
-      return isoWeekday ? weekdays[isoWeekday - 1] : '';
     },
     formatSeconds(seconds) {
       if (!seconds) {
@@ -117,9 +91,6 @@ export default {
       }
       const currentDate = new Date();
       return formatDistanceStrict(addSeconds(currentDate, seconds), currentDate);
-    },
-    json(obj) {
-      return obj ? JSON.stringify(obj, undefined) : '';
     }
   },
   computed: {
@@ -160,7 +131,7 @@ export default {
       },
       set(val) {
         if (val !== null) {
-          this.editableInterval = null;
+          this.editableInterval = 86400;
         }
         this.$emit('update:isoWeekday', val);
       }
@@ -172,56 +143,37 @@ export default {
       set(val) {
         this.$emit('update:tz', val);
       }
-    }
-  },
-  methods: {
-    save() {
-      if (!this.isArgsValid) {
-        this.errorMessage = 'Invalid Args';
-        setTimeout(() => (this.errorMessage = null), 3000);
-        return;
+    },
+    editableArgs: {
+      get() {
+        return this.args;
+      },
+      set(val) {
+        this.$emit('update:args', val);
       }
-      if (!this.isKwargsValid) {
-        this.errorMessage = 'Invalid Kwargs';
-        setTimeout(() => (this.errorMessage = null), 3000);
-        return;
+    },
+    editableKwargs: {
+      get() {
+        return this.kwargs;
+      },
+      set(val) {
+        this.$emit('update:kwargs', val);
       }
-      this.$emit('save');
+    },
+    isArgsValid() {
+      return utils.isJson(this.args) && Array.isArray(JSON.parse(this.args));
+    },
+    isKwargsValid() {
+      return utils.isJson(this.kwargs) && !Array.isArray(JSON.parse(this.kwargs));
+    },
+    isValid() {
+      return this.isArgsValid && this.isKwargsValid;
     }
   },
   watch: {
-    args(newValue) {
-      if (
-        utils.isJson(this.editableArgs) &&
-        JSON.stringify(JSON.parse(this.editableArgs)) !== JSON.stringify(newValue)
-      ) {
-        this.editableArgs = JSON.stringify(newValue);
-      }
-    },
-    editableArgs(val) {
-      this.isArgsValid = utils.isJson(val) && Array.isArray(JSON.parse(val));
-      if (this.isArgsValid) {
-        this.$emit('update:args', JSON.parse(val));
-      }
-    },
-    kwargs(newValue) {
-      if (
-        utils.isJson(this.editableKwargs) &&
-        JSON.stringify(JSON.parse(this.editableKwargs)) !== JSON.stringify(newValue)
-      ) {
-        this.editableKwargs = JSON.stringify(newValue);
-      }
-    },
-    editableKwargs(val) {
-      this.isKwargsValid = utils.isJson(val) && !Array.isArray(JSON.parse(val));
-      if (this.isKwargsValid) {
-        this.$emit('update:kwargs', JSON.parse(val));
-      }
+    isValid(newValue) {
+      this.$emit('validityUpdate', newValue);
     }
-  },
-  created() {
-    this.editableArgs = JSON.stringify(this.args);
-    this.editableKwargs = JSON.stringify(this.kwargs);
   }
 };
 </script>
