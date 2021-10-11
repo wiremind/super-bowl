@@ -281,7 +281,7 @@ function parseMessages(data) {
         const group = assembleGroup(targetIds, compositionMsgs);
         pipeline.messages.push(group);
         if (group.pipeTarget) {
-          targetIds = group.pipeTarget.map(pipeElement => pipeElement.messageId);
+          targetIds = group.pipeTarget.map(targetMessage => targetMessage.messageId);
         } else {
           targetIds = null;
         }
@@ -359,16 +359,24 @@ function parseMessages(data) {
         if (compositionMsgs[index].groupId) {
           const subgroupId = compositionMsgs[index].groupId;
           const pipeGroupIds = findMessagesGroupIds(startIds, compositionMsgs);
-          const startIdSubgroup = startIds.filter((id, index) =>
+          const startIdsSubgroup = startIds.filter((id, index) =>
             pipeGroupIds[index].includes(subgroupId)
           );
-          compositionMsgs.push(assembleGroup(startIdSubgroup, compositionMsgs));
+          compositionMsgs.push(assembleGroup(startIdsSubgroup, compositionMsgs));
           const msgIds = compositionMsgs.map(msg => msg.messageId);
           startIds = startIds.filter(id => msgIds.includes(id));
         } else {
           // If it doesn't have a groupId, it is the first message of a pipeline
-          group.messages.push(assemblePipeline(index, compositionMsgs));
-          startIds.splice(0, 1);
+          const pipeline = assemblePipeline(index, compositionMsgs);
+          // If the pipeline has the correct groupId, it is directly a children of the group
+          if (pipeline.groupId === groupId) {
+            group.messages.push(pipeline);
+            startIds.splice(0, 1);
+          } else {
+            // Else it belongs to a smaller group
+            // No need to delete an id here as the pipeline has the Id of its first message
+            compositionMsgs.push(pipeline);
+          }
         }
       }
     }
