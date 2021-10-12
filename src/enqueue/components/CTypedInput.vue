@@ -2,7 +2,10 @@
   <div>
     <input
       v-if="argType === 'int' || argType === 'float' || argType === 'bool' || argType === 'str'"
-      :class="[argType === 'bool' ? 'w-10 h-10' : 'arg-input', { 'invalid-input': invalidInput }]"
+      :class="[
+        argType === 'bool' ? 'w-10 h-10' : 'arg-input',
+        { 'invalid-input': invalidInput || (!validity && !isChild) }
+      ]"
       :type="
         argType === 'int' || argType === 'float'
           ? 'number'
@@ -26,7 +29,7 @@
         argType === 'date' || argType === 'datetime.date' ? 'll' : 'ddd DD MMM YYYY HH:mm'
       "
       :only-date="argType === 'date' || argType === 'datetime.date'"
-      :class="{ 'invalid-input border': invalidInput }"
+      :class="{ 'invalid-input border': invalidInput || (!validity && !isChild) }"
     />
   </div>
 </template>
@@ -37,7 +40,8 @@ export default {
   props: {
     argType: String,
     value: undefined,
-    invalidInput: Boolean
+    invalidInput: Boolean,
+    isChild: Boolean
   },
   computed: {
     validity: function () {

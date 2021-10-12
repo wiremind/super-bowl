@@ -13,6 +13,7 @@
           'datetime.datetime'
         ].includes(argType)
       "
+      :isChild="isChild"
       v-model="inputValue"
       :arg-type="argType"
       :invalidInput="invalidInput"
@@ -30,9 +31,10 @@
         v-else
         v-model="inputValue"
         :parsing-is-changeable="false"
+        :isChild="true"
         @validityUpdate="validity = $event"
         @parseUpdate="$emit('parseUpdate', $event)"
-        :parseAs="'Json'"
+        parseAs="List"
         :invalidInput="invalidInput"
       />
     </div>
@@ -48,9 +50,10 @@
         v-else
         v-model="inputValue"
         :parsing-is-changeable="false"
+        :isChild="true"
         @validityUpdate="validity = $event"
         @parseUpdate="$emit('parseUpdate', $event)"
-        :parseAs="'Json'"
+        parseAs="Dict"
         :invalidInput="invalidInput"
       />
     </div>
@@ -60,6 +63,7 @@
       :parsing-is-changeable="
         !name.match(/_key$/) && !name.match(/_value$/) && !name.match(/_key_input$/)
       "
+      :isChild="isChild"
       @validityUpdate="validity = $event"
       @parseUpdate="parseUpdate"
       :parseAs="parsingType"

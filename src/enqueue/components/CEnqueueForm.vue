@@ -9,11 +9,7 @@
       </div>
     </div>
 
-    <form
-      class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col my-2"
-      @keydown.enter.prevent
-      @submit.prevent="submit"
-    >
+    <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col my-2">
       <div class="flex flex-wrap -mx-3 mb-6">
         <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
           <label for="field_actor_name">Actor Name</label>
@@ -58,7 +54,11 @@
           />
         </div>
         <hr class="my-5" />
-        <c-options-input v-model="message.options" :options="options" />
+        <c-options-input
+          v-model="message.options"
+          :options="options"
+          @validityUpdate="optionsValidity = $event"
+        />
         <div class="w-full flex justify-end pt-10 space-x-3">
           <button class="btn btn-success" type="button" @click="resetForm">Clear</button>
           <button
@@ -68,8 +68,10 @@
               'cursor-not-allowed': !isFormValid
             }"
             class="btn"
-            type="submit"
+            type="button"
             :disabled="!isFormValid"
+            id="enqueue_button"
+            @click="submit"
           >
             Enqueue
           </button>
@@ -78,7 +80,7 @@
           {{ response }}
         </small>
       </div>
-    </form>
+    </div>
   </div>
 </template>
 
@@ -102,7 +104,8 @@ const initialState = () => {
     },
     selectedActor: {},
     selectedOption: '',
-    optionValue: ''
+    optionValue: '',
+    optionsValidity: true
   };
 };
 
@@ -118,7 +121,8 @@ export default {
     isFormValid: function () {
       return (
         !this.emptyName &&
-        Object.entries(this.validity).reduce((acc, curVal) => acc && curVal[1], true)
+        Object.entries(this.validity).reduce((acc, curVal) => acc && curVal[1], true) &&
+        this.optionsValidity
       );
     }
   },

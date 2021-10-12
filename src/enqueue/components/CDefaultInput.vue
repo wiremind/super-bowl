@@ -3,7 +3,7 @@
     <input
       type="text"
       v-model="rawValue"
-      :class="['arg-input', { 'invalid-input': invalidInput }]"
+      :class="['arg-input', { 'invalid-input': invalidInput || (!validity && !isChild) }]"
     />
     <div v-if="parsingIsChangeable">
       <label class="text-xs absolute px-1">Parse as :</label>
@@ -24,7 +24,8 @@ export default {
     parsingIsChangeable: Boolean,
     parseAs: String,
     value: undefined,
-    invalidInput: Boolean
+    invalidInput: Boolean,
+    isChild: Boolean
   },
   data: function () {
     return {
@@ -33,8 +34,12 @@ export default {
   },
   computed: {
     validity: function () {
-      if (this.parseAs === 'Json') {
-        return utils.isJson(this.rawValue);
+      if (this.parseAs !== 'String') {
+        return (
+          utils.isJson(this.rawValue) &&
+          (this.parseAs !== 'List' || this.rawValue.match(/\{|\[/)[0] === '[') &&
+          (this.parseAs !== 'Dict' || this.rawValue.match(/\{|\[/)[0] === '{')
+        );
       } else {
         return true;
       }

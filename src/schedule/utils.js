@@ -1,7 +1,7 @@
 /**
  * Get current UTC Date
  */
-const dateToUTC = date => {
+export const dateToUTC = date => {
   return new Date(
     date.getUTCFullYear(),
     date.getUTCMonth(),
@@ -10,8 +10,4 @@ const dateToUTC = date => {
     date.getUTCMinutes(),
     date.getUTCSeconds()
   );
-};
-
-export default {
-  dateToUTC
 };
