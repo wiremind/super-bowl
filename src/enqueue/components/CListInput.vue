@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-1">
-    <form class="h-10 justify-between w-full flex flex-row mb-5" @submit.prevent="addElement">
+    <div class="h-10 justify-between w-full flex flex-row mb-5">
       <c-actor-argument
         :argType="valueType"
         :name="name + '_list_input'"
@@ -10,10 +10,15 @@
         :parse-as="parseValueAs"
         @validityUpdate="typedValueValidity = $event"
       />
-      <button type="submit" class="btn" :disabled="!typedValueValidity">
+      <button
+        class="btn add-list"
+        type="button"
+        :disabled="!typedValueValidity"
+        @click="addElement"
+      >
         <pre>+ Add</pre>
       </button>
-    </form>
+    </div>
     <draggable
       v-model="value"
       @start="drag = true"
@@ -40,8 +45,6 @@
 </template>
 
 <script>
-import draggable from 'vuedraggable';
-
 export default {
   name: 'CListInput',
   props: {
@@ -63,7 +66,7 @@ export default {
       typedValueValidity: true
     };
   },
-  components: { draggable, CActorArgument: () => import('./CActorArgument.vue') },
+  components: { CActorArgument: () => import('./CActorArgument.vue') },
   methods: {
     addElement: function () {
       this.value.push(this.typedValue);

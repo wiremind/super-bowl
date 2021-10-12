@@ -9,6 +9,7 @@ import VueCtkDateTimePicker from 'vue-ctk-date-time-picker';
 import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css';
 import JsonViewer from 'vue-json-viewer';
 import 'vue-json-viewer/style.css';
+import draggable from 'vuedraggable';
 
 import routes from '@/routes';
 import store from './store';
@@ -20,6 +21,7 @@ Vue.config.productionTip = false;
 Vue.component('VueCtkDateTimePicker', VueCtkDateTimePicker);
 Vue.component('multiselect', Multiselect);
 Vue.component('json-viewer', JsonViewer);
+Vue.component('draggable', draggable);
 const router = new VueRouter({ routes, mode: 'history', linkExactActiveClass: 'bg-gray-900' });
 
 Vue.filter('percentage', value => (value ? Math.round(value * 100) + '%' : ''));

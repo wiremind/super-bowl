@@ -1,11 +1,15 @@
 <template>
   <div class="w-full md:w-full mb-6 md:mb-0">
     <label class="enqueue-label text-base my-5">Options</label>
-    <form class="w-full md:w-full h-10 flex justify-between mb-3" @submit.prevent="addOption">
+    <div class="w-full md:w-full h-10 flex justify-between mb-3">
       <select class="arg-input w-1/2 mr-2" v-model="selectedOption" @change="selectOption" required>
         <option v-for="(optionType, option) in filteredOptions" :key="option" :value="option">
           {{ option }} : {{ optionType }}
-          {{ optionsTypes[option].unit !== undefined ? '(' + optionsTypes[option].unit + ')' : '' }}
+          {{
+            optionsTypes[option] && optionsTypes[option].unit !== undefined
+              ? '(' + optionsTypes[option].unit + ')'
+              : ''
+          }}
         </option>
       </select>
       <c-actor-argument
@@ -20,10 +24,10 @@
         class="w-1/2"
         @validityUpdate="inputValidity = $event"
       />
-      <button class="btn" type="submit" :disabled="!inputValidity">
+      <button type="button" class="btn" @click="addOption" :disabled="!inputValidity">
         <pre>+ Add</pre>
       </button>
-    </form>
+    </div>
     <div class="space-y-1">
       <div
         v-for="(optionValue, option) in inputOptions"
@@ -40,7 +44,8 @@
           v-model="inputOptions[option]"
           :name="option + '_input'"
           :argType="optionsTypes[option].type"
-          @validityUpdate="optionsValidity[option] = $event"
+          :isInvalid="!optionsValidity[option]"
+          @validityUpdate="$set(optionsValidity, option, $event)"
         />
         <button type="button" @click="$delete(inputOptions, option)" class="btn btn-danger">
           Remove
@@ -96,8 +101,12 @@ export default {
       }
     },
     addOption() {
+      if (!this.selectedOption) {
+        return;
+      }
       this.$set(this.inputOptions, this.selectedOption, this.typedValue);
-      this.typedValue = '';
+      this.$set(this.optionsValidity, this.selectedOption, true);
+      this.selectedOption = null;
     }
   },
   computed: {
@@ -122,6 +131,11 @@ export default {
     },
     validity: function () {
       return Object.values(this.optionsValidity).every(el => el);
+    }
+  },
+  watch: {
+    validity(newValue) {
+      this.$emit('validityUpdate', newValue);
     }
   }
 };

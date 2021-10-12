@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-1">
-    <form class="h-10 w-full flex space-x-1 flex-row justify-between mb-5" @submit.prevent="addKey">
+    <div class="h-10 w-full flex space-x-1 flex-row justify-between mb-5">
       <c-actor-argument
         :argType="keyType"
         :name="name + '_key_input'"
@@ -17,10 +17,10 @@
         :parseAs="parseValueAs"
         @validityUpdate="typedValueValidity = $event"
       />
-      <button type="submit" class="btn" :disabled="isInvalid">
+      <button class="btn" type="button" :disabled="isInvalid" @click="addKey">
         <pre>+ Add</pre>
       </button>
-    </form>
+    </div>
     <div v-for="(el, index) in valueMap" :key="index" class="h-10 w-full flex space-x-1">
       <c-actor-argument
         :argType="keyType"
@@ -55,14 +55,14 @@ export default {
   },
   data: function () {
     this.$emit('input', {});
-    const keyType = this.argType.substring(
-      this.argType.indexOf('[') + 1,
-      this.argType.indexOf(',')
-    );
-    const valueType = this.argType.substring(
-      this.argType.indexOf(',') + 2,
-      this.argType.length - 1
-    );
+    let keyType, valueType;
+    if (!this.argType.includes('[')) {
+      keyType = 'empty';
+      valueType = 'empty';
+    } else {
+      keyType = this.argType.substring(this.argType.indexOf('[') + 1, this.argType.indexOf(','));
+      valueType = this.argType.substring(this.argType.indexOf(',') + 2, this.argType.length - 1);
+    }
     return {
       keyType: keyType,
       valueType: valueType,

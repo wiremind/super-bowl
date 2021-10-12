@@ -1,4 +1,5 @@
 import utils from '@/messages/utils';
+import { dateToUTC } from '@/schedule/utils';
 
 describe('Test Transform to under score notation', () => {
   const cases = [
@@ -62,7 +63,7 @@ describe('Test convert date to UTC', () => {
   test.each(cases)(
     'given a date %p its hours of difference in UTC should be %p',
     (timeZonedDate, diffInHours) => {
-      const diff = utils.formatMillis(timeZonedDate - date);
+      const diff = utils.formatMillis(dateToUTC(timeZonedDate) - date);
       expect(diff.hours).toBe(diffInHours);
     }
   );

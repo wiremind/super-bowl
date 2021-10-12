@@ -60,7 +60,7 @@
 
 <script>
 import { formatDistance, formatDistanceStrict, addSeconds } from 'date-fns';
-import scheduleUtils from '@/schedule/utils';
+import { dateToUTC } from '@/schedule/utils';
 import utils from '@/shared/utils';
 
 export default {
@@ -83,7 +83,7 @@ export default {
   },
   filters: {
     formatDistance(time) {
-      return time ? formatDistance(scheduleUtils.dateToUTC(new Date()), time) + ' ago' : '';
+      return time ? formatDistance(dateToUTC(new Date()), time) + ' ago' : '';
     },
     formatSeconds(seconds) {
       if (!seconds) {
