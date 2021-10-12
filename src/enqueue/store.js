@@ -1,7 +1,7 @@
 import api from '@/enqueue/api';
 
 const moduleEnqueue = {
-  states: {
+  state: {
     options: []
   },
   mutations: {
