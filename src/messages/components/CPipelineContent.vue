@@ -6,7 +6,7 @@
           <div
             v-for="(m, index) in message.messages"
             :key="index + '_content'"
-            class="border p-5 w-full text-center font-bold"
+            class="border p-5 w-full text-center font-bold pipe-element"
             :class="{ 'bg-gray-200': index === openedActorIndex }"
             @click="toggle(index)"
           >

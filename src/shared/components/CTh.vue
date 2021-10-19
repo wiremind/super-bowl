@@ -2,7 +2,7 @@
   <th class="border-2 px-2" :key="name">
     <div class="w-full">
       <div
-        class="ml-2 font-semibold text-sm"
+        class="mx-1 font-semibold text-sm"
         @click="sort"
         :class="{ 'cursor-pointer': isSortable }"
       >
@@ -10,7 +10,7 @@
         <span
           class="arrow"
           v-if="sortedColumn && sortedColumn === name"
-          :class="sortDirection !== 'asc' ? 'asc' : 'desc'"
+          :class="sortDirection"
         ></span>
       </div>
     </div>

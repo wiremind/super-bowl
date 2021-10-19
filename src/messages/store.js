@@ -107,6 +107,9 @@ const moduleMessages = {
         context.commit('setMessages', data.messages);
       });
     },
+    getArgsKwargs(context, messageId) {
+      return api.getArgsKwargs(messageId);
+    },
     cancelMessage(context, messageId) {
       return api.cancelMessage(messageId);
     },
