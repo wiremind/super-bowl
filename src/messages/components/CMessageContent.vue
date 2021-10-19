@@ -38,7 +38,7 @@
       </div>
       <div class="text-xs" v-if="extra_info && !message.endDateTime">
         <div class="font-bold inline-block">Progress :</div>
-        {{ message.progress }}
+        {{ message.progress | percentage }}
       </div>
       <div class="text-xs bg-white whitespace-pre-wrap">
         <span class="font-bold inline-block">Args :</span>
@@ -112,7 +112,7 @@ export default {
     },
     getDetails() {
       if (this.message.status !== 'Not yet enqueued') {
-        api.getArgsKwargs(this.message.messageId).then(res => {
+        this.$store.dispatch('getArgsKwargs', this.message.messageId).then(res => {
           for (const key in res) {
             if (JSON.stringify(this[key]) !== JSON.stringify(res[key])) {
               this[key] = res[key];
