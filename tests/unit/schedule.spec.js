@@ -18,7 +18,7 @@ function createScheduleView(jobs = []) {
           }
         },
         actions: {
-          getJobs(context) {
+          startRefresh(context) {
             context.commit('setJobs', jobs);
           },
           saveJobs: saveJobs

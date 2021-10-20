@@ -23,6 +23,11 @@ const moduleSchedule = {
         context.commit('setJobs', jobs);
       });
     },
+    refresh(context) {
+      if (context.rootState.currentPath === 'schedule') {
+        context.dispatch('getJobs');
+      }
+    },
     saveJobs(context, jobs) {
       context.commit('setLoading', true);
       api

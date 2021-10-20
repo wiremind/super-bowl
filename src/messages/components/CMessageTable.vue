@@ -47,10 +47,13 @@ export default {
     }
   },
   created() {
+    this.$store.commit('setCurrentPath', 'messages');
     this.$store.dispatch('startRefresh');
   },
-  beforeCreate() {
+  destroyed() {
     this.$store.commit('clearIntervalTimeOut');
+  },
+  beforeCreate() {
     this.$store.commit('resetAttributesPage');
   },
   methods: {

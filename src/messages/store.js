@@ -4,11 +4,8 @@ import api from '@/messages/api';
 const moduleMessages = {
   state: {
     messages: [],
-    refreshInterval: 30,
     sizePage: 50,
     countMessages: null,
-    isLoading: false,
-    intervalId: null,
     sortedColumn: null,
     sortDirection: null,
     selectedStatuses: ['Started', 'Pending', 'Skipped', 'Canceled', 'Failure', 'Success'],
@@ -20,15 +17,6 @@ const moduleMessages = {
     loadDateTime: null
   },
   mutations: {
-    setRefreshInterval(state, interval) {
-      state.refreshInterval = interval;
-    },
-    setIntervalId(state, intervalId) {
-      state.intervalId = intervalId;
-    },
-    setLoading(state, loading) {
-      state.isLoading = loading;
-    },
     setMessages(state, messages) {
       state.messages = messages;
     },
@@ -37,9 +25,6 @@ const moduleMessages = {
     },
     setPageSize(state, sizePage) {
       state.sizePage = sizePage;
-    },
-    clearIntervalTimeOut(state) {
-      clearInterval(state.intervalId);
     },
     setSelectedActors(state, selectedActors) {
       state.selectedActors = selectedActors;
@@ -114,22 +99,8 @@ const moduleMessages = {
       return api.requeue(messageId);
     },
     refresh(context) {
-      context.dispatch('getMessages');
-    },
-    startRefresh(context) {
-      context.dispatch('refresh');
-      const intervalId = setInterval(() => {
-        if (!context.state.isLoading) {
-          context.dispatch('refresh');
-        }
-      }, context.state.refreshInterval * 1000);
-      context.commit('setIntervalId', intervalId);
-    },
-    updateRefreshInterval(context, intervalId) {
-      context.commit('clearIntervalTimeOut');
-      context.commit('setRefreshInterval', intervalId);
-      if (context.state.intervalId && intervalId != null) {
-        context.dispatch('startRefresh');
+      if (context.rootState.currentPath === 'messages') {
+        context.dispatch('getMessages');
       }
     },
     updateSizePage(context, sizePage) {
