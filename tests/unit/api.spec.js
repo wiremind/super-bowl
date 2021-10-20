@@ -1,4 +1,4 @@
-import api from '@/messages/api';
+import { parseMessages } from '@/messages/parsing';
 
 const DateTime = global.Date;
 const date = new Date('2021-05-01 10:00:00');
@@ -21,7 +21,7 @@ test('Test simple message parsing', () => {
     end_datetime: '2021-05-01 10:00:00',
     options: { group_info: { group_id: 'group_id' } }
   };
-  expect(api.parseMessages([message]).messages[0]).toMatchObject({
+  expect(parseMessages([message]).messages[0]).toMatchObject({
     priority: 0,
     messageId: 'id',
     status: 'Started',
@@ -36,23 +36,23 @@ test('Test simple message parsing', () => {
 
 describe('Wait time computing', () => {
   it('is undefined when there is no enqueuedDatetime', () => {
-    expect(api.parseMessages([{}]).messages[0].waitTime).toBe(undefined);
+    expect(parseMessages([{}]).messages[0].waitTime).toBe(undefined);
   });
   it('works when there is no startedDatetime', () => {
-    expect(
-      api.parseMessages([{ enqueued_datetime: '2021-05-01 09:30:00' }]).messages[0].waitTime
-    ).toBe(1800000);
+    expect(parseMessages([{ enqueued_datetime: '2021-05-01 09:30:00' }]).messages[0].waitTime).toBe(
+      1800000
+    );
   });
   it('works when there is a startedDatetime', () => {
     expect(
-      api.parseMessages([
+      parseMessages([
         { enqueued_datetime: '2021-05-01 09:30:00', started_datetime: '2021-05-01 10:00:00' }
       ]).messages[0].waitTime
     ).toBe(1800000);
   });
   it('works with a composition', () => {
     expect(
-      api.parseMessages([
+      parseMessages([
         {
           message_id: 'id0',
           enqueued_datetime: '2021-05-01 09:30:00',
@@ -90,23 +90,23 @@ describe('Wait time computing', () => {
 
 describe('Execution time computing', () => {
   it('is undefined when there is no startedDatetime', () => {
-    expect(api.parseMessages([{}]).messages[0].executionTime).toBe(undefined);
+    expect(parseMessages([{}]).messages[0].executionTime).toBe(undefined);
   });
   it('works when there is no endDatetime', () => {
     expect(
-      api.parseMessages([{ started_datetime: '2021-05-01 09:30:00' }]).messages[0].executionTime
+      parseMessages([{ started_datetime: '2021-05-01 09:30:00' }]).messages[0].executionTime
     ).toBe(1800000);
   });
   it('works when there is a endDatetime', () => {
     expect(
-      api.parseMessages([
+      parseMessages([
         { started_datetime: '2021-05-01 09:30:00', end_datetime: '2021-05-01 10:00:00' }
       ]).messages[0].executionTime
     ).toBe(1800000);
   });
   it('works with a composition', () => {
     expect(
-      api.parseMessages([
+      parseMessages([
         {
           message_id: 'id0',
           started_datetime: '2021-05-01 09:30:00',
@@ -145,18 +145,18 @@ describe('Execution time computing', () => {
 describe('Remaining time computing', () => {
   it('is undefined when there is no progress', () => {
     expect(
-      api.parseMessages([{ started_datetime: '2021-05-01 10:00:00' }]).messages[0].remainingTime
+      parseMessages([{ started_datetime: '2021-05-01 10:00:00' }]).messages[0].remainingTime
     ).toBe(undefined);
   });
   it('works when there is progress', () => {
     expect(
-      api.parseMessages([{ started_datetime: '2021-05-01 09:30:00', progress: 0.5 }]).messages[0]
+      parseMessages([{ started_datetime: '2021-05-01 09:30:00', progress: 0.5 }]).messages[0]
         .remainingTime
     ).toBe(1800000);
   });
   it('is undefined when task is finished', () => {
     expect(
-      api.parseMessages([
+      parseMessages([
         {
           started_datetime: '2021-05-01 09:30:00',
           progress: 0.5,
@@ -167,7 +167,7 @@ describe('Remaining time computing', () => {
   });
   it('works with a composition', () => {
     expect(
-      api.parseMessages([
+      parseMessages([
         {
           message_id: 'id0',
           started_datetime: '2021-05-01 09:30:00',
@@ -209,7 +209,7 @@ describe('Remaining time computing', () => {
 describe('Pipe target parsing', () => {
   it('works with a simple pipeline', () => {
     expect(
-      api.parseMessages([
+      parseMessages([
         {
           message_id: 'id1',
           options: {
@@ -226,7 +226,7 @@ describe('Pipe target parsing', () => {
   });
   it('works with a group in a pipeline', () => {
     expect(
-      api.parseMessages([
+      parseMessages([
         {
           message_id: 'id1',
           options: {
@@ -243,7 +243,7 @@ describe('Pipe target parsing', () => {
 describe('Parsing a pipeline', () => {
   it('works with a simple pipeline', () => {
     expect(
-      api.parseMessages([
+      parseMessages([
         {
           message_id: 'id1',
           options: {
@@ -276,7 +276,7 @@ describe('Parsing a pipeline', () => {
   });
   it('works with a pipeline containing a group', () => {
     expect(
-      api.parseMessages([
+      parseMessages([
         {
           message_id: 'id1',
           options: {
@@ -315,7 +315,7 @@ describe('Parsing a pipeline', () => {
 describe('Parsing a group', () => {
   it('works with a simple group', () => {
     expect(
-      api.parseMessages(
+      parseMessages(
         ['id1', 'id2', 'id3'].map(id => {
           return {
             message_id: id,
@@ -337,7 +337,7 @@ describe('Parsing a group', () => {
   });
   it('works with a group containing pipelines', () => {
     expect(
-      api.parseMessages(
+      parseMessages(
         ['id1', 'id2', 'id3'].map(id => {
           return {
             message_id: id,
@@ -381,7 +381,7 @@ describe('Parsing a group', () => {
 
 test('Test complex composition parsing', () => {
   expect(
-    api.parseMessages([
+    parseMessages([
       {
         message_id: 'id0',
         options: {
@@ -466,7 +466,7 @@ test('Test complex composition parsing', () => {
 describe('Composition status', () => {
   it('is Success when every message is Success', () => {
     expect(
-      api.parseMessages([
+      parseMessages([
         {
           message_id: 'msg_id1',
           status: 'Success',
@@ -497,7 +497,7 @@ describe('Composition status', () => {
   });
   it('is Not yet enqueued when every message is Not yet enqueued', () => {
     expect(
-      api.parseMessages([
+      parseMessages([
         {
           message_id: 'msg_id1',
           status: 'Not yet enqueued',
@@ -528,7 +528,7 @@ describe('Composition status', () => {
   });
   it('is Failure if a message is Failure', () => {
     expect(
-      api.parseMessages([
+      parseMessages([
         {
           message_id: 'id0',
           status: 'Failure',
@@ -559,7 +559,7 @@ describe('Composition status', () => {
   });
   it('is Skipped if a message is Skipped', () => {
     expect(
-      api.parseMessages([
+      parseMessages([
         {
           message_id: 'id0',
           status: 'Skipped',
@@ -590,7 +590,7 @@ describe('Composition status', () => {
   });
   it('is Canceled if a message is Canceled', () => {
     expect(
-      api.parseMessages([
+      parseMessages([
         {
           message_id: 'id0',
           status: 'Canceled',
@@ -621,7 +621,7 @@ describe('Composition status', () => {
   });
   it('is Started if a message is Started', () => {
     expect(
-      api.parseMessages([
+      parseMessages([
         {
           message_id: 'id0',
           status: 'Started',
@@ -652,7 +652,7 @@ describe('Composition status', () => {
   });
   it('is Pending if every message in the group is Pending', () => {
     expect(
-      api.parseMessages([
+      parseMessages([
         {
           message_id: 'id0',
           status: 'Started',
@@ -683,7 +683,7 @@ describe('Composition status', () => {
   });
   it('is Pending if the first message of the pipeline is Pending', () => {
     expect(
-      api.parseMessages([
+      parseMessages([
         {
           message_id: 'id0',
           status: 'Pending',
@@ -708,7 +708,7 @@ describe('Composition status', () => {
 
 test('Composition priority test', () => {
   expect(
-    api.parseMessages([
+    parseMessages([
       {
         message_id: 'id0',
         priority: 0,
@@ -741,77 +741,73 @@ test('Composition priority test', () => {
 describe('Composition started_time', () => {
   it('is correct for a group', () => {
     expect(
-      api
-        .parseMessages([
-          {
-            message_id: 'id0',
-            started_datetime: '2021-05-01 11:00:00',
-            options: {
-              composition_id: 'comp_id',
-              group_info: {
-                group_id: 'grp_id'
-              }
-            }
-          },
-          {
-            message_id: 'id1',
-            started_datetime: '2021-05-01 10:00:00',
-            options: {
-              composition_id: 'comp_id',
-              group_info: {
-                group_id: 'grp_id'
-              }
-            }
-          },
-          {
-            message_id: 'id2',
-            options: {
-              composition_id: 'comp_id',
-              group_info: {
-                group_id: 'grp_id'
-              }
+      parseMessages([
+        {
+          message_id: 'id0',
+          started_datetime: '2021-05-01 11:00:00',
+          options: {
+            composition_id: 'comp_id',
+            group_info: {
+              group_id: 'grp_id'
             }
           }
-        ])
-        .messages[0].startedDatetime.getTime()
+        },
+        {
+          message_id: 'id1',
+          started_datetime: '2021-05-01 10:00:00',
+          options: {
+            composition_id: 'comp_id',
+            group_info: {
+              group_id: 'grp_id'
+            }
+          }
+        },
+        {
+          message_id: 'id2',
+          options: {
+            composition_id: 'comp_id',
+            group_info: {
+              group_id: 'grp_id'
+            }
+          }
+        }
+      ]).messages[0].startedDatetime.getTime()
     ).toBe(new Date('2021-05-01 10:00:00').getTime());
   });
   it('is correct for a pipeline', () => {
     expect(
-      api
-        .parseMessages([
-          {
-            message_id: 'id0',
-            started_datetime: '2021-05-01 10:00:00',
-            options: {
-              composition_id: 'comp_id',
-              pipe_target: [
-                {
-                  message_id: 'id1',
-                  started_datetime: '2021-05-01 10:00:20',
-                  options: {
-                    composition_id: 'comp_id'
-                  }
+      parseMessages([
+        {
+          message_id: 'id0',
+          started_datetime: '2021-05-01 10:00:00',
+          options: {
+            composition_id: 'comp_id',
+            pipe_target: [
+              {
+                message_id: 'id1',
+                started_datetime: '2021-05-01 10:00:20',
+                options: {
+                  composition_id: 'comp_id'
                 }
-              ]
-            }
-          },
-          {
-            message_id: 'id1',
-            started_datetime: '2021-05-01 10:00:20',
-            options: {
-              composition_id: 'comp_id'
-            }
+              }
+            ]
           }
-        ])
-        .messages[0].startedDatetime.getTime()
+        },
+        {
+          message_id: 'id1',
+          started_datetime: '2021-05-01 10:00:20',
+          options: {
+            composition_id: 'comp_id'
+          }
+        }
+      ]).messages[0].startedDatetime.getTime()
     ).toBe(new Date('2021-05-01 10:00:00').getTime());
   });
 });
 
 test('Composition progress test', () => {
   expect(
-    api.parseMessages([
+    parseMessages([
       {
         message_id: 'id0',
         progress: 1,
