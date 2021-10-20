@@ -120,7 +120,7 @@ export default {
   computed: {
     refreshInterval: {
       get() {
-        return this.$store.state.messages.refreshInterval;
+        return this.$store.state.refreshInterval;
       },
       set(interval) {
         this.$store.dispatch('updateRefreshInterval', interval);

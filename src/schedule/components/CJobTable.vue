@@ -94,7 +94,11 @@ export default {
     }
   },
   created() {
-    this.$store.dispatch('getJobs');
+    this.$store.commit('setCurrentPath', 'schedule');
+    this.$store.dispatch('startRefresh');
+  },
+  destroyed() {
+    this.$store.commit('clearIntervalTimeOut');
   },
   watch: {
     stringifiedJobs: function (newValue) {
