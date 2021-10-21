@@ -269,7 +269,7 @@ describe('Parsing a pipeline', () => {
       ]).messages
     ).toMatchObject([
       {
-        type: 'pipeline',
+        compositionType: 'pipeline',
         messages: [{ messageId: 'id1' }, { messageId: 'id2' }, { messageId: 'id3' }]
       }
     ]);
@@ -302,10 +302,10 @@ describe('Parsing a pipeline', () => {
       ]).messages
     ).toMatchObject([
       {
-        type: 'pipeline',
+        compositionType: 'pipeline',
         messages: [
           { messageId: 'id1' },
-          { type: 'group', messages: [{ messageId: 'id2' }, { messageId: 'id3' }] }
+          { compositionType: 'group', messages: [{ messageId: 'id2' }, { messageId: 'id3' }] }
         ]
       }
     ]);
@@ -330,7 +330,7 @@ describe('Parsing a group', () => {
       ).messages
     ).toMatchObject([
       {
-        type: 'group',
+        compositionType: 'group',
         messages: [{ messageId: 'id1' }, { messageId: 'id2' }, { messageId: 'id3' }]
       }
     ]);
@@ -360,10 +360,10 @@ describe('Parsing a group', () => {
       ).messages
     ).toMatchObject([
       {
-        type: 'group',
+        compositionType: 'group',
         messages: ['id1', 'id2', 'id3'].map(id => {
           return {
-            type: 'pipeline',
+            compositionType: 'pipeline',
             messages: [
               {
                 messageId: id
@@ -424,19 +424,19 @@ test('Test complex composition parsing', () => {
     ]).messages
   ).toMatchObject([
     {
-      type: 'pipeline',
+      compositionType: 'pipeline',
       messages: [
         {
           messageId: 'id0'
         },
         {
-          type: 'group',
+          compositionType: 'group',
           messages: [0, 1].map(i => {
             return {
-              type: 'pipeline',
+              compositionType: 'pipeline',
               messages: [
                 {
-                  type: 'group',
+                  compositionType: 'group',
                   messages: [1, 2].map(j => {
                     return {
                       messageId: `id${2 * i + j}`
@@ -451,7 +451,7 @@ test('Test complex composition parsing', () => {
           })
         },
         {
-          type: 'group',
+          compositionType: 'group',
           messages: [0, 1].map(k => {
             return {
               messageId: `id${k + 7}`
@@ -490,7 +490,7 @@ describe('Composition status', () => {
       ]).messages
     ).toMatchObject([
       {
-        type: 'group',
+        compositionType: 'group',
         status: 'Success'
       }
     ]);
@@ -521,7 +521,7 @@ describe('Composition status', () => {
       ]).messages
     ).toMatchObject([
       {
-        type: 'group',
+        compositionType: 'group',
         status: 'Not yet enqueued'
       }
     ]);
@@ -552,7 +552,7 @@ describe('Composition status', () => {
       ]).messages
     ).toMatchObject([
       {
-        type: 'group',
+        compositionType: 'group',
         status: 'Failure'
       }
     ]);
@@ -583,7 +583,7 @@ describe('Composition status', () => {
       ]).messages
     ).toMatchObject([
       {
-        type: 'group',
+        compositionType: 'group',
         status: 'Skipped'
       }
     ]);
@@ -614,7 +614,7 @@ describe('Composition status', () => {
       ]).messages
     ).toMatchObject([
       {
-        type: 'group',
+        compositionType: 'group',
         status: 'Canceled'
       }
     ]);
@@ -645,7 +645,7 @@ describe('Composition status', () => {
       ]).messages
     ).toMatchObject([
       {
-        type: 'group',
+        compositionType: 'group',
         status: 'Started'
       }
     ]);
@@ -676,7 +676,7 @@ describe('Composition status', () => {
       ]).messages
     ).toMatchObject([
       {
-        type: 'group',
+        compositionType: 'group',
         status: 'Started'
       }
     ]);
@@ -699,7 +699,7 @@ describe('Composition status', () => {
       ]).messages
     ).toMatchObject([
       {
-        type: 'pipeline',
+        compositionType: 'pipeline',
         status: 'Pending'
       }
     ]);
@@ -732,7 +732,7 @@ test('Composition priority test', () => {
     ]).messages
   ).toMatchObject([
     {
-      type: 'group',
+      compositionType: 'group',
       priority: 0
     }
   ]);
@@ -854,15 +854,15 @@ test('Test group with a pipeline whose last message is a group', () => {
     ).messages
   ).toMatchObject([
     {
-      type: 'group',
+      compositionType: 'group',
       messages: [0, 1].map(n => ({
-        type: 'pipeline',
+        compositionType: 'pipeline',
         messages: [
           {
             messageId: `id${n}`
           },
           {
-            type: 'group',
+            compositionType: 'group',
             messages: [0, 1].map(m => ({
               messageId: `id${2 * (n + 1) + m}`
             }))

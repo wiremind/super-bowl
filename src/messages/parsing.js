@@ -112,7 +112,7 @@ function fillPipe(message, compositions) {
  */
 function addDetails(composition) {
   // add name
-  if (composition.type === 'group') {
+  if (composition.compositionType === 'group') {
     const actorsCount = composition.messages.reduce((count, { actorName }) => {
       count[actorName] = count[actorName] + 1 || 1;
       return count;
@@ -143,8 +143,8 @@ function addDetails(composition) {
   } else if (statuses.every(status => status === 'Not yet enqueued')) {
     composition.status = 'Not yet enqueued';
   } else if (
-    (composition.type === 'group' && statuses.every(status => status === 'Pending')) ||
-    (composition.type === 'pipeline' && statuses[0] === 'Pending')
+    (composition.compositionType === 'group' && statuses.every(status => status === 'Pending')) ||
+    (composition.compositionType === 'pipeline' && statuses[0] === 'Pending')
   ) {
     composition.status = 'Pending';
   } else {
@@ -153,7 +153,7 @@ function addDetails(composition) {
   // add Priority
   composition.priority = composition.messages[0].priority;
   // add Started time
-  if (composition.type === 'pipeline') {
+  if (composition.compositionType === 'pipeline') {
     composition.startedDatetime = composition.messages[0].startedDatetime;
   } else {
     const datetime = composition.messages.reduce(
@@ -191,6 +191,9 @@ function addDetails(composition) {
       composition.messages.length;
   }
 
+  // add Composition id
+  composition.compositionId = composition.messages[0].compositionId;
+
   return composition;
 }
 
@@ -203,7 +206,7 @@ function addDetails(composition) {
 function assemblePipeline(firstIndex, compositionMsgs) {
   const firstMessage = compositionMsgs.splice(firstIndex, 1);
   const pipeline = {
-    type: 'pipeline',
+    compositionType: 'pipeline',
     messages: firstMessage,
     messageId: firstMessage[0].messageId
   };
@@ -297,7 +300,7 @@ function findGroupId(startIds, compositionMsgs) {
  * @returns {*}
  */
 function assembleGroup(startIds, compositionMsgs) {
-  const group = { type: 'group', messages: [] };
+  const group = { compositionType: 'group', messages: [] };
   const groupId = findGroupId(startIds, compositionMsgs);
   while (startIds.length > 0) {
     const index = findTargetIndex(startIds[0], compositionMsgs);

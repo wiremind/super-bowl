@@ -37,7 +37,7 @@ function createMessagesTable(messages = [], countMessages = 0, actors = []) {
           getArgsKwargs(context, messageId) {
             let message;
             context.state.messages.forEach(msg => {
-              if (msg.type) {
+              if (msg.compositionType) {
                 msg.messages.forEach(m => {
                   if (m.messageId === messageId) {
                     message = m;
@@ -133,7 +133,7 @@ describe('Test pipeline', () => {
   const messages = [
     {
       messageId: 'id',
-      type: 'pipeline',
+      compositionType: 'pipeline',
       actorName: 'begin_task',
       priority: 1,
       status: 'Started',
@@ -232,7 +232,7 @@ describe('Test pipeline', () => {
 describe('Test group', () => {
   const messages = [
     {
-      type: 'group',
+      compositionType: 'group',
       groupId: 'groupId',
       compositionId: 'compositionId',
       messages: [

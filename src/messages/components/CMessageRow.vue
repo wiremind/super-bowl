@@ -49,9 +49,13 @@
       }}</pre>
     </td>
     <td class="border px-4 py-2">
-      <div class="inline-flex items-center" v-if="!message.type">
+      <div class="inline-flex items-center" v-if="!message.compositionType">
         <button
-          v-if="message.status === 'Pending' && canCancel"
+          v-if="
+            (message.status === 'Pending' || (message.type && message.status === 'Started')) &&
+            canCancel &&
+            isTopLevel
+          "
           @click.stop="cancelMessage"
           type="button"
           class="btn btn-xs btn-danger"
@@ -73,7 +77,8 @@ import utils from '@/messages/utils';
 export default {
   name: 'CMessageRow',
   props: {
-    message: Object
+    message: Object,
+    isTopLevel: Boolean
   },
   data() {
     return {
@@ -97,7 +102,10 @@ export default {
       return `${diff.hours}:${diff.minutes}:${diff.seconds}`;
     },
     canRequeue() {
-      return ['Success', 'Failure', 'Canceled', 'Skipped'].includes(this.message.status);
+      return (
+        ['Success', 'Failure', 'Canceled', 'Skipped'].includes(this.message.status) &&
+        !this.message.type
+      );
     }
   },
 
@@ -117,11 +125,12 @@ export default {
       }, 3000);
     },
     cancelMessage() {
+      const id = this.message.type ? this.message.compositionId : this.message.messageId;
       this.$store
-        .dispatch('cancelMessage', this.message.messageId)
+        .dispatch('cancelMessage', id)
         .then(() => {
           this.canCancel = false;
-          this.showResponse('Message Canceled!');
+          this.showResponse('Canceled!');
         })
         .catch(error => {
           this.showResponse('Error: ' + error.response.data.error);
@@ -140,7 +149,7 @@ export default {
       this.$emit('toggle', this.message.messageId);
     },
     searchActor() {
-      if (!this.message.type) {
+      if (!this.message.compositionType) {
         this.$store.dispatch('updateSelectedActors', [this.message.actorName]);
       }
     },

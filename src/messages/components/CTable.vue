@@ -18,6 +18,7 @@
       <template v-for="(message, index) in messages">
         <c-message-row
           :message="message"
+          :isTopLevel="name === 'main_table'"
           @toggle="toggleRow(index)"
           :key="name + '_' + index + '_row'"
           :name="name + '_' + index + '_row'"
@@ -25,7 +26,7 @@
         <tr
           v-if="
             openedRows.includes(index) ||
-            (message.type && openedRows.includes(message.messages[0].messageId))
+            (message.compositionType && openedRows.includes(message.messages[0].messageId))
           "
           :is="contentType(message)"
           :key="name + '_' + index + '_content'"
@@ -91,9 +92,9 @@ export default {
       this.openedRows = utils.toggleItemFromList(index, this.openedRows);
     },
     contentType: function (message) {
-      if (message.type === 'pipeline') {
+      if (message.compositionType === 'pipeline') {
         return 'c-pipeline-content';
-      } else if (message.type === 'group') {
+      } else if (message.compositionType === 'group') {
         return 'c-group-content';
       }
       return 'c-message-content';
