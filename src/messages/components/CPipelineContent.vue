@@ -11,7 +11,7 @@
             @click="toggle(index)"
           >
             <div>
-              {{ m.actorName || m.type.toUpperCase() }}
+              {{ m.actorName }}
               <template v-if="m.status">
                 :
                 <span :style="{ color: statusStyles[m.status] || 'black' }">
@@ -23,7 +23,7 @@
         </div>
         <div class="border" v-if="openedActorIndex !== null">
           <c-group-content
-            v-if="message.messages[openedActorIndex].type === 'group'"
+            v-if="message.messages[openedActorIndex].compositionType === 'group'"
             :message="message.messages[openedActorIndex]"
             :key="message.messageId + '_content'"
             :colspan="colspan"
