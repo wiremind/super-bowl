@@ -187,7 +187,7 @@ function addDetails(composition) {
     !composition.messages.every(message => message.status === 'Success')
   ) {
     composition.progress =
-      composition.messages.reduce((acc, { progress }) => acc + (progress || 1)) /
+      composition.messages.reduce((acc, { progress }) => acc + (progress || 1), 0) /
       composition.messages.length;
   }
 
@@ -230,6 +230,7 @@ function assemblePipeline(firstIndex, compositionMsgs) {
       }
     } else {
       const group = assembleGroup(targetIds, compositionMsgs);
+      pipeline.groupId = group.groupId;
       pipeline.messages.push(group);
       if (group.pipeTarget) {
         targetIds = group.pipeTarget.map(targetMessage => targetMessage.messageId);
@@ -305,9 +306,11 @@ function assembleGroup(startIds, compositionMsgs) {
       group.messages.push(compositionMsgs.splice(index, 1)[0]);
       startIds.splice(0, 1);
     } else {
-      // If it has another groupId, find all the ids of the messages that are part of the subgroup and assemble it
+      // If it has another groupId that is shared by other messages,
+      // find all the ids of the messages that are part of the subgroup and assemble it
       // Then remove from startIds the ids of messages absorbed by the new group
-      if (compositionMsgs[index].groupId) {
+      const subgroupId = compositionMsgs[index].groupId;
+      if (subgroupId && compositionMsgs.filter(msg => msg.groupId === subgroupId).length > 1) {
         const subgroupId = compositionMsgs[index].groupId;
         const pipeGroupIds = findMessagesGroupIds(startIds, compositionMsgs);
         const startIdsSubgroup = startIds.filter((id, index) =>
@@ -331,6 +334,7 @@ function assembleGroup(startIds, compositionMsgs) {
       }
     }
   }
+  group.groupId = groupId;
   if (group.messages[0].pipeTarget) {
     group.pipeTarget = group.messages[0].pipeTarget;
   }
