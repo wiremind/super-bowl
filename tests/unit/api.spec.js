@@ -829,6 +829,46 @@ test('Composition progress test', () => {
           }
         }
       }
-    ])
-  );
+    ]).messages[0].progress
+  ).toBe(0.75);
+});
+
+test('Test group with a pipeline whose last message is a group', () => {
+  expect(
+    parseMessages(
+      [0, 1].map(n => ({
+        message_id: `id${n}`,
+        options: {
+          composition_id: 'comp_id',
+          pipe_target: [0, 1].map(m => ({
+            message_id: `id${2 * (n + 1) + m}`,
+            options: {
+              composition_id: 'comp_id',
+              group_info: {
+                group_id: 'grp_id'
+              }
+            }
+          }))
+        }
+      }))
+    ).messages
+  ).toMatchObject([
+    {
+      type: 'group',
+      messages: [0, 1].map(n => ({
+        type: 'pipeline',
+        messages: [
+          {
+            messageId: `id${n}`
+          },
+          {
+            type: 'group',
+            messages: [0, 1].map(m => ({
+              messageId: `id${2 * (n + 1) + m}`
+            }))
+          }
+        ]
+      }))
+    }
+  ]);
 });
