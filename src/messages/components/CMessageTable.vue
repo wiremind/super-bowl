@@ -50,9 +50,6 @@ export default {
     this.$store.commit('setCurrentPath', 'messages');
     this.$store.dispatch('startRefresh');
   },
-  destroyed() {
-    this.$store.commit('clearIntervalTimeOut');
-  },
   beforeCreate() {
     this.$store.commit('resetAttributesPage');
   },

@@ -3,7 +3,8 @@ import api from '@/schedule/api';
 const moduleSchedule = {
   state: {
     jobs: [],
-    saveError: null
+    saveError: null,
+    blockRefresh: false
   },
   mutations: {
     setJobs(state, jobs) {
@@ -11,6 +12,9 @@ const moduleSchedule = {
     },
     setError(state, error) {
       state.saveError = error;
+    },
+    setBlockRefresh(state, value) {
+      state.blockRefresh = value;
     }
   },
   actions: {
@@ -24,7 +28,7 @@ const moduleSchedule = {
       });
     },
     refresh(context) {
-      if (context.rootState.currentPath === 'schedule') {
+      if (context.rootState.currentPath === 'schedule' && !context.state.blockRefresh) {
         context.dispatch('getJobs');
       }
     },

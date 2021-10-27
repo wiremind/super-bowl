@@ -160,6 +160,7 @@ export default {
     }
   },
   created() {
+    this.$store.commit('setCurrentPath', 'enqueue');
     this.$store.dispatch('getActors');
     this.$store.dispatch('getOptions');
   }
