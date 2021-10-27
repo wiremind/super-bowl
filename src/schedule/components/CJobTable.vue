@@ -97,12 +97,12 @@ export default {
     this.$store.commit('setCurrentPath', 'schedule');
     this.$store.dispatch('startRefresh');
   },
-  destroyed() {
-    this.$store.commit('clearIntervalTimeOut');
-  },
   watch: {
     stringifiedJobs: function (newValue) {
       this.editableJobs = newValue.map(job => ({ ...job }));
+    },
+    editedJobs(newValue) {
+      this.$store.commit('setBlockRefresh', newValue.length > 0);
     }
   }
 };

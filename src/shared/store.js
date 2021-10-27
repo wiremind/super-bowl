@@ -33,6 +33,7 @@ const moduleShared = {
       api.getActors().then(actors => context.commit('setActors', actors));
     },
     startRefresh(context) {
+      context.commit('clearIntervalTimeOut');
       context.dispatch('refresh');
       const intervalId = setInterval(() => {
         if (!context.state.isLoading) {
@@ -42,10 +43,11 @@ const moduleShared = {
       context.commit('setIntervalId', intervalId);
     },
     updateRefreshInterval(context, intervalId) {
-      context.commit('clearIntervalTimeOut');
       context.commit('setRefreshInterval', intervalId);
       if (context.state.intervalId && intervalId != null) {
         context.dispatch('startRefresh');
+      } else if (intervalId == null) {
+        context.commit('clearIntervalTimeOut');
       }
     }
   }
