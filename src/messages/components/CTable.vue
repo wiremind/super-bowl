@@ -19,15 +19,12 @@
         <c-message-row
           :message="message"
           :isTopLevel="name === 'main_table'"
-          @toggle="toggleRow(index)"
+          @toggle="toggleRow(message.messageId)"
           :key="name + '_' + index + '_row'"
           :name="name + '_' + index + '_row'"
         />
         <tr
-          v-if="
-            openedRows.includes(index) ||
-            (message.compositionType && openedRows.includes(message.messages[0].messageId))
-          "
+          v-if="openedRows.includes(message.messageId)"
           :is="contentType(message)"
           :key="name + '_' + index + '_content'"
           :colspan="columns.length"
@@ -88,8 +85,8 @@ export default {
     };
   },
   methods: {
-    toggleRow(index) {
-      this.openedRows = utils.toggleItemFromList(index, this.openedRows);
+    toggleRow(id) {
+      this.openedRows = utils.toggleItemFromList(id, this.openedRows);
     },
     contentType: function (message) {
       if (message.compositionType === 'pipeline') {

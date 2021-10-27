@@ -1,15 +1,15 @@
 <template>
   <tr class="border-b text-xs border-gray-200 hover:bg-blue-100">
-    <td class="border px-4 py-2">
+    <td class="border px-4">
       {{ actorName }}
     </td>
-    <td class="border px-4 py-2">
+    <td class="border px-4">
       <div class="flex">
         <input v-model="editableEnabled" type="checkbox" class="h-5 w-5 mr-2" />
         {{ editableEnabled }}
       </div>
     </td>
-    <td class="border px-4 py-2">
+    <td class="border pl-4">
       <div class="flex items-center space-x-2">
         <div class="w-1/3">{{ interval | formatSeconds }}</div>
         <input v-model.number="editableInterval" class="w2/3" type="number" />
@@ -23,7 +23,7 @@
         v-model="editableDailyTime"
       />
     </td>
-    <td class="border px-4 py-2">
+    <td class="border px-4">
       {{ lastQueued | formatDistance }}
     </td>
     <td class="border w-28">
@@ -46,13 +46,13 @@
         </option>
       </select>
     </td>
-    <td class="border px-4 py-2">
+    <td class="border">
       <input v-model="editableArgs" :class="{ 'invalid-input': !isArgsValid }" />
     </td>
-    <td class="border px-4 py-2">
+    <td class="border">
       <input v-model="editableKwargs" :class="{ 'invalid-input': !isKwargsValid }" />
     </td>
-    <td class="border px-4 py-2">
+    <td class="border">
       <input v-model="editableTz" />
     </td>
   </tr>
