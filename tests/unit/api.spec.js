@@ -805,6 +805,42 @@ describe('Composition started_time', () => {
   });
 });
 
+test('Composition enqueued datetime', () => {
+  expect(
+    parseMessages([
+      {
+        message_id: 'id0',
+        enqueued_datetime: '2021-05-01 11:00:00',
+        options: {
+          composition_id: 'comp_id',
+          group_info: {
+            group_id: 'grp_id'
+          }
+        }
+      },
+      {
+        message_id: 'id1',
+        enqueued_datetime: '2021-05-01 10:00:00',
+        options: {
+          composition_id: 'comp_id',
+          group_info: {
+            group_id: 'grp_id'
+          }
+        }
+      },
+      {
+        message_id: 'id2',
+        options: {
+          composition_id: 'comp_id',
+          group_info: {
+            group_id: 'grp_id'
+          }
+        }
+      }
+    ]).messages[0].enqueuedDatetime.getTime()
+  ).toBe(new Date('2021-05-01 10:00:00').getTime());
+});
+
 test('Composition progress test', () => {
   expect(
     parseMessages([
@@ -871,4 +907,73 @@ test('Test group with a pipeline whose last message is a group', () => {
       }))
     }
   ]);
+});
+
+describe('Composition sorting', () => {
+  test.each([
+    ['ascending', 'asc'],
+    ['descending', 'desc']
+  ])('works when in %s order', (name, direction) => {
+    const target = [
+      { messageId: 'id5', startedDatetime: new Date('2021-05-01 9:00:00') },
+      { compositionType: 'group', startedDatetime: new Date('2021-05-01 10:00:00') },
+      { messageId: 'id4' },
+      { compositionType: 'pipeline' }
+    ];
+    const messages = [
+      {
+        message_id: 'id5',
+        started_datetime: '2021-05-01 9:00:00'
+      },
+      {
+        message_id: 'id4'
+      }
+    ];
+    if (direction === 'desc') {
+      target.reverse();
+      messages.reverse();
+    }
+    expect(
+      parseMessages(
+        [
+          {
+            message_id: 'id0',
+            options: {
+              composition_id: 'comp0_id',
+              pipe_target: [
+                {
+                  message_id: 'id1',
+                  options: {
+                    composition_id: 'comp0_id'
+                  }
+                }
+              ]
+            }
+          },
+          {
+            message_id: 'id2',
+            started_datetime: '2021-05-01 10:00:00',
+            options: {
+              composition_id: 'comp1_id',
+              group_info: {
+                group_id: 'grp_id'
+              }
+            }
+          },
+          {
+            message_id: 'id3',
+            started_datetime: '2021-05-01 10:00:00',
+            options: {
+              composition_id: 'comp1_id',
+              group_info: {
+                group_id: 'grp_id'
+              }
+            }
+          }
+        ].concat(messages),
+        'startedDatetime',
+        direction
+      ).messages
+    ).toMatchObject(target);
+  });
 });
