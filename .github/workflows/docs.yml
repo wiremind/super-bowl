@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - fix-docs
 jobs:
   test:
     runs-on: ubuntu-latest
