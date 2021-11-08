@@ -1,4 +1,4 @@
-<img src="https://wiremind.github.io/super-bowl/logo.png" align="right" width="131" />
+<img src="/src/assets/img/logo.png" align="right" width="131" />
 
 Super Bowl
 ==========
