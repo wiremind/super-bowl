@@ -1,7 +1,6 @@
 <img src="/src/assets/img/logo.png" align="right" width="131" />
 
-Super Bowl
-==========
+# Super Bowl
 
 Super Bowl is a web based tool for monitoring and administrating [Remoulade](https://github.com/wiremind/remoulade) tasks.
 Allows an easy setup, filterable, sortable, and paginated tables
@@ -11,22 +10,31 @@ Allows an easy setup, filterable, sortable, and paginated tables
 [![license](https://img.shields.io/github/license/wiremind/super-bowl.svg)](https://github.com/wiremind/super-bowl/blob/master/LICENSE)
 
 
-Documentation
-=============
+## Documentation
 
-**Documentation**: https://wiremind.github.io/super-bowl/
+Please refer to https://wiremind.github.io/super-bowl.
 
+## Quickstart
 
-Quickstart
-==========
+Please refer to https://wiremind.github.io/super-bowl/examples/messages.html
 
-**Quickstart**: https://wiremind.github.io/super-bowl/examples/messages.html
+### Build & debug
 
-
-#### Project setup
-```
+```console
 $ npm install
 $ npm run serve
 ```
 
+### Run in a container
 
+```console
+docker run -it --rm -p 8080:80 XXX REMOULADE DOCKER IAMGE TAG
+```
+
+Then open http://localhost:8080 in your browser.
+
+Note that it wil try to contact a wsgi server hosting remoulade api at localhost. To specify a different host/port:
+
+```console
+docker run -it --rm -p 8080:80  XXX REMOULADE DOCKER IAMGE TAG -e REMOULADE_WSGI_LOCATION=remoulade_api_url:12345
+```

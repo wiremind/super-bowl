@@ -1,0 +1,17 @@
+server {
+  listen 80;
+  root /usr/share/nginx/html;
+
+  location / {
+    try_files $uri @remoulade_wsgi;
+  }
+
+  location @remoulade_wsgi {
+    include uwsgi_params;
+    uwsgi_pass ${REMOULADE_WSGI_LOCATION};
+  }
+
+  location = / {
+    try_files /index.html @app;
+  }
+}
