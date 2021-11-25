@@ -28,7 +28,7 @@ $ npm run serve
 ### Run in a container
 
 ```console
-docker run -it --rm -p 8080:80 XXX REMOULADE DOCKER IAMGE TAG
+docker run -it --rm -p 8080:80 ghcr.io/wiremind/super-bowl:master
 ```
 
 Then open http://localhost:8080 in your browser.
@@ -36,5 +36,6 @@ Then open http://localhost:8080 in your browser.
 Note that it wil try to contact a wsgi server hosting remoulade api at localhost. To specify a different host/port:
 
 ```console
-docker run -it --rm -p 8080:80  XXX REMOULADE DOCKER IAMGE TAG -e REMOULADE_WSGI_LOCATION=remoulade_api_url:12345
+docker run -it --rm -p 8080:80 ghcr.io/wiremind/super-bowl:master
+ -e REMOULADE_WSGI_LOCATION=remoulade_api_url:12345
 ```
