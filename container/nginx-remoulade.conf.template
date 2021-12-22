@@ -1,17 +1,36 @@
+
+map $http_upgrade $connection_upgrade {
+  default upgrade;
+  '' close;
+}
+
 server {
   listen 80;
   root /usr/share/nginx/html;
+  index index.html;
 
   location / {
-    try_files $uri @remoulade_wsgi;
+    try_files $uri @remoulade_wsgi @remoulade_http;
+  }
+  location = / {
+    index index.html;
   }
 
+  # In case wsgi is used as backend
   location @remoulade_wsgi {
     include uwsgi_params;
     uwsgi_pass ${REMOULADE_WSGI_LOCATION};
   }
 
-  location = / {
-    try_files /index.html @app;
+  # In case bare flask is used
+  location @remoulade_http {
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection $connection_upgrade;
+    proxy_redirect off;
+    proxy_buffering off;
+    proxy_pass ${REMOULADE_BACKEND_LOCATION};
   }
 }
