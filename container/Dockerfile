@@ -20,7 +20,8 @@ RUN npm run build
 ### Build "serve" image with nginx + dist from second stage
 FROM nginx:mainline as serve
 
-# Can be dynamicaly changed if your wsgi is located somewhere else (also takes unix sockets)
+# Can be dynamicaly changed if your backend is located somewhere else (also takes unix sockets)
+ENV REMOULADE_BACKEND_LOCATION=http://127.0.0.1:5000
 ENV REMOULADE_WSGI_LOCATION=127.0.0.1:3031
 
 COPY container/nginx-remoulade.conf.template /etc/nginx/templates/default.conf.template
