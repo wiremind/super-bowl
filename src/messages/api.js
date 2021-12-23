@@ -1,4 +1,5 @@
 import { parseMessages } from '@/messages/parsing';
+import utils from '@/messages/utils';
 
 const axios = require('axios');
 
@@ -17,9 +18,14 @@ const parseArgs = rawMessage => {
 
 const getMessages = args => {
   const url = '/messages/states';
-  return axios
-    .post(url, args)
-    .then(res => ({ ...parseMessages(res.data.data), count: res.data.count }));
+  return axios.post(url, args).then(res => ({
+    ...parseMessages(
+      res.data.data,
+      args.sort_column ? utils.underScoreToCamelCase(args.sort_column) : 'enqueuedDatetime',
+      args.sort_direction || 'desc'
+    ),
+    count: res.data.count
+  }));
 };
 
 const cancelMessage = messageId => {

@@ -78,12 +78,12 @@ export default {
   name: 'CMessageRow',
   props: {
     message: Object,
-    isTopLevel: Boolean
+    isTopLevel: Boolean,
+    isOpened: Boolean
   },
   data() {
     return {
       canCancel: true,
-      isOpened: false,
       response: null
     };
   },
@@ -145,7 +145,6 @@ export default {
         });
     },
     onToggle() {
-      this.isOpened = !this.isOpened;
       this.$emit('toggle', this.message.messageId);
     },
     searchActor() {

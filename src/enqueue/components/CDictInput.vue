@@ -17,7 +17,7 @@
         :parseAs="parseValueAs"
         @validityUpdate="typedValueValidity = $event"
       />
-      <button class="btn" type="button" :disabled="isInvalid" @click="addKey">
+      <button class="btn w-44" type="button" :disabled="isInvalid" @click="addKey">
         <pre>+ Add</pre>
       </button>
     </div>
@@ -40,7 +40,7 @@
         :isInvalid="!valueMap[index].valueValidity"
         :parseAs="parseValueAs"
       />
-      <button type="button" @click="deleteKey(index)" class="btn btn-danger">Remove</button>
+      <button type="button" @click="deleteKey(index)" class="btn btn-danger w-44">Remove</button>
     </div>
   </div>
 </template>

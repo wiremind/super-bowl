@@ -5,7 +5,7 @@
 @layer components {
   input,
   select {
-    @apply block w-full h-full bg-gray-200 border border-gray-200 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500;
+    @apply block w-full h-10 bg-gray-200 border border-gray-200 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500;
   }
 
   .btn {

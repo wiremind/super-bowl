@@ -37,6 +37,19 @@ const camelCaseToUnderScore = str => {
     .toLowerCase();
 };
 
+const underScoreToCamelCase = str => {
+  return str
+    .split(/_/)
+    .map((s, index) => {
+      if (index !== 0) {
+        return s.charAt(0).toUpperCase() + s.slice(1);
+      } else {
+        return s;
+      }
+    })
+    .join('');
+};
+
 /**
  * If item exist in list remove it
  * otherwise add it.
@@ -50,6 +63,7 @@ const toggleItemFromList = (item, list) => {
 export default {
   getSortColumnAndDirection,
   formatMillis,
+  underScoreToCamelCase,
   camelCaseToUnderScore,
   toggleItemFromList
 };

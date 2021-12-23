@@ -156,14 +156,15 @@ function addDetails(composition) {
   if (composition.compositionType === 'pipeline') {
     composition.startedDatetime = composition.messages[0].startedDatetime;
   } else {
-    const datetime = composition.messages.reduce(
-      (count, { startedDatetime }) => Math.min(count, startedDatetime || Infinity),
-      Infinity
-    );
+    const datetime = Math.min(...composition.messages.map(msg => msg.startedDatetime || Infinity));
     if (datetime !== Infinity) {
       composition.startedDatetime = new Date(datetime);
     }
   }
+  // add Enqueued datetime
+  composition.enqueuedDatetime = new Date(
+    Math.min(...composition.messages.map(msg => msg.enqueuedDatetime || Infinity))
+  );
   // add Wait time
   composition.waitTime = composition.messages.reduce(
     (count, { waitTime }) => count + (waitTime || 0),
@@ -370,15 +371,69 @@ function assembleComposition(compositionMsgs) {
 }
 
 /**
+ * Sorts the assembled compositions by column
+ * @param array
+ * @param sortColumn
+ * @param sortDirection
+ * @returns {*}
+ */
+function sortByColumn(array, sortColumn, sortDirection) {
+  function compareByColumn(a, b) {
+    let value;
+    if (a[sortColumn] < b[sortColumn]) {
+      value = 1;
+    } else {
+      value = -1;
+    }
+    if (sortDirection === 'desc') {
+      value *= -1;
+    }
+    return value;
+  }
+  return array.sort(compareByColumn);
+}
+
+/**
+ * Merge the messages and compositions while keeping them sorted by a column
+ * @param messages
+ * @param compositions
+ * @param sortColumn
+ * @param sortDirection
+ * @returns {*}
+ */
+function insertByColumn(messages, compositions, sortColumn, sortDirection) {
+  let index = 0;
+  while (compositions.length > 0) {
+    if (
+      index === messages.length ||
+      (sortDirection === 'asc' &&
+        compositions[0][sortColumn] != null &&
+        (messages[index][sortColumn] == null ||
+          messages[index][sortColumn] > compositions[0][sortColumn])) ||
+      (sortDirection === 'desc' &&
+        (compositions[0][sortColumn] == null ||
+          (messages[index][sortColumn] != null &&
+            messages[index][sortColumn] < compositions[0][sortColumn])))
+    ) {
+      messages.splice(index, 0, compositions.splice(0, 1)[0]);
+    }
+    index += 1;
+  }
+  return messages;
+}
+
+/**
  * Parse Messages, regroup them into their compositions and add computed properties such as waitTime.
  * @param data
+ * @param sortColumn
+ * @param sortDirection
  * @returns {{loadDateTime: Date, messages}}
  */
-export function parseMessages(data) {
+export function parseMessages(data, sortColumn = null, sortDirection = null) {
   const loadDatetime = new Date();
 
   //Recursively parse messages to extract useful information
-  const messages = data.map(message => parseMessage(message, loadDatetime));
+  let messages = data.map(message => parseMessage(message, loadDatetime));
 
   //group messages by composition_id
   const compositions = {};
@@ -396,13 +451,15 @@ export function parseMessages(data) {
   }
 
   // adding not yet enqueued messages
-  Object.values(compositions).forEach(messages => {
-    messages.map(message => fillPipe(message, compositions));
+  Object.values(compositions).forEach(composition => {
+    composition.map(message => fillPipe(message, compositions));
   });
 
   // assemble compositions
-  Object.values(compositions).forEach(compositionMessages => {
-    messages.push(assembleComposition(compositionMessages));
-  });
+  let assembledCompositions = Object.values(compositions).map(assembleComposition);
+  // sort the compositions
+  assembledCompositions = sortByColumn(assembledCompositions, sortColumn, sortDirection);
+  // insert the compositions with the messages keeping them sorted by column
+  messages = insertByColumn(messages, assembledCompositions, sortColumn, sortDirection);
   return { messages: messages, loadDateTime: loadDatetime };
 }
