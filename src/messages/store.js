@@ -72,7 +72,7 @@ const moduleMessages = {
         sort_direction: state.sortDirection,
         selected_actors: state.selectedActors,
         selected_statuses: state.selectedStatuses,
-        selected_ids:
+        selected_message_ids:
           state.selectedId !== '' && state.selectedId != null ? [state.selectedId] : null,
         start_datetime: state.startDateTime,
         end_datetime: state.endDateTime,
