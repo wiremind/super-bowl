@@ -39,7 +39,7 @@
     "eslint-plugin-vue": "^6.2.2",
     "jest-date-mock": "^1.0.8",
     "lint-staged": "^9.5.0",
-    "postcss": "^7.0.36",
+    "postcss": "^8.2.13",
     "prettier": "^2.3.2",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.2.7",
     "vue-template-compiler": "^2.6.11",
