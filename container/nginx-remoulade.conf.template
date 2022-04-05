@@ -1,5 +1,12 @@
 access_log off;
 
+# No temporary files
+proxy_buffering off;
+# These two should be the same or nginx will start writing
+# large request bodies to temp files
+client_body_buffer_size 10m;
+client_max_body_size    10m;
+
 map $http_upgrade $connection_upgrade {
   default upgrade;
   '' close;

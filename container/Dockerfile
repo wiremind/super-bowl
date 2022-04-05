@@ -18,7 +18,7 @@ RUN npm run build
 
 ### Second stage
 ### Build "serve" image with nginx + dist from second stage
-FROM nginx:mainline as serve
+FROM nginxinc/nginx-unprivileged:mainline as serve
 
 # Can be dynamicaly changed if your backend is located somewhere else (also takes unix sockets)
 ENV REMOULADE_BACKEND_LOCATION=http://127.0.0.1:5000
